@@ -2,8 +2,8 @@ backend:
   name: github
   branch: main
   repo: adityanbhosale/personal-page
-  site_domain: personal-page-puce-mu.vercel.app
-  base_url: https://personal-page-puce-mu.vercel.app
+  site_domain: adityanb.com
+  base_url: https://adityanb.com
   auth_endpoint: oauth
 
 media_folder: "public/uploads"
