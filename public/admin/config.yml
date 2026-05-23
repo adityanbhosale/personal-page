@@ -1,0 +1,22 @@
+backend:
+  name: github
+  branch: main
+  repo: adityanbhosale/personal-page
+  site_domain: personal-page-puce-mu.vercel.app
+  base_url: https://personal-page-puce-mu.vercel.app
+  auth_endpoint: oauth
+
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+collections:
+  - name: thoughts
+    label: Thoughts
+    folder: src/content/thoughts
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Topic, name: topic, widget: string }
+      - { label: Date, name: date, widget: datetime }
+      - { label: Body, name: body, widget: markdown }
