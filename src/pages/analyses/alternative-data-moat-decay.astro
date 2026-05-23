@@ -1,0 +1,320 @@
+---
+import MoatVisualization from '../../components/MoatVisualization.jsx';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A structured visualization of alternative-data underwriting moat decay across four Actions Capital portfolio companies — Kueski, Tpaga, Yassir, and Vammo."
+    />
+    <title>Alternative-data moats are decaying assets — Aditya Bhosale</title>
+    <link
+      rel="preconnect"
+      href="https://fonts.googleapis.com"
+    />
+    <link
+      rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --color-text: #111827;
+        --color-text-muted: #4b5563;
+        --color-text-faint: #6b7280;
+        --color-border: #e5e7eb;
+        --color-accent: #1d4ed8;
+        --max-content: 720px;
+        --max-viz: 1000px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: 'EB Garamond', Georgia, serif;
+        color: var(--color-text);
+        background: #ffffff;
+        font-size: 18px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .page {
+        max-width: var(--max-viz);
+        margin: 0 auto;
+        padding: 48px 24px 96px;
+      }
+
+      .breadcrumb {
+        font-size: 14px;
+        color: var(--color-text-faint);
+        margin-bottom: 24px;
+      }
+
+      .breadcrumb a {
+        color: var(--color-text-faint);
+        text-decoration: none;
+      }
+
+      .breadcrumb a:hover {
+        color: var(--color-text);
+        text-decoration: underline;
+      }
+
+      .article-header {
+        max-width: var(--max-content);
+        margin-bottom: 32px;
+      }
+
+      h1 {
+        font-size: 36px;
+        font-weight: 600;
+        line-height: 1.2;
+        margin: 0 0 12px;
+        letter-spacing: -0.01em;
+      }
+
+      .subtitle {
+        font-size: 18px;
+        color: var(--color-text-muted);
+        font-style: italic;
+        margin-bottom: 8px;
+      }
+
+      .meta {
+        font-size: 14px;
+        color: var(--color-text-faint);
+      }
+
+      .article-body {
+        max-width: var(--max-content);
+        margin: 0 auto 48px 0;
+      }
+
+      .article-body p {
+        margin: 0 0 18px;
+      }
+
+      .article-body strong {
+        font-weight: 600;
+      }
+
+      .article-body em {
+        font-style: italic;
+      }
+
+      .article-body a {
+        color: var(--color-accent);
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 2px;
+      }
+
+      .lead {
+        font-size: 20px;
+        line-height: 1.5;
+        color: var(--color-text);
+        margin-bottom: 24px;
+      }
+
+      h2 {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 40px 0 16px;
+        letter-spacing: -0.005em;
+      }
+
+      .viz-section {
+        margin: 48px 0;
+      }
+
+      .viz-section-header {
+        max-width: var(--max-content);
+        margin-bottom: 24px;
+      }
+
+      .limitations {
+        max-width: var(--max-content);
+        margin-top: 48px;
+        padding: 24px;
+        background-color: #f9fafb;
+        border-left: 3px solid #d1d5db;
+        border-radius: 0 4px 4px 0;
+      }
+
+      .limitations h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 12px;
+        color: var(--color-text);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .limitations p {
+        font-size: 16px;
+        color: var(--color-text-muted);
+        margin: 0 0 12px;
+        line-height: 1.55;
+      }
+
+      .limitations p:last-child {
+        margin-bottom: 0;
+      }
+
+      .footer {
+        max-width: var(--max-content);
+        margin-top: 64px;
+        padding-top: 24px;
+        border-top: 1px solid var(--color-border);
+        font-size: 14px;
+        color: var(--color-text-faint);
+      }
+
+      .footer a {
+        color: var(--color-text-faint);
+        text-decoration: underline;
+      }
+
+      @media (max-width: 640px) {
+        body {
+          font-size: 17px;
+        }
+        h1 {
+          font-size: 28px;
+        }
+        h2 {
+          font-size: 22px;
+        }
+        .lead {
+          font-size: 18px;
+        }
+        .page {
+          padding: 32px 20px 64px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="breadcrumb">
+        <a href="/">aditya bhosale</a> / <a href="/analyses">analyses</a> / alternative-data moat decay
+      </div>
+
+      <header class="article-header">
+        <h1>Alternative-data moats are decaying assets</h1>
+        <div class="subtitle">
+          Visualizing competitive-moat decay across four Actions Capital portfolio companies
+        </div>
+        <div class="meta">May 2026 · ~10 min read with interaction</div>
+      </header>
+
+      <div class="article-body">
+        <p class="lead">
+          The dominant question for emerging-market consumer fintech over the next 24 months
+          is not which companies have the strongest alternative-data underwriting capabilities
+          today — most established players have converged on broadly similar capabilities — but
+          how quickly those capabilities erode as regulatory standardization and third-party
+          data infrastructure mature.
+        </p>
+
+        <p>
+          This piece visualizes that decay for four portfolio companies of Actions Capital —
+          <strong>Kueski</strong> (Mexico, BNPL and consumer credit), <strong>Tpaga</strong>
+          (Colombia, payments wallet, recently 30% acquired by Banco Serfinanza),
+          <strong>Yassir</strong> (North Africa, super-app), and <strong>Vammo</strong>
+          (Brazil, electric mobility financing). Each company's competitive moat is decomposed
+          into four to five underlying components — data-access advantages, infrastructure
+          positions, regulatory licenses, partnership channels. Each component has a starting
+          weight (its current contribution to the overall moat) and a transition function tied
+          to specific exogenous catalysts: open finance rollout dates, the emergence of
+          third-party data aggregators, the entry of incumbent competitors, the
+          operationalization of strategic partnerships.
+        </p>
+
+        <p>
+          Four scenario inputs below the chart let you stress-test the moat dynamics. Three
+          are negative catalysts (advancing the timing of regulatory rollouts, third-party
+          aggregator entries, and incumbent competitive launches). One is counterintuitive:
+          <em>earlier completion of Algeria's fintech licensing framework actually reduces
+          Yassir's moat</em>, because regulatory standardization makes the licensing process
+          accessible to new entrants who currently face the same multi-year ambiguity Yassir
+          navigated. Two components grow rather than decay: Tpaga's Banco Serfinanza
+          partnership operationalizes over roughly 12 months from the March 2026 deal close,
+          and Vammo's Manaus manufacturing investment scales over roughly 24 months from
+          initial deployment.
+        </p>
+
+        <p>
+          The central observation — that alternative-data underwriting has shifted from moat
+          to baseline, and that the next 24 months of value creation will come from components
+          other than underwriting capability itself — benefits from visualization because the
+          alternative (a static argument in prose) understates how sensitive the conclusions
+          are to the timing of specific catalysts. A reader who disagrees with the weights can
+          still find the framework useful, because the structure of the decay is the
+          contribution, not the specific numbers.
+        </p>
+      </div>
+
+      <!-- The interactive visualization (React island) -->
+      <div class="viz-section">
+        <div class="viz-section-header">
+          <h2>Moat decay curves under scenario inputs</h2>
+        </div>
+        <MoatVisualization client:load />
+      </div>
+
+      <!-- The "what this is not" section — the most important part for credibility -->
+      <div class="limitations">
+        <h3>What this model is not</h3>
+        <p>
+          <strong>This is not a valuation tool.</strong> The weights and transition parameters
+          are defensible starting estimates, not predictions. Reasonable analysts will
+          disagree on specific values. The framework is more useful than any specific output.
+        </p>
+        <p>
+          <strong>The model does not capture interaction effects between scenarios.</strong>
+          What happens to Kueski if Mexico open finance and a major incumbent launch fire
+          simultaneously is not modeled — the components compound in the visualization but
+          are treated as independent in the underlying math.
+        </p>
+        <p>
+          <strong>Each portco's starting moat at t=0 is normalized to its stated baseline.</strong>
+          The y-axis represents relative change from that baseline as catalysts fire, not
+          absolute moat "levels" in any external sense. The numbers are internally consistent
+          but not externally comparable to other moat-measurement frameworks.
+        </p>
+        <p>
+          <strong>The model excludes verticals where I have no independent view.</strong>
+          Tpaga's claimed "agentic AI for financial services" product, for instance, has a
+          weight of zero because I cannot verify the claim externally. If it becomes a real
+          product at scale, that's an upside scenario the model does not currently capture.
+        </p>
+      </div>
+
+      <div class="footer">
+        <p>
+          The companion memo on Actions Capital's emerging-market fintech portfolio
+          <span style="color: var(--color-text-faint);">(forthcoming on Substack)</span>
+          develops the broader thesis this visualization grounds. Parameter documentation
+          and source code on
+          <a href="https://github.com/adityanbhosale/personal-page" target="_blank" rel="noopener">
+            GitHub
+          </a>. Pushback welcome at
+          <a href="mailto:adityanb@sas.upenn.edu">adityanb@sas.upenn.edu</a>.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
