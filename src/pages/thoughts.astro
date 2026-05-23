@@ -1,17 +1,45 @@
 ---
-// src/pages/index.astro
+import { getCollection, render } from "astro:content";
+
+const allPosts = await getCollection("thoughts");
+
+// Group by topic
+const byTopic: Record<string, typeof allPosts> = {};
+for (const post of allPosts) {
+  const t = post.data.topic;
+  if (!byTopic[t]) byTopic[t] = [];
+  byTopic[t].push(post);
+}
+
+// Sort posts within each topic by date, newest first
+for (const topic of Object.keys(byTopic)) {
+  byTopic[topic].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+}
+
+const topics = Object.keys(byTopic).sort();
+
+// Render each post's Markdown body to HTML
+const postsWithContent = await Promise.all(
+  allPosts.map(async (post) => {
+    const { Content } = await render(post);
+    return { post, Content };
+  })
+);
+
+// Quick lookup map
+const contentMap = new Map(postsWithContent.map(({ post, Content }) => [post.id, Content]));
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Aditya Bhosale" />
-  <title>Aditya Bhosale</title>
+  <meta name="description" content="thoughts — Aditya Bhosale" />
+  <title>thoughts — Aditya Bhosale</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
-  <style is:global>
+  <style>
     :root {
     --bg: #ffffff;
     --ink: #1a1a1a;
@@ -162,43 +190,69 @@
     h1 { font-size: 24px; }
     .cta { font-size: 17px; padding: 13px 20px; }
   }
+
+    /* thoughts-page additions */
+    h2.topic {
+      font-size: 22px;
+      font-weight: 500;
+      margin-top: 48px;
+      margin-bottom: 14px;
+      letter-spacing: -0.005em;
+    }
+    article.entry {
+      margin-bottom: 32px;
+    }
+    article.entry .date {
+      font-style: italic;
+      color: var(--ink-muted);
+      font-size: 16px;
+    }
+    article.entry h3 {
+      font-size: 19px;
+      font-weight: 500;
+      margin: 4px 0 8px 0;
+    }
+    article.entry p {
+      margin-bottom: 12px;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 24px;
+      color: var(--ink-muted);
+      font-size: 16px;
+    }
+    .empty-state {
+      color: var(--ink-muted);
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
   <main>
+    <a href="/" class="back-link">← back</a>
+    <h1>thoughts</h1>
 
-<h1><a href="/">Aditya Bhosale</a></h1>
+    {topics.length === 0 && (
+      <p class="empty-state">nothing here yet.</p>
+    )}
 
-<div class="socials">
-  <a class="ext" href="https://www.linkedin.com/in/adityanbhosale" target="_blank" rel="noopener">li</a>
-  <a class="ext" href="https://github.com/adityanbhosale" target="_blank" rel="noopener">gh</a>
-  <a href="mailto:adityanb@sas.upenn.edu">email</a>
-</div>
-
-<p>I'm an undergraduate at the University of Pennsylvania studying economics and computer science, minoring in biology. These days, I enjoy spending most of my time studying on-chain market infrastructure, prediction market design, and the bridge between regulated finance and public blockchains.</p>
-
-<p>I'm an incoming 2027 summer M&amp;A analyst at Leerink Partners, a boutique investment bank in New York City, on the biopharma coverage team. Earlier work spans engineered T-Cell research at Penn's Center for Cell Immunotherapy, real-options pricing for clinical-stage assets at UCL's Global Business School for Health, and leading a handful of pro-bono tech / life-sciences consulting projects through Penn's Undergraduate Biotech Society &amp; Wharton's Venture Lab.</p>
-
-<p class="label">some active interests</p>
-
-<p>automated market makers, trading agents, scoring rules and information markets, tokenized real-world assets, regulated stablecoins, institutional-bridge thesis for crypto, biotech equity research, options pricing, market microstructure</p>
-
-<p>Most of what I'm researching / building at the moment exists to close the gap between innovative DeFi systems (i.e. public blockchains) &amp; regulated capital markets. I think the most influential infrastructure in the next decade will be able to serve both, and the most interesting problems are the ones that require fluency in each.</p>
-
-<div class="cta-wrap">
-  <a class="cta" href="https://dual-layerbiotechliquidity.vercel.app/" target="_blank" rel="noopener">
-    view current build
-    <span class="cta-arrow">→</span>
-  </a>
-  <span class="cta-sublabel">dual-layer on-chain liquidity protocol — live testnet, full documentation</span>
-</div>
-
-<hr>
-
-<div class="footer-links">
-  <a class="ext" href="/cv.pdf" target="_blank" rel="noopener">cv</a>
-</div>
-
-</main>
+    {topics.map((topic) => (
+      <section>
+        <h2 class="topic">{topic}</h2>
+        {byTopic[topic].map((post) => {
+          const Content = contentMap.get(post.id)!;
+          return (
+            <article class="entry">
+              <div class="date">
+                {post.data.date.toLocaleDateString("en-US", { year: "numeric", month: "long" })}
+              </div>
+              <h3>{post.data.title}</h3>
+              <Content />
+            </article>
+          );
+        })}
+      </section>
+    ))}
+  </main>
 </body>
 </html>
