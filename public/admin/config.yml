@@ -2,7 +2,7 @@ backend:
   name: github
   branch: main
   repo: adityanbhosale/personal-page
- site_domain: www.adityanb.com
+  site_domain: www.adityanb.com
   base_url: https://www.adityanb.com
   auth_endpoint: oauth
 
