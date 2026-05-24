@@ -237,13 +237,8 @@ import MoatVisualization from '../../components/MoatVisualization.jsx';
         </p>
 
         <p>
-          The central observation — that alternative-data underwriting has shifted from moat
-          to baseline, and that the next 24 months of value creation will come from components
-          other than underwriting capability itself — benefits from visualization because the
-          alternative (a static argument in prose) understates how sensitive the conclusions
-          are to the timing of specific catalysts. A reader who disagrees with the weights can
-          still find the framework useful, because the structure of the decay is the
-          contribution, not the specific numbers.
+          The core observation from the model is that alternative-data underwriting has shifted from moat to baseline, and the next ~2 years of value creation will come from components other than underwriting capability. The visualization shows how sensitive this conclusion is to the timing of specific catalysts, which are non-exhaustive here.
+
         </p>
       </div>
 
@@ -257,42 +252,40 @@ import MoatVisualization from '../../components/MoatVisualization.jsx';
 
       <!-- The "what this is not" section — the most important part for credibility -->
       <div class="limitations">
-        <h3>What this model is not</h3>
+        <h3>Limitations</h3>
         <p>
           <strong>This is not a valuation tool.</strong> The weights and transition parameters
-          are defensible starting estimates, not predictions. Reasonable analysts will
-          disagree on specific values. The framework is more useful than any specific output.
+          are defensible starting estimates, but can't be treated as predictions. The framework is more useful than any specific output.
         </p>
         <p>
-          <strong>The model does not capture interaction effects between scenarios.</strong>
-          What happens to Kueski if Mexico open finance and a major incumbent launch fire
-          simultaneously is not modeled — the components compound in the visualization but
+          <strong>This cannot capture interaction effects between scenarios.</strong>
+          i.e. What happens to Kueski if Mexico open finance and a major incumbent launch occur
+          simultaneously? This type of scenarios isn't modeled — the components compound in the visualization but
           are treated as independent in the underlying math.
         </p>
         <p>
           <strong>Each portco's starting moat at t=0 is normalized to its stated baseline.</strong>
-          The y-axis represents relative change from that baseline as catalysts fire, not
-          absolute moat "levels" in any external sense. The numbers are internally consistent
-          but not externally comparable to other moat-measurement frameworks.
+          The y-axis represents relative change from that baseline as catalysts occur, not
+          absolute moat "levels". The numbers are internally consistent
+          but not externally comparable to other moat-measurement frameworks. I realized this while doing independent research on related frameworks on moat decay.
         </p>
         <p>
-          <strong>The model excludes verticals where I have no independent view.</strong>
-          Tpaga's claimed "agentic AI for financial services" product, for instance, has a
-          weight of zero because I cannot verify the claim externally. If it becomes a real
-          product at scale, that's an upside scenario the model does not currently capture.
+          <strong>The model excludes verticals where I lack an independent view.</strong>
+          Tpaga's claimed "agentic AI for financial services" product, for example, has a
+          weight = 0 because I can't verify the claim. If it becomes a real
+          product at scale, that's an upside scenario this model does not currently capture.
         </p>
       </div>
 
       <div class="footer">
         <p>
-          The companion memo on Actions Capital's emerging-market fintech portfolio
-          <span style="color: var(--color-text-faint);">(forthcoming on Substack)</span>
-          develops the broader thesis this visualization grounds. Parameter documentation
-          and source code on
+          The paper on Actions' emerging-market financial services / industrials portfolio
+          <span style="color: var(--color-text-faint);">(on Substack)</span>
+          discusses my broader thesis. Parameter documentation
+          and source code is on
           <a href="https://github.com/adityanbhosale/personal-page" target="_blank" rel="noopener">
-            GitHub
-          </a>. Pushback welcome at
-          <a href="mailto:adityanb@sas.upenn.edu">adityanb@sas.upenn.edu</a>.
+            GitHub for reference
+          </a>.
         </p>
       </div>
     </div>
