@@ -3,6 +3,12 @@ import { getCollection, render } from "astro:content";
 
 const allPosts = await getCollection("thoughts");
 
+// Sort all posts by date desc to find the single newest
+const sortedByDate = [...allPosts].sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime()
+);
+const newestId = sortedByDate[0]?.id;
+
 // Group by topic
 const byTopic: Record<string, typeof allPosts> = {};
 for (const post of allPosts) {
@@ -18,16 +24,37 @@ for (const topic of Object.keys(byTopic)) {
 
 const topics = Object.keys(byTopic).sort();
 
-// Render each post's Markdown body to HTML
+// Render each post's Markdown body to HTML, and extract preview text
 const postsWithContent = await Promise.all(
   allPosts.map(async (post) => {
     const { Content } = await render(post);
-    return { post, Content };
+
+    // Extract first paragraph from raw markdown body for preview.
+    // Skip blank lines, frontmatter is already stripped by Astro.
+    const firstPara = post.body
+      ?.split(/\n\s*\n/)
+      .map((p) => p.trim())
+      .find((p) => p.length > 0) ?? "";
+
+    // Strip markdown syntax (links, bold, italic, code, headings) for clean preview
+    const cleaned = firstPara
+      .replace(/`([^`]+)`/g, "$1")           // inline code
+      .replace(/\*\*([^*]+)\*\*/g, "$1")     // bold
+      .replace(/\*([^*]+)\*/g, "$1")         // italic
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // links
+      .replace(/^#+\s*/, "")                 // headings
+      .replace(/\s+/g, " ")                  // collapse whitespace
+      .trim();
+
+    const preview = cleaned.length > 120
+      ? cleaned.slice(0, 120).replace(/\s+\S*$/, "") + "…"
+      : cleaned;
+
+    return { post, Content, preview };
   })
 );
 
-// Quick lookup map
-const contentMap = new Map(postsWithContent.map(({ post, Content }) => [post.id, Content]));
+const contentMap = new Map(postsWithContent.map(({ post, Content, preview }) => [post.id, { Content, preview }]));
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -199,22 +226,64 @@ const contentMap = new Map(postsWithContent.map(({ post, Content }) => [post.id,
       margin-bottom: 14px;
       letter-spacing: -0.005em;
     }
-    article.entry {
-      margin-bottom: 32px;
+
+    details.entry {
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 18px;
     }
-    article.entry .date {
+    details.entry:last-child {
+      border-bottom: none;
+    }
+
+    details.entry > summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 4px 0;
+      transition: opacity 0.15s ease;
+    }
+    details.entry > summary::-webkit-details-marker {
+      display: none;
+    }
+    details.entry > summary:hover {
+      opacity: 0.7;
+    }
+
+    .entry-date {
       font-style: italic;
       color: var(--ink-muted);
       font-size: 16px;
+      margin-bottom: 2px;
     }
-    article.entry h3 {
+    .entry-title {
       font-size: 19px;
       font-weight: 500;
-      margin: 4px 0 8px 0;
+      margin-bottom: 4px;
+      display: block;
     }
-    article.entry p {
+    .entry-preview {
+      color: var(--ink-muted);
+      font-size: 17px;
+      line-height: 1.5;
+    }
+
+    details.entry[open] > summary .entry-preview {
+      display: none;
+    }
+    details.entry[open] > summary {
       margin-bottom: 12px;
     }
+
+    .entry-body {
+      padding-top: 4px;
+    }
+    .entry-body p {
+      margin-bottom: 14px;
+    }
+    .entry-body :last-child {
+      margin-bottom: 0;
+    }
+
     .back-link {
       display: inline-block;
       margin-bottom: 24px;
@@ -240,15 +309,21 @@ const contentMap = new Map(postsWithContent.map(({ post, Content }) => [post.id,
       <section>
         <h2 class="topic">{topic}</h2>
         {byTopic[topic].map((post) => {
-          const Content = contentMap.get(post.id)!;
+          const entry = contentMap.get(post.id)!;
+          const isNewest = post.id === newestId;
           return (
-            <article class="entry">
-              <div class="date">
-                {post.data.date.toLocaleDateString("en-US", { year: "numeric", month: "long" })}
+            <details class="entry" open={isNewest}>
+              <summary>
+                <div class="entry-date">
+                  {post.data.date.toLocaleDateString("en-US", { year: "numeric", month: "long" })}
+                </div>
+                <span class="entry-title">{post.data.title}</span>
+                <span class="entry-preview">{entry.preview}</span>
+              </summary>
+              <div class="entry-body">
+                <entry.Content />
               </div>
-              <h3>{post.data.title}</h3>
-              <Content />
-            </article>
+            </details>
           );
         })}
       </section>
