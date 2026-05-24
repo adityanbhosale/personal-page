@@ -115,8 +115,7 @@ export const PORTCO_COMPONENTS = {
         weight: 0.15,
         type: 'decay',
         halfLifeMonths: 24,
-        catalystSource: null,
-        defaultCatalystMonth: 30, // Colombia open finance maturation
+        catalystSource: 'colombiaOpenFinance',
       },
     ],
   },
@@ -259,6 +258,13 @@ export const DEFAULT_SCENARIOS = {
     label: 'Algeria fintech licensing framework completion',
     affects: 'Yassir',
     counterintuitive: true,
+  },
+  colombiaOpenFinance: {
+    catalystMonth: 30,
+    minMonth: 6,
+    maxMonth: 42,
+    label: 'Colombia open finance secondary regulation completion',
+    affects: 'Tpaga',
   },
 };
 

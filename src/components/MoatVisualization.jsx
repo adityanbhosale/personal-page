@@ -304,6 +304,18 @@ export default function MoatVisualization() {
             />
           </div>
 
+          <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px dashed #e5e7eb' }}>
+          <ScenarioControl
+            label="Colombia open finance secondary regulation completion"
+            value={scenarios.colombiaOpenFinance.catalystMonth}
+            min={scenarios.colombiaOpenFinance.minMonth}
+            max={scenarios.colombiaOpenFinance.maxMonth}
+            valueLabel={monthToQuarterLabel(scenarios.colombiaOpenFinance.catalystMonth)}
+            onChange={(v) => update('colombiaOpenFinance', { catalystMonth: v })}
+            explanation="Affects Tpaga's bill-pay + PSE integration component. Colombia's framework is mid-implementation; earlier completion = faster commoditization of Tpaga's PSE depth."
+          />
+        </div>
+
           {/* Algeria framework — counterintuitive */}
           <ScenarioControl
             label="Algeria fintech licensing framework completion"
