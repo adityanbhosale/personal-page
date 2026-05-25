@@ -1,5 +1,3 @@
-cd /Users/adityabhosale/personal-page-astro
-cat > public/admin/config.yml << 'EOF'
 backend:
   name: github
   branch: main
@@ -28,4 +26,3 @@ collections:
         time_format: "h:mm A"
         picker_utc: false
       - { label: Body, name: body, widget: markdown }
-EOF
