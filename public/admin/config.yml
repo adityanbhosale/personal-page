@@ -1,3 +1,5 @@
+cd /Users/adityabhosale/personal-page-astro
+cat > public/admin/config.yml << 'EOF'
 backend:
   name: github
   branch: main
@@ -18,5 +20,12 @@ collections:
     fields:
       - { label: Title, name: title, widget: string }
       - { label: Topic, name: topic, widget: string }
-      - { label: Date, name: date, widget: datetime }
+      - label: Date
+        name: date
+        widget: datetime
+        format: "YYYY-MM-DDTHH:mm:ss"
+        date_format: "MMM D, YYYY"
+        time_format: "h:mm A"
+        picker_utc: false
       - { label: Body, name: body, widget: markdown }
+EOF

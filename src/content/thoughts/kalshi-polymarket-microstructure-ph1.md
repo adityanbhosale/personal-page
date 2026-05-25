@@ -1,7 +1,7 @@
 ---
 title: kalshi-polymarket-microstructure Ph1
 topic: scaffold + pipeline validation
-date: 2026-05-24T21:30:00.000-04:00
+date: 2026-05-25T15:00:00
 ---
 repo, two thin client modules (clients/kalshi.py, clients/polymarket.py), one notebook that pulls one known market from each venue and prints the orderbook. Validates the data layer end-to-end before any mapping work.
 

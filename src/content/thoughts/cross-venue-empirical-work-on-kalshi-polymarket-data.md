@@ -2,7 +2,7 @@
 title: cross-venue empirical work on Kalshi & Polymarket data
 topic: quantifying (in USD) what a market-maker running on a Lean-style terminal
   could capture
-date: 2026-05-24T15:57:00.000-04:00
+date: 2026-05-22T10:00:00
 ---
 output: notebook + write-up + repo
 

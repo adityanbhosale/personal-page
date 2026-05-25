@@ -3,12 +3,6 @@ import { getCollection, render } from "astro:content";
 
 const allPosts = await getCollection("thoughts");
 
-// Sort all posts by date desc to find the single newest
-const sortedByDate = [...allPosts].sort(
-  (a, b) => b.data.date.getTime() - a.data.date.getTime()
-);
-const newestId = sortedByDate[0]?.id;
-
 // Group by topic
 const byTopic: Record<string, typeof allPosts> = {};
 for (const post of allPosts) {
@@ -29,21 +23,18 @@ const postsWithContent = await Promise.all(
   allPosts.map(async (post) => {
     const { Content } = await render(post);
 
-    // Extract first paragraph from raw markdown body for preview.
-    // Skip blank lines, frontmatter is already stripped by Astro.
     const firstPara = post.body
       ?.split(/\n\s*\n/)
       .map((p) => p.trim())
       .find((p) => p.length > 0) ?? "";
 
-    // Strip markdown syntax (links, bold, italic, code, headings) for clean preview
     const cleaned = firstPara
-      .replace(/`([^`]+)`/g, "$1")           // inline code
-      .replace(/\*\*([^*]+)\*\*/g, "$1")     // bold
-      .replace(/\*([^*]+)\*/g, "$1")         // italic
-      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // links
-      .replace(/^#+\s*/, "")                 // headings
-      .replace(/\s+/g, " ")                  // collapse whitespace
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .replace(/\*([^*]+)\*/g, "$1")
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+      .replace(/^#+\s*/, "")
+      .replace(/\s+/g, " ")
       .trim();
 
     const preview = cleaned.length > 120
@@ -61,7 +52,7 @@ const contentMap = new Map(postsWithContent.map(({ post, Content, preview }) => 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="thoughts — Aditya Bhosale" />
+  <meta name="description" content="working notes — Aditya Bhosale" />
   <title>working notes — Aditya Bhosale</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -218,7 +209,6 @@ const contentMap = new Map(postsWithContent.map(({ post, Content, preview }) => 
     .cta { font-size: 17px; padding: 13px 20px; }
   }
 
-    /* thoughts-page additions */
     h2.topic {
       font-size: 22px;
       font-weight: 500;
@@ -240,6 +230,8 @@ const contentMap = new Map(postsWithContent.map(({ post, Content, preview }) => 
       cursor: pointer;
       list-style: none;
       padding: 4px 0;
+      position: relative;
+      padding-right: 60px;
       transition: opacity 0.15s ease;
     }
     details.entry > summary::-webkit-details-marker {
@@ -265,6 +257,21 @@ const contentMap = new Map(postsWithContent.map(({ post, Content, preview }) => 
       color: var(--ink-muted);
       font-size: 17px;
       line-height: 1.5;
+    }
+
+    .expand-cue {
+      position: absolute;
+      right: 0;
+      top: 6px;
+      color: var(--ink-muted);
+      font-size: 14px;
+      font-style: italic;
+    }
+    details.entry[open] .expand-cue::after {
+      content: "collapse";
+    }
+    details.entry:not([open]) .expand-cue::after {
+      content: "expand";
     }
 
     details.entry[open] > summary .entry-preview {
@@ -310,15 +317,15 @@ const contentMap = new Map(postsWithContent.map(({ post, Content, preview }) => 
         <h2 class="topic">{topic}</h2>
         {byTopic[topic].map((post) => {
           const entry = contentMap.get(post.id)!;
-          const isNewest = post.id === newestId;
           return (
-            <details class="entry" open={isNewest}>
+            <details class="entry">
               <summary>
                 <div class="entry-date">
-                  {post.data.date.toLocaleDateString("en-US", { year: "numeric", month: "long" })}
+                  {post.data.date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
                 </div>
                 <span class="entry-title">{post.data.title}</span>
                 <span class="entry-preview">{entry.preview}</span>
+                <span class="expand-cue"></span>
               </summary>
               <div class="entry-body">
                 <entry.Content />
