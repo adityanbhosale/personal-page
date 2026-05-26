@@ -1,7 +1,7 @@
 ---
 title: Results & Documentation
 topic: kalshi-polymarket microstructure
-date: 2026-05-26T14:53:00
+date: 2026-05-26T19:58:00
 ---
 Note that all exec_* fields are 0.0 across every market & every structure. The full book-walk produced zero fillable contracts for every market-structure combination. **Every cell of the executable arb table is 0.0**.
 
