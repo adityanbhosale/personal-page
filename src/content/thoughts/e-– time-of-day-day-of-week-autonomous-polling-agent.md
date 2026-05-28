@@ -14,3 +14,9 @@ Design choices:
 * Failures should show as a null-row + error string, so as to not crash the series without detection.
 
 At this point, the poller is running. `max_cycles=unlimited`, have some clean daemon cycles logged with 16/16 markets, 0 errors. I'll CTRL+C out of the log, but will come back in an hour to check whether per-poll ellapsed time isn't creeping higher, since we only have 20s of headroom before it collides with the 30s interval.
+
+
+
+**Update (+11hrs):** largest gap is still the same value as the night before; 4 errors / 93k rows = ~0.00% error rate. 4 errors resolved themselves into a known quantity. They're all `PolyApiException[status_code=None, ... Request excep[tion]]`; status code None means these are client-side network blips – transient connection drops to Polymarket, not API rejections or rate limits – which would be much more concerning.
+
+Overall – poller is healthy after extended timeframe.
