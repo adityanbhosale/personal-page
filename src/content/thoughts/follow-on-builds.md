@@ -11,8 +11,6 @@ This claim holds for the specific markets I've sampled, at the specific times I'
 
 Below is a thorough map of where the experimentation can go. Organized from cheapest / most-direct to broadest.
 
-
-
 #### Layer 1 – Re-examining current assumptions
 
 A. **Sample markets at higher frequency**. With minute-level or sub-minute polling, I could observe intraday spread movement that's not visible to existing design.
@@ -27,11 +25,9 @@ C. **Account for latency, partial fills, and adverse selection in execution simu
 * Method: Build a stochastic execution model with realistic latencies (e.g., 50ms – 300ms per venue) and quote-staleness, then re-run.
 * Exepcted Outcome: even paper-arb opportunities lose significant edge to execution friction (i.e. 30% – 70%)
 
-
-
 #### Layer 2 – Scale the dataset being tested
 
-D. **Expand market coverage**. Three NBA Finals markets is statistically thin. I could expand to 20-50 cross-venue pairs across categories – election markets, Fed meetings, crypto price levels, sports finals across multiple leagues. Even if the coverage discovery work is painful (which I know from the previous build), a larger dataset could surface patterns that a curation of 3 markets simply cannot.
+D. [***COMPLETE***] **Expand market coverage**. Three NBA Finals markets is statistically thin. I could expand to 20-50 cross-venue pairs across categories – election markets, Fed meetings, crypto price levels, sports finals across multiple leagues. Even if the coverage discovery work is painful (which I know from the previous build), a larger dataset could surface patterns that a curation of 3 markets simply cannot.
 
 * Hyp: *Arb opportunities concentrate by category – political markets may show larger and more persistent discrepancies than sports because the venues attract different trader demographics.*
 
@@ -44,8 +40,6 @@ F. **Event-driven dynamics**. Capture orderbook state immediately before, during
 
 * Hyp: discrepancies blow out for tens of minutes after an event as one venue re-prices faster than the other, then converge.
 * A terminal's value proposition is "be in position before the other venue catches up." This would be a directly product-relevant finding.
-
-
 
 #### Layer 3 – Mechanism and venue-architecture studies
 
@@ -64,8 +58,6 @@ J. **Orderbook imbalance as a leading indicator**. I could compute the imbalance
 * Hyp: *persistent imbalance on one venue could predict the direct the cross-venue spread will move in.*
 * A terminal could surface this in real-time as a leading indicator of WHERE TO POSITION
 
-
-
 #### Layer 4 – Simulation && What-if studies
 
 K. **Counterfactual MM strategy on the current data**. I could take my existing snapshots and ask: if a market-maker were placing both-sided quotes on both venues, what spread would they need to charge to break even after adverse selection?
@@ -83,8 +75,6 @@ L. **Simulate a terminal-style trader walking the cross-venue surface**.
 
 M. **Stress-test the fee threshold sensitivity**. Plot executable arb opportunity volume as a function of round-trip fee.
 
-
-
 #### Layer 5 – Broader venue-design research
 
 N. **Inventory-aware quoting on cross-venue books**. A terminal-style MM has visibility into both venues. Question is, how does optimal quoting change when I know the inventory on Venue A while quoting on Venue B?
@@ -101,8 +91,6 @@ P. **Resolution risk model**. When CLE delisted on Polymarket but Kalshi maintai
 Q. **Bridging on-chain (Polymarket) and off-chain (Kalshi) settlement risk**. Kalshi settles in dollars same-day; Polymarket settles in USDC on Polygon with on-chain risk and gas costs. *A cross-venue trader should be able to bear settlement-currency risk that's invisible to my current execution model.*
 
 * Quantifying this is really hard, but important.
-
-
 
 #### Layer 6 – What this connects to in my broader work
 
