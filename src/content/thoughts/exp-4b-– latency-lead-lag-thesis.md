@@ -1,7 +1,7 @@
 ---
 title: "[EXP 4b] – latency / lead-lag thesis"
 topic: kalshi-polymarket microstructure
-date: 2026-05-31T14:48:00
+date: 2026-05-31T17:42:00
 ---
 EXP-4 requires websockets, which I currently don't have set up. Everything till now has been REST polling at 30s intervals. Latency/lead-lag measurements require sampling faster than the lag I'm measuring. I.e., if Kalshi leads Polymarket by even 5-20 seconds, a 30s poller is too slow to capture any lead.
 
