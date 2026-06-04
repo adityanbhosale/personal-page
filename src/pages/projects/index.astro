@@ -3,17 +3,20 @@ const projects = [
   {
     slug: "kalshi-polymarket-microstructure",
     title: "Kalshi × Polymarket cross-venue microstructure",
-    blurb: "Empirical cross-venue microstructure analysis pulling live Kalshi and Polymarket data, measuring spreads, depth, quote stability, and executable arb.",
+    meta: "May 2026 · Python · live venue data",
+    blurb: "Empirical cross-venue microstructure pulling live Kalshi and Polymarket orderbook data across 16 paired markets, measuring spreads, depth, quote stability, and executable arb after fees. Finding: no takeable cross-venue arb at accessible fees; the venues differ structurally in how they hold depth.",
   },
   {
     slug: "orderbook-amm-hybrid-sim",
     title: "Order-book / AMM / hybrid venue simulator",
-    blurb: "Agent-based simulator stress-testing AMM, CLOB, and hybrid derivatives venues against Bayesian trader populations.",
+    meta: "April 2026 · Python · 900-run sweep",
+    blurb: "Agent-based simulator stress-testing AMM, CLOB, and hybrid derivatives venues against event-driven Bayesian trader populations. Headline result: the hybrid mechanism halves agent-to-agent trade volume across every slice because the passive LP layer absorbs noise flow that would otherwise force informed traders into direct adverse selection.",
   },
   {
     slug: "dual-layer-liquidity",
     title: "Dual-layer on-chain liquidity protocol",
-    blurb: "Permissioned ERC-3643 SPV token on Ethereum + LS-LMSR AMM on Base for price discovery on event-triggered real-world assets, with a multi-agent stress test.",
+    meta: "Jan–April 2026 · Solidity, Python · live testnet",
+    blurb: "Permissioned ERC-3643 SPV token on Ethereum + LS-LMSR AMM on Base for price discovery on event-triggered real-world assets. Includes a seed-and-retreat cold-start mechanism, validated via a ~3,900-cell multi-agent parameter sweep showing ≥97% convergence to true probability under credentialed-dominant agent mixes.",
   },
 ];
 ---
@@ -210,6 +213,27 @@ const projects = [
       line-height: 1.5;
       margin-bottom: 0;
     }
+    
+    .project-meta {
+        font-style: italic;
+        color: var(--ink-muted);
+        font-size: 15px;
+        margin-bottom: 10px;
+    }
+    
+    .project h2 .arrow {
+        display: inline-block;
+        margin-left: 6px;
+        font-size: 0.75em;
+        color: var(--ink-muted);
+        vertical-align: 1px;
+        transition: transform 0.15s ease;
+    }
+
+    .project h2 a:hover .arrow {
+        transform: translate(2px, -2px);
+    }
+    
     .back-link {
       display: inline-block;
       margin-bottom: 24px;
@@ -221,15 +245,16 @@ const projects = [
 <body>
   <main>
     <a href="/" class="back-link">← back</a>
-    <h1>projects</h1>
+    <h1>recent projects</h1>
 
     <div class="project-list">
       {projects.map((p) => (
-        <article class="project">
-          <h2><a href={`/projects/${p.slug}`}>{p.title}</a></h2>
-          <p>{p.blurb}</p>
-        </article>
-      ))}
+  <article class="project">
+    <h2><a href={`/projects/${p.slug}`}>{p.title}<span class="arrow">↗</span></a></h2>
+    <div class="project-meta">{p.meta}</div>
+    <p>{p.blurb}</p>
+  </article>
+))}
     </div>
   </main>
 </body>
