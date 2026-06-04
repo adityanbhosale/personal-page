@@ -1,17 +1,16 @@
 ---
-// src/pages/index.astro
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Aditya Bhosale" />
-  <title>Aditya Bhosale</title>
+  <meta name="description" content="Dual-layer on-chain liquidity protocol — Aditya Bhosale" />
+  <title>dual-layer liquidity protocol — Aditya Bhosale</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
-  <style is:global>
+  <style>
     :root {
     --bg: #ffffff;
     --ink: #1a1a1a;
@@ -162,39 +161,41 @@
     h1 { font-size: 24px; }
     .cta { font-size: 17px; padding: 13px 20px; }
   }
+
+    h1 { font-size: 26px; line-height: 1.25; }
+    main p { margin-bottom: 16px; }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 24px;
+      color: var(--ink-muted);
+      font-size: 16px;
+    }
+    .links {
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid #d8d8d8;
+    }
+    .links a {
+      display: inline-block;
+      margin-right: 18px;
+    }
   </style>
 </head>
 <body>
   <main>
+    <a href="/projects" class="back-link">← projects</a>
+    <h1>Dual-layer on-chain liquidity protocol</h1>
 
-<h1><a href="/">Aditya Bhosale</a></h1>
+    <p>A dual-layer architecture for pricing event-triggered real-world assets — specifically preclinical biotech milestone rights, where no liquid market exists to price binary R&amp;D outcomes.</p>
 
-<div class="socials">
-  <a class="ext" href="https://www.linkedin.com/in/adityanbhosale" target="_blank" rel="noopener">li</a>
-  <a class="ext" href="https://github.com/adityanbhosale" target="_blank" rel="noopener">gh</a>
-  <a class="ext" href="/projects">projects</a>
-  <a href="mailto:adityanb@sas.upenn.edu">email</a>
-  <a class="ext" href="https://substack.com/@adityabhosale3" target="_blank" rel="noopener">writings</a>
-  <a class="ext" href="/thoughts">working notes</a>
-</div>
+    <p>Permissioned ERC-3643 SPV token on Ethereum Sepolia for the asset itself; LS-LMSR automated market maker on Base Sepolia for price discovery; bridged via Circle CCTP for USDC settlement. Scoring-rule pricing implemented in Solidity using PRBMath UD60x18. Includes a "seed-and-retreat" cold-start mechanism.</p>
 
-<p>I'm an undergraduate at the University of Pennsylvania studying economics and computer science, minoring in biology. These days, I enjoy spending most of my time studying / building agentic systems , on-chain market infrastructure, prediction market design, and the bridge between regulated finance and public blockchains.</p>
+    <p>Validated via a 4-class multi-agent trading simulation (credentialed, noise, momentum, adversarial) across a ~3,900-cell parameter sweep — showing ≥97% convergence to true probability under credentialed-dominant agent mixes (median 312 ticks), robust to adversarial attacks ≤25% of seeded liquidity. Solidity–Python parity verified.</p>
 
-<p>I'm an incoming 2027 summer M&amp;A analyst at Leerink Partners, a boutique investment bank in New York City, on the biopharma coverage team. Earlier work spans engineered T-Cell research at Penn's Center for Cell Immunotherapy, real-options pricing for clinical-stage assets at UCL's Global Business School for Health, and leading a handful of pro-bono tech / life-sciences consulting projects through Penn's Undergraduate Biotech Society &amp; Wharton's Venture Lab.</p>
-
-<p class="label">some active interests</p>
-
-<p>automated market makers, payments, smart contracts, trading agents, scoring rules and information markets, tokenized real-world assets, regulated stablecoins, institutional-bridge thesis for crypto, biotech equity research, options pricing, market microstructure</p>
-
-<p>Traditional finance is changing. Most of what I'm researching / building at the moment exists to close the gap between innovative decentralized or autonomous systems (i.e. public blockchains) &amp; regulated capital markets. I think the most influential infrastructure in the next decade will be able to serve both, and the most interesting problems are the ones that require fluency in each.</p>
-
-
-<hr>
-
-<div class="footer-links">
-  <a class="ext" href="/cv.pdf" target="_blank" rel="noopener">cv</a>
-</div>
-
-</main>
+    <div class="links">
+      <a class="ext" href="https://dual-layerbiotechliquidity.vercel.app" target="_blank" rel="noopener">live testnet & simulator</a>
+      <a class="ext" href="https://github.com/adityanbhosale/lmsr-preclinical-markets" target="_blank" rel="noopener">repo</a>
+    </div>
+  </main>
 </body>
 </html>
