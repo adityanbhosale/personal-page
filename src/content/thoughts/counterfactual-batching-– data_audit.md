@@ -1,5 +1,5 @@
 ---
-title: counterfactual batching – data_audit
+title: "[Counterfactual Batching] – DATA AUDIT"
 topic: ATS structures
 date: 2026-06-06T00:31:00
 ---
