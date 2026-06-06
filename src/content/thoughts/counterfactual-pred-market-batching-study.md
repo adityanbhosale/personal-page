@@ -1,7 +1,7 @@
 ---
 title: counterfactual pred-market batching study
 topic: ATS structures
-date: 2026-06-05T20:54:00
+date: 2026-06-05T20:55:00
 ---
 #### Build Plan
 
