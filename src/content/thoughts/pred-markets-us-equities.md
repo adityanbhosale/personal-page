@@ -7,15 +7,9 @@ Current thesis: we're seeing institutionalization of prediction markets, but pri
 
 *Equities got institutional participants AND eventually a mechanism response (FBAs in theory, smart markets in practice); prediction markets have the participants now arriving and still no mechanism response.*
 
-
-
 #### What a smart market aims to do:
 
 Removing latency rents is a substrate (batching, randomization). What makes it truly 'smart' is the optimization layer: clearing for maximal API under expressive, multi-security constraints.
-
-
-
-
 
 #### Future directions:
 
@@ -30,3 +24,21 @@ Removing latency rents is a substrate (batching, randomization). What makes it t
 
    * Method: measure the legging cost (how much the second leg moves against you after the first fills). If it's material, that's the demand case for atomic multi-contract execution in event markets.
 5. Synthetic-NBBO / consensus-quality piece. Event markets have no consolidated reference price – I could construct one across venues and measure how often it's crossed, locked, or fading around catalysts.
+
+
+
+
+
+
+
+#### Company Thesis:
+
+Every market that acquires sophisticated participants eventually needs a mechanism response; prediction and on-chain markets are hitting that point now, the next wave of participants is machine rather than human (which is bad for continuous matching), the response is batch/optimizing clearing – "neutral matching". I want to sell that clearing layer to the flow originators who are bleeding, proven first on event markets where the extraction is easily measurable.
+
+**Mechanism:** Batch/optimization clearing removes the within-batch speed advantage and clears everyone in a round at one uniform price. That's neutrality. CoW is the proof as a DEX ($35B+ in lifetime volume, freezing the book every ~30s and auctioning settlement to competing solvers, with the batching itself preventing MEV).
+
+**Model:** Not a venue, it's a clearing/settlement layer. The end-customer is the flow originator (frontend, wallet, aggregator, or agent framework whose users or agents are getting picked off), who routes flow to us for protection.
+
+**Beachhead:** event/on-chain markets.
+
+**Expansion:** agent markets, where neutrality becomes structural
