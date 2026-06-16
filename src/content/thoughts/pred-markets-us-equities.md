@@ -1,7 +1,7 @@
 ---
-title: pred markets <> us equities
+title: "**pred markets <> us equities"
 topic: ATS structures
-date: 2026-06-05T20:32:00
+date: 2026-06-16T14:50:00
 ---
 Current thesis: we're seeing institutionalization of prediction markets, but primarily on the participant and access side (i.e., Wintermute streaming two-sided quotes, FCM membership, OTC desks, ICE's data moves, etc.). The mechanisms themselves are still continuous CLOBs – we haven't yet seen batching/auction theory explicitly. The one mechanism intervention on record – Polymarket's probability-dependent taker fee – was a tax on the rent, not a redesign of how orders are matched (this is the point on time-bounding ≠ batching the matching in my FBA substack article).
 
