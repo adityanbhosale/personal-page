@@ -1,7 +1,7 @@
 ---
 title: FBA Venue Integration into [orderbook-hybrid-amm-sim]
 topic: Primitives – Neutral Markets
-date: 2026-06-15T22:49:00
+date: 2026-06-17T15:15:00
 ---
 A Frequent Batch Auction venue simulation integrated into the existing orderbook clearing comparison repo tells us whether batching even helps, at what pi, at what immediacy cost, and for whom. If the pi-curve comes back flat, then batching doesn't help on event flow.
 
