@@ -102,3 +102,15 @@ Turn the sim into an apparatus that takes (**venue mechanism, agent population w
 
    * Markout is the headline metric because it maps to the bleeder that we really care about (the adversely-selected LP).
    * I'll make sure FBA fills (clear-time mids) and CLOB/hybrid fills (now symmetric after the maker fix) are computed on the same definition so cross-venue comparison is honest.
+
+**5.4 – Endogenous LP spread (this sim's edge over the frozen 1.06M row study)**
+
+Let LP spread respond to **expected markout:** an LP sniped less under batching should quote tighter, so the welfare gain shows up as a narrower spread for everyone not just redistributed PnL. This is what lets the sim answer the question that the mechanism FBA counterfactual couldn't – *what would participants actually do under batching*.
+
+
+
+**5.5 – Honest piece**
+
+batching is NOT free – it trades immediacy for protection (orders have to wait up to pi ticks before clearing. I'll have to report the tradeoff, not just the dividend: if FBA cuts extraction but reduces volume or delays informed price discovery, that cost goes in the headline next to the benefit.
+
+The most credit framing of the result is that extraction falls faster than immediacy cost rises, but only up to pi. This is a real optimum.
