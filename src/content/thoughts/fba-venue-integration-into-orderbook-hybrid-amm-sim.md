@@ -1,7 +1,7 @@
 ---
 title: FBA Venue Integration into [orderbook-hybrid-amm-sim]
 topic: Primitives – Neutral Markets
-date: 2026-06-17T15:15:00
+date: 2026-06-18T17:24:00
 ---
 A Frequent Batch Auction venue simulation integrated into the existing orderbook clearing comparison repo tells us whether batching even helps, at what pi, at what immediacy cost, and for whom. If the pi-curve comes back flat, then batching doesn't help on event flow.
 
@@ -198,4 +198,58 @@ Decided on **option C**. manage quotes directly on the venue inside review(), mi
 * tracks its own net inventory by reading the shared trade log read-only and margining the net position, never touching shared accounting.
 * in `review()`: cancels its prior quotes by ID, check a solvency gate (sit out if capital used ≥ budget), reposts both legs directly on the venue, returns `[]`.
 
-![](/uploads/screenshot-2026-06-18-at-3.36.11 pm.jpg "LP capital isolation")
+
+
+
+
+#### LP/market-maker agent not actually bleeding:
+
+these finds came after the smoke tests were run. the LP isn't bleeding (return sign was positive, which is a modeling insight, not an incident of the inputs I provided).
+
+* G1 Byte-Identical – the diverse/clob baseline is provably unchanged (working tree vs. committed, via stash). `informed_pnl_total`, `lp_rent_total=-742.36`, `n_trades=60` all identical. Capital isolation held; the incumbent path was untouched (_sync_cost/cost-log)
+* G2(a) – passed – 18 LP fills (was ~0). the channel exists
+* G2(b) – failed – LP PnL +0.87 (profitable). the 'failure'
+* G3 – passed – 61% fills in 2nd half. solvent
+* G4 – passed – deterministic
+
+
+
+**core finding from new sweep w/ LP-market-maker-agent:**
+
+*observation_delay against a static (frozen) truth doesn't make the LP wrong, it makes it slower to converge to the right answer. A delayed-but-unbiased belief still centers on true fair value. and a market maker quoting a spread around an approximately-correct fair value earns the spread by construction – it buys below fair, sells above fair.*
+
+***The LP only bleeds if it's filled* disproportionately on the wrong side, which requires its belief to be biased, not just lagged. Two ways to manually bias it for this backtest:**
+
+1. truth moves and the LP's quote goes stale
+2. the LP is genuinely worse-informed than the takers, so the takers systematically know something the LP doesn't
+
+
+
+
+
+### **Information Asymmetry >> Observation Delay / Latency**
+
+**My thesis is that verifiable batching reduces *information-asymmetry extraction*, not 'latency arbitrage' alone. This sweep with a dedicated LP/market-maker agent w/ a dedicated observation-delay parameter proves that latency-without-information-asymmetry produces NO EXTRACTION.**
+
+*When we do build the FBA arm and (hopefully) show that batching reduces the bleed for liquidity providers, I'll know the bleeding is coming from the right source, not any modeling/parameter artifact I can hard code into the simulation.*
+
+
+
+### Reverting Frozen Truth – NO RANDOM WALK
+
+We initially frozen truth so that convergence to true probability is a well-defined target and markout is clean. If truth wanders, I'd have to decide what the LP is even being marked against – terminal fair? fair-at-fill-time? – and adverse selection vs 'the walk just moved against the agent' becomes a hard question to answer.
+
+A walk also has a volatility parameter, which introduces a new free knob.
+
+
+
+**Options for Reverting Frozen Truth Effect on Reverse Adverse Selection:**
+
+* Path A – Moving Truth – test whether the latency channel already produces adverse selection once truth moves, before adding any information asymmetry. This is more faithful to my thesis and tests the mechanism I've already built. There's no precise-degredation parameter.
+
+  * Cost: bigger blast radius (shared env, not an isolated class); needs a fresh baseline definition; needs the markout-window decision to avoid confounding adverse selection with inventory risk; adds a walk-vol parameter to deal with
+* Path B – Option 1, degrade information – isolated to the LP class, keeps the frozen-truth baseline intact, smaller and cleaner change, directly instantiates that "informed agents have better signals".
+
+  * Cost: different extraction mechanism (information asymmetry) than the one I've built (latency), and it sidesteps the question of whether my latency mechanism works at all.
+
+**I'll follow Path A since I've already identified a meaningful gap in the world.**
