@@ -1,7 +1,7 @@
 ---
 title: FBA Venue Integration into [orderbook-hybrid-amm-sim]
 topic: Primitives – Neutral Markets
-date: 2026-06-18T17:24:00
+date: 2026-06-19T17:56:00
 ---
 A Frequent Batch Auction venue simulation integrated into the existing orderbook clearing comparison repo tells us whether batching even helps, at what pi, at what immediacy cost, and for whom. If the pi-curve comes back flat, then batching doesn't help on event flow.
 
@@ -323,3 +323,47 @@ RECAP:
 
 * markout is re-pointed to read the walk path. New helper `_walk_path_fair_value(info_env, until_ts)` returns a `FairValueAt` giving true fair price at each fill's tick (reuses the log_fair_value_at accessor from Phase b); ru_single_simulation swaps it to when walk_var>0m keeps frozen_fair_value at walk_var=0. sweep.py +18/-5, new test.
 * All gates green: G-ID byte-identical at walk_var=0 (full precision), G-MARK-PATH (accessor genuinely reads `path[m, t_fill]`, late fills differ from t=0 by > 1e-3), G-INV-vs-AS check, G-RED 45 passed / 1 xfailed / known-G2b, G-DET deterministic
+
+
+
+#### Integrating the FBA venue as a runnable sweep mechanism.
+
+"fba" added to `MechanismName`/guard; `_fba_venues_from_truth(τ)` builder; `tau_ticks` threaded through; `drain_venue_fills` wired into `_pulse`; and – the P1 catch – `FBAVenue` added to the `route_log_space_trade` dispatch so informed agents can trade on it
+
+
+
+### Measurement – the FBA result, paired by seed.
+
+The wiring probe (single-seed, unconfirmed) already showed that under the walk, FBA (pi = 1) bled ~8.5x less than CLOB (-19.8 vs. -170), and the bleed was roughly FLAT across pi (pi = 1: -19.8, 10: -19.4, 50: -21.4, 200: -18.3). So the protection looks like a DISCRETE STEP at the mechanism switch (continuous CLOB --> uniform-price batch), largely pi-dependent – not a smooth pi-slope. This measurement will confirm or deny that, properly, paired across seeds.
+
+**Core Question:** *does switching from the continuous CLOB matching to FBA uniform-price clearing robustly REDUCE the LP's latency-driven bleed, measured as a paired-by-seed difference?*
+
+**Secondary Question:** *does longer batch interval pi reduce it FURTHER, or is it flat in pi (as the probe suggests).*
+
+
+
+### **FINDINGS:**
+
+**switching from continuous CLOB matching to FBA uniform-price batch clearing robustly reduces the LP's latency-driven bleed.** 
+
+
+
+paired rediction +86.6, SEM 6.7, \~13σ, 95% of seeds reduced. The LP's markout goes from \~-92 (CLOB) to ~-5 (FBA). The pairing did exactly what it was designed to do: the ±72 per-seed walk noise collapsed to a paired SEM of 6.7, so the reduction is overwhelmingly significant even through the absolute bleeds are noisy.
+
+
+
+**The kill condition was not med – batching curbs the extraction.** The thesis is proven end-to-end in a moving truth environment.
+
+
+
+**Validity Checks:**
+
+the shape is a clean step, and the agent confirmed it's genuine per-fill protection, not an artifact of the parameters I set.
+
+The transfer check is honest. As the LP bleeds less (+87), the informed gain shrinks (\~-50), so the extraction is prevented, not relocated – directionally. The agent flagged it's not 1:1: the LP improves +87 while informed gain drops only \~50; the gap goes to lower traded volume and the bootstrap/noise counterparties. So the honest read is "directionally a prevention, not a clean conversation."
+
+**batching prevents extraction, but we can't yet claim a clean wealth-conservation identity.**
+
+
+
+***in a faithful moving-truth simulation with correctly-specified agents, switching from continuous matching to frequent batch auction reduces the liquidity provider's latency-driven adverse selection by ~95% (paired reduction +86.6 ± 6.7, 13σ, 95% of seeds), with the protection coming from uniform-price clearing itself rather than the batching interval, and the extraction prevented rather than relocated.***
