@@ -253,3 +253,73 @@ A walk also has a volatility parameter, which introduces a new free knob.
   * Cost: different extraction mechanism (information asymmetry) than the one I've built (latency), and it sidesteps the question of whether my latency mechanism works at all.
 
 **I'll follow Path A since I've already identified a meaningful gap in the world.**
+
+
+
+
+
+
+
+### **BUILD – Phase: markout-at-fill-time rework.**
+
+Per the moving-truth recon, _trade_mtm_pnl (rent.py) and rent_and_pnl/pnl_by_role take  fair_prices_by_market as ONE scalar per market and apply to every fill, IGNORING rec.timestamp. Against any non-static truth this measures inventory risk, not adverse-selection – and even in the frozen world, marking the LP's fills against terminal fair rather than fair-at-fill-time muddies the adverse-selection read. This phase makes markout **time-aware**. It changes the MEASUREMENT only – no agent behavior, not truth process, no world change. Truth is still frozen this phase, but that'll soon change as well.
+
+**Recap:**
+
+* Built: time-indexed fair-value marking. FairValueAt accessor + `frozen_fair_value()` favtory in rent.py; each fill is now marked against `fair(market, timestamp)` instead of a flat scalar; sweep.py threads a frozen accessor through; new test_markout_fill_time.py. Terminal-fair marking still available (AMM lp_rent deliberately keeps it).
+* Gates:
+
+  * G-MARK byte-identical (the load-bearing no-op invariant).
+  * G-REG 29 passed / 1xfailed / 1 failed = the *known* G2b LP-positive, unchanged.
+  * G-DET deterministic
+  * G-FUTURE the artificial two-point series proves time-indexing actually fires (fill@t4000 marks at 110, total +10 – not terminal's 20, not t0's 0). All green.
+
+
+
+#### 'Variable Truth' Build
+
+(a) the markout rework is now down
+
+(b) a deterministic walk path + threading the timestamp into signals is a contained build
+
+(c) convergence-metric retarget
+
+(d) the belief-model decision is still a bit uncharted, and touches every agent
+
+*I'll pursue building a more faithful environment since a frozen truth fundamentally cannot express the thesis around FBAs in multi-agent worlds & LP adverse selection.*
+
+
+
+* *Right now, every agent uses a `guassian_scalar_nif_update` as the underlying belief model, which assumes a stationary target.* If I was to run that model against a moving truth, every agent's posterior would lag and over-weight stale signals – so the LP bleeds, but so does the interpretation since we can't tell if the LP was picked off by better-informed takers, or if everyone's mis-specified filter cannot track a moving target.
+* Recon:
+
+  * In this existing belief model, lag is governed by accumulated precision (more precision --> lower gain --> more lag)
+
+    * precision accumulates at variable rates per class because `obs_precision` is deliberately class specific
+
+      * The Tail agent's `obs_precision` is \~2k–40k per signal, so after one tail draw, its precision explodes, its gain collapses to \~0, and its belief freezes – **so against a moving truth, my best-informed agent tracks the moving truth the worst**
+      * The Naive/LP agents (fixed ~0.5-0.7k per signal) stay responsive and track better.
+  * Under the old model, a moving truth would show the LP **outperforming** the informed agents – not because of any real information/latency asymmetry, but because the informed agents' filters freeze faster (just math). The bleed is inverse.
+* **faithful environment requires a Kalman step**
+
+  * can't get an interpretable moving-truth result from the precision-only filter. better approach is to add a time-aware update with process variance `q` (decay prior precision by `q•∆t` before absorbing each signal), at both update sites (the scalar helper and joint-factor's own ∆-shrink), gated on `q>0` with a hard short-circuit at `q=o` so the frozen world stays byte-identical.
+  * each agent's `q` equal to the truth's actual walk variance, making them correctly-specified trackers
+  * then a delayed agent is an *optimal tracker* that simply updates later, so its staleness is genuine (the thesis) rather than a filter pathology
+
+
+
+#### Kalman time-aware scalar belief update
+
+* `gaussian_scalar_nif_update` gains keyword-only `q=0.0, dt=0.0` with a hard short-circuit; the 4 scalar agents (Naive, Tail, Agg, LP) each get a q field, a `_last_update_tick` dict, and `update_posterior(signal, now)` computing per-market ∆t; `sweep.py` threads `belief_process_var` (default 0) through to the scalar constructors. Joint-factor is untouched
+* At this point, the markout process is time-indexed, and the Kalman belief model is commited
+
+  * next step is to built the joint-factor matrix ∆-shrink, and then the walk itself with q = walk-variance so agents are correctly specified trackers, then finally a convergence-metric retarget
+
+#### Build: markout re-point to the walk path (fair-at-fill-time against a moving truth.
+
+*The markout time-indexing rework (commit 9b2b8d5) built a FairValueAt accessor; now it's fed frozen-fair-value (constant per market). Phase B left markout still marking against the t=0 truth. Against a MOVING truth, however, marking a fill at terminal/t=0 fair instead of fair-at-the-fill's timestamp measures INVENTORY RISK (the LP held a position while the walk drifted), not adverse selection. This step points the markout accessor at the walk PATH so fills are marked against path\[m, t_fill] – the prerequisite for an interpretable LP bleed.*
+
+RECAP:
+
+* markout is re-pointed to read the walk path. New helper `_walk_path_fair_value(info_env, until_ts)` returns a `FairValueAt` giving true fair price at each fill's tick (reuses the log_fair_value_at accessor from Phase b); ru_single_simulation swaps it to when walk_var>0m keeps frozen_fair_value at walk_var=0. sweep.py +18/-5, new test.
+* All gates green: G-ID byte-identical at walk_var=0 (full precision), G-MARK-PATH (accessor genuinely reads `path[m, t_fill]`, late fills differ from t=0 by > 1e-3), G-INV-vs-AS check, G-RED 45 passed / 1 xfailed / known-G2b, G-DET deterministic
