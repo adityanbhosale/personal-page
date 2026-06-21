@@ -1,7 +1,7 @@
 ---
 title: proof of neutrality
 topic: ATS structures
-date: 2026-06-20T18:21:00
+date: 2026-06-21T13:26:00
 ---
 ### Proof of Neutrality
 
@@ -28,17 +28,11 @@ Recon Prompt: open the kalshi-polymarket-microstructure repo, report exactly how
 
 Build 1: on-chain v2 `OrderFilled` decode --> ground-truth maker/taker/side --> aggregate maker-side markout against a trade-price proxy, in-memory.
 
-
-
 ### Stage 0: Contract Verification
 
 * verified everything against primary sources, caught a real error in the prior recon, and surfaced 2 findings that change the Stage 1 plan.
 
-
-
 **Contract Verification PASSED.** Both v2 addresses are confirmed against PolygonScan name tags *and* official Polymarket docs (primary sources, not blog guesses – exactly the bar CLAUDE.md §2 set). It also caught that the prior recon's Neg Risk candidate was the v1 address – the v2 pair is `0xE111.../0xe2222...` with matched vanity prefixes. It  even recorded the depcrecated v1 addresses in `contracts.py` to prevent accidentally subscribing to them.
-
-
 
 **Findings:**
 
@@ -47,13 +41,9 @@ Build 1: on-chain v2 `OrderFilled` decode --> ground-truth maker/taker/side --> 
 
   * The `tokenId --> (market, YES vs NO)` mapping needs OFF-CHAIN METADATA but the agent correctly notes that's not needed for direction or price (both fully on-chain), so it's properly out of scope for Build #1.
 
-
-
 **Risks Moving Forward:**
 
 * maker-event vs taker-event de-deduplication. A single match emits N per-maker OrderFilled events plus a taker aggregate plus 1 OrdersMathced.
-
-
 
 ### Stage 1: Live On-Chain Stream  + Decode (NO markout yet).
 
@@ -63,11 +53,7 @@ Build 1: on-chain v2 `OrderFilled` decode --> ground-truth maker/taker/side --> 
 
 * do the aggressor directions look *plausible?*
 
-
-
 **I'll commit Stage 1 when Task 1 confirms the de-duplication rule against a live tx and Task 2 shows real de-duped fills with same ground-truth directions from both exchanges.**
-
-
 
 #### **Stage 1 Findings:**
 
@@ -75,17 +61,11 @@ IT WORKS. A 90-second live run decoded 2,882 de-duplicated aggressor matches (4,
 
 *real fills with real aggressor direction, de-duped correctly*
 
-
-
 ***Task 1 Outcome:*** confirmed the de-dup rule on a live tx
 
 **Another Material Finding:** The Stage 0 direction rule ("aggressor = opposite of maker's side on the same tokenId") is incomplete, and the agent only found it by sampling live data. it sampled 8 live matches and found 7 of 8 are mint/merge – the per-maker and taker legs reference different, complementary tokenIds whose prices sum to exactly 1.000. Only 1 of 8 was a same-token swap. So the Stage 0 rule – which assumed the aggressor and maker trade the same token – would have mislabeled the aggressor's token for the majority of matches. 
 
 * **Correct Rule:** read the aggressor's leg directly from the taker-aggregate log (maker-field = aggressor, side = aggressor's own side, tokenId/amounts = the aggressor's actual leg) rather than inferring it as "opposite of the per-maker leg.".
-
-
-
-
 
 ### Stage 2: Aggregate Maker-Side Adverse-Selection Markout (PROXY MID).
 
@@ -98,27 +78,19 @@ Three objectives:
   * If the drop rate is high (i.e., > 50%), my markout is computed on a non-random subset (only the liquid tokens that traded again quickly), which biases the aggregate toward active markets. That's the single biggest weakness of the proxy approach.
   * This will be fixed by the API-mid integration in the next build
 
-
-
 #### **Stage 2 Findings: NUMBER CAME BACK NULL**
 
 * The mint/merge gate passed cleanly. The worked example marks against the aggressor's actual token (token X), keyed by each log's own tokenId, with per-maker legs (token Y) feeding Y's path, not X's – "so the sign can't invert via the wrong leg."
 * The sign is **null, and reported as null**. Median = 0.000¢ at every horizon, mean tiny, and sign-unstable across runs (∆10 was -0.759¢ in run 1, + 0.197¢ in run 2, +0.030¢ in run 3). When the sign flips run to run, you don't have a signal, you have noise.,
 * The drop rate is **~15-17%**, plus ~1,300 fills left incomplete at shutdown – reported separately, never counted as marked.
 
-
-
 The null finding is expect and is not a failure. The agent diagnosed WHY the proxy can't see the signal. A trade-price reference prints at the bid (for sells) and the ask (for buys), so the proxy conflates spread capture with adverse selection. The one semi-consistent pattern (SOLD slightly positive, BOUGHT slightly negative) is "partly a spread artifact," not a real markout.
 
 *The proxy is TOO CRUDE to separate "the maker earned the spread" from "the maker got picked off," and those two effects roughly cancel in the aggregate, leaving ~0.*
 
-
-
 **The stage 2 number does NOT answer the demand question of whether flow originators have LP clients being adversely selected. It's null because the instrument is too crude, not necessarily because there's no extraction.**
 
 **Build 2 – API-mid integration – is necessary before I have a demand number.**
-
-
 
 #### **Internal Contradiction:**
 
@@ -127,3 +99,15 @@ My simulation found a large, robust adverse-selection effect (the ~13sigma resul
 1. The effect is real but the proxy is too crude to see it (build 2's API mid will reveal it)
 2. The effect is real in the sim's parameter regime but smaller in live Polymarket than the sim suggested – the mid will show a real but modest number
 3. live Polymarket LPs are NOT meaningfully adverse selected in the current regime – in which case the demand argument is dead
+
+
+
+### **Build #2 – API /CLOB mid integration**
+
+*Real mid-based maker-side markout. Stages 0-2 of Build #1 (ground-truth on-chain fills + price-proxy markout) committed.*
+
+The proxy returned null because a subsequent-TRADE price prints at bid (sells) / ask (buys), so it conflates spread capture with adverse selection. The fix is to mark each fill against the order-book MID at horizon ∆, which removes the spread artifact. This build is the real demand test: does a mid-based markout reveal net adverse selection that the proxy couldn't see?
+
+**Task A:** mid source, recon + decide. We need the Polymarket order-book mid per tokenId, time-aligned to fills. Before building, resolve the data path (web-search/fetch) as needed:
+
+* Polymarket's CLOB API: the endpoint(s) for the orderbook / best bid/ask per token (market/asset id). REST snapshot polling vs. the CLOB WS (book/price_change channel). State what's available, rate limits, and whether the WS gives a live book we can maintain a mid from.
