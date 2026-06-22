@@ -1,7 +1,7 @@
 ---
 title: proof of neutrality
 topic: ATS structures
-date: 2026-06-22T00:34:00
+date: 2026-06-22T15:18:00
 ---
 ### Proof of Neutrality
 
@@ -181,3 +181,84 @@ Build #2's aggregate said the TYPICAL maker is NOT broadly adversely selected (s
 
 
 It's not a smear, it's **bimodal**. The distribution of medians erodes and widens with horizon: at ∆30 you get 29 makers with medians < -1¢ AND 33 makers ≥ +1.5¢, distinct from the +0.5¢ spread-capture bulk. \~40 of \~109 qualifying makers carry **persistently negative, horizon-deepening medians** – separable from the bulk.
+
+
+
+**Adverse Selection Mechanism & Why These Specific Makers**
+
+A resting LP posts a quote in thin token market, an informed aggressor takes it, and the price drifts against the LP afterward – deepening with time (∆2 --> ∆30). *So why specifically thin-token / tail-market makers?*
+
+* The BUY-side concentration is a complementarity effect, not a behavioral one.
+
+  * Aggressors mostly *buy*, and in a mint/merge match the LP ends up holding the complementary YES/NO leg, so the victims show up as BUY-side LPs.
+* **The thin-token** concentration is the real economics behind the A/S.
+
+  * Very few LPs compete in thin tail markets, so one maker repeatedly absorbs the informed flow with no one to share the adverse selection.
+
+
+
+### **Potential Build #4 – coverage expansion**
+
+The thin-token concentration collides with my measurement's primary limitation – the 200-token WS cap means I'm systematically *under-sampling the thin tokens*, which is where the bulk of bleeding makers exist. My current count of ~40 bled makers is likely a floor, not a ceiling. Two refinements in build #4 specifically –
+
+1. Coverage (**refinement 1**) directly attacks the floor-not-ceiling problem.
+2. Volume-weighting (**refinement 2**) decides whether we have a good customer model.
+
+   * Current bleeding-set is identified by per-fill medians, and those makers are individually very small (≤ 1% of volume each, 1-4 tokens). A business made of "many small diffuse victims" is a hard sell.
+   * Volume-weighting would ask the question in $$ figures – **is there a large maker bleeding real money, hidden in the tail because they trade few-but-big fills?**
+   * If yes, that's a concentration, high-value customer and a far easier sell.
+
+
+
+
+
+# Part 2 of Proof-of-Neutrality: necessary crypto primitives
+
+Everything I've done so far measures extraction / AS, doesn't prevent it.
+
+##### **Necessary Guarantees for "Neutral Clearing"**
+
+* **operator honesty**: whoever runs the batch auction must clear it according to the stated uniform-price rule and not, say, insert their own order at the clearing price, reorder, or selectively exclude.
+
+  * this platform would act as the adversary – the clearing operator.
+  * the property I need here is **verifiability**: anyone can check the clearing was done correctly (mid was calculated fairly) without trusting me and without re-running it themselves
+* **pre-clearing privacy / front-running resistance:** even if the operator is perfectly honest, on a blockchain the sequencer or block producer sees transactions before they're final and can insert their own ahead of the batch (MEV).
+
+  * the adversary here is the chain itself
+  * the property I need is that order contents are hidden until the batch clears, so there's nothing to front run
+
+These two are independent – you can have a verifiable auction that's still front-run. You can also have a sealed-bid auction run by a dishonest operator (nobody front-ran it, but the operator cheated the clear).
+
+CoW protocol has neither from what I can tell – it gets *economic* neutrality through solver competitions (many solvers bid to settle the batch, the best execution wins, so no single party can cheat for long). That works, but it's "neutral because competition disciplines it," not "neutral because it's cryptographically impossible to cheat."
+
+
+
+**My Goal:** move from economically-disciplined neutrality to cryptographically-guaranteed neutrality.
+
+
+
+**Primitives:**
+
+* **verifiability** for operator honesty
+
+  * **zk-SNARK or zk-STARK** – the clearing computation (collect orders, find the uniform price where supply meets demand, allocate fills, apply pro-rata rationing) is just a deterministic function. I could run it off-chain, then publish a succinct proof that I ran *that exact function on those committed inputs* and *got this output* – without revealing the inputs if I don't want to, and without anyone having re-execute it. 
+  * On-chain, a verifier contract checks the proof in a matter of milliseconds. This is the 'verifiable' part of verifiable clearing. Auction clearing is a well-structured computation – but SNARKs are smaller proofs / cheaper to verify but need a trusted setup; STARKs are bigger but transparent (no trusted setup) and post-quantum. For an auction the circuit is the clearing rule.
+* **pre-clearing privacy** for preventing MEV / front-running. three potential primitives to implement
+
+  * **commit-reveal** (simplest) – everyone submits a hash of their order (commit), then after the submission window closes, reveals the actual order. Nothing to front-run during commit because it's just hashes.
+
+    * weakened by the 'griefing problem': a participant who sees the early reveals can choose NOT to reveal their own (they "abort"), selectively withdrawing based on information – which is itself a form of value extraction, and I'd need to introduce penalties/bonds to discipline it. SOLVABLE
+  * **threshold encryption** (most production ready) – orders are encrypted to a committee's shared public key, the sequencer orders the encrypted blobs (so it's ordering noise – nothing to front-run), and only after order is decided does a threshold of the committee (i.e., 13 of 19) collaborate to decrypt.
+
+    * ex: Shutter Network – live, on Ethereum.
+    * tradeoff: trust assumption moves to the committee – you'd be trusting that fewer than the threshold collude to decrypt early. Not entirely 'trustless'.
+  * **verifiable delay functions (VDFs) / time-lock encryption** (most elegant, least production-tested) – orders are encrypted such that they can only be decrypted after a fixed wall-clock delay (a computation that's inherently sequential and can't be parallelized away), removing the need for any committee at all.
+
+    * nobody can decrypt early because the math forbids it until the delay elapses
+    * tradeoff: VDFs are heavier, the tooling is less tested, and getting the delay parameter right against improving hardware is a live research question.
+
+**Initial Thoughts on Architecture:**
+
+*threshold encrypted sealed bids --> ordered while encrypted --> decrypted after ordering --> cleared by the uniform-price rule --> zk proof published that the clear was correct.*
+
+This addresses both properties: nobody front-ran (encryption till ordered), and nobody can cheat the clear (the proof).
