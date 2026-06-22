@@ -1,7 +1,7 @@
 ---
 title: proof of neutrality
 topic: ATS structures
-date: 2026-06-21T13:26:00
+date: 2026-06-22T00:34:00
 ---
 ### Proof of Neutrality
 
@@ -111,3 +111,73 @@ The proxy returned null because a subsequent-TRADE price prints at bid (sells) /
 **Task A:** mid source, recon + decide. We need the Polymarket order-book mid per tokenId, time-aligned to fills. Before building, resolve the data path (web-search/fetch) as needed:
 
 * Polymarket's CLOB API: the endpoint(s) for the orderbook / best bid/ask per token (market/asset id). REST snapshot polling vs. the CLOB WS (book/price_change channel). State what's available, rate limits, and whether the WS gives a live book we can maintain a mid from.
+* KEY MAPPING PROBLEM: on-chain fills key by ERC-1155 tokenId; the CLOB API keys by its own token/asset identifier (and conditionId/market). I'll ask the agent to confirm how to map an on-chain tokenId --> the CLOB API's token id so we fetch the RIGHT book for each fill. If this mapping needs Gamma/CTF metadata, I'll ask it to state exactly what call resolves it. If it can't be resolved cleanly, STOP and report – a wrong mapping marks against the wrong token's mid (silent corruption, worse than the proxy).
+* Recommend the cheapest correct approach: maintain live books via CLOB websocket for the tokens we see fills in, vs. REST-poll a mid at fill-time+∆. State the tradeoff.
+
+**Task A Results: green light for Task B**
+
+mapping is identity. the CLOB `token_id` is the on-chain ERC-1155 tokenId, same integer, no translation, no Gamma lookup.
+
+* agent took a real on-chain full (tokenId, decoded BOUGHT @0.25) and queried the public CLOB directly: `/midpoint?token_id=...773047` returned a mid, and `/book?token_id=..773047` echoes back `asset_id` = the same on-chain tokenId. That's the "verify against reality before trusting" discipline applied to the exact thing that would have silently corrupted the number. The wrong token mid risk is dead.
+* The mid source is public, no auth and gives me the off-chain clock I need.
+
+
+
+*Recommendation:* WS market channel for a continuous per-token mid timeline(I need historical mid at fill-time and fill time + ∆, which REST polling can't recover – it only gives mid at present moment), seeded with a REST `/book` snapshot per newly-seen token so a mid exists immediately. The comparison table makes the case cleanly.
+
+
+
+**Task B:** fusion + mid markout
+
+* subscribe to / poll the CLOB book for tokens we're seeing on-chain fills in; maintain a current mid per tokenId (and its timestamp).
+* TIME ALIGNMENT (load-bearing – the settlement-lag problem):
+
+  * on-chain block_timestamp is SETTLEMENT time, which lags the off-chain match
+  * fill-time mid (mid at/near the match) and mid at match + ∆
+  * Use the CLOB book timestamps, not the chain settlement time, as the mid clock. Measure and REPORT the settlement-vs-mid-clock offset empirically (this is the error-budget number Stage 1 left a TODO spot for)
+* Recompute maker-side markout against the MID: maker\_markout(∆) = -s • (mid\_{t+∆} – fill_price), same sign convention as Stage 2 (negative --> maker adversely selected).
+
+
+
+### **Build #2 Results (Task B):**
+
+The build succeeded – the mid removed the spread artifact. The worked example is clean – same fill, proxy markout + 5.0¢, mid markout + 6.5¢, and the -1.5¢ difference is the bid/ask print artifact the mid strips out.
+
+The mechanism I'd hypothesized (trade-price prints at bid/ask, conflating spread with adverse selection) is confirmed and rm. The mid produces a stable median of +0.500¢ at every horizon, every run – vs the proxy's median ~0 with a sign that flipped each run.
+
+**The stable signal is +0.50¢/share – positive – meaning the typical maker is NOT net adversely selected.** They're capturing roughly half the spread, which is what a healthy market-maker is SUPPOSED to earn. A positive maker-side markout means the **LP comes out ahead at the typical fill. So the headline finding from live Polymarket is...**
+
+***typical LP is not getting picked off – they're earning the spread, as designed***
+
+This isn't what my simulation had predicted (the ~13σ AS result), and it's not what the company thesis had assumed ("LPs bleed to informed flow, sell them a neutral clearing layer".)
+
+#### **Why the thesis still works >**
+
+the signal isn't uniformly "No adverse selection" 
+
+1. the mean is tail-dominated and sign-unstable (∆30 mean ranges -0.2¢ to +3.8¢ across runs). The median is +0.5 and stable, but the mean swings – which means a few large-move fills carry heavy adverse selection even though the typical fill doesn't
+
+   * in other words: most fills are benign spread capture, but there's a heavy tail of fills where the maker got run over
+2. The direction asymmetry is consistent across runs: BOUGHT positive, SOLD negative – aggressive selling adversely-selects makers more than aggressive buying. That's a reputable signature, small-n and noisy, but directionally stable.
+
+
+
+**At the typical fill price, Polymarket LPs are not adversely selected; they earn ~half the spread. Adverse selection is real but lives in a heavy tail of large-move fills and shows up as a persistent aggressive-sell=side negativity. Broad net extraction is not present in these windows.**
+
+
+
+
+
+### Build #3 – per-maker attribution
+
+per-maker / per-address adverse-selection attribution. At this point, Builds 0-2 are committed (verified contracts, ground-truth decode + de-duplication, corrected mint/merge direction mid-based markout).
+
+Build #2's aggregate said the TYPICAL maker is NOT broadly adversely selected (stable +0.5¢/share median = half-tick spread capture), BUT adverse selection is real and CONCENTRATED – a heavy tail (drives an unstable mean) + a persistent aggressive-SELL-side negativity. The aggregate hides the distribution. This build answers the one question that decides whether there's a viable business model: *does the tail extraction CONCENTRATE on identifiable, specific market-makers (--> a customer) or SMEAR across everyone (--> the +0.5¢ median is the whole story, no concentrated extraction)?*
+
+
+
+### **Build 3 Results: concentrated AS/extraction**
+
+
+
+It's not a smear, it's **bimodal**. The distribution of medians erodes and widens with horizon: at ∆30 you get 29 makers with medians < -1¢ AND 33 makers ≥ +1.5¢, distinct from the +0.5¢ spread-capture bulk. \~40 of \~109 qualifying makers carry **persistently negative, horizon-deepening medians** – separable from the bulk.
