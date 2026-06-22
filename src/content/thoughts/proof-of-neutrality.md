@@ -1,7 +1,7 @@
 ---
 title: proof of neutrality
 topic: ATS structures
-date: 2026-06-22T16:19:00
+date: 2026-06-22T17:46:00
 ---
 ### Proof of Neutrality
 
@@ -215,6 +215,20 @@ The thin-token concentration collides with my measurement's primary limitation �
 * Design decisions (coverage expansion): the empirical cap probe finding the silent freeze at ~755 (with the detail that `price_change` keeps flowing so frame-level liveness misses it); the C = 500 safe cap; the **eviction reframe** (Build #3's gap was append-without-eviction, not concurrency – ~122 late thin tokens dropped); the N = 2-shard pool with dynamic routing and 120s idle eviction; the three-layer book-level watchdog; and the zero-Alchemy-quota confirmation.
 * What the live run did: fresh 360s run, 38,736 marked rows to a separate file (baseline preserved), peak 1,500 tokens across 3 shards, 0 freezes, 14 evictions – plus the honest caveat that it hit the 1,500 ceiling and dropped 60 tokens.
 * What it found: 94.3% coverage with the full bucket breakdown and zero stale contamination; floor-not-ceiling NOT confirmed (with the time-window confound states); volume-weighted showing net-profitable LPs, the biggest maker as biggest winner, -$799 total bleed vs +$18,810 PnL; the side-by-side 27-in-both / 18-hidden breakdown; pUSD decimals = 6 verified; fragility flagged.
+
+
+
+### **Build #5 – Regime-Window Experiment**
+
+**Goal:** Build #4 (quiet window) came back partly-negative for LP-protection: LPs net profitable (+ $18.8 vw), biggest maker biggest winner, bleed -$799 / ~4% of profit, smeared across tiny makers (aggregate vw markout ∆10 = +0.776¢/share). The open confound is now **regime**. This build instruments a **single continuous feed that spans pre-spike --> event-spike --> post-spike,** regime-tags every fill online, and runs a **pre-committed decision rule** to a verdict – KILL, REGIME-CONDITIONAL KEEP, or FULL KEEP – for the maker-protection thesis.
+
+The point of a continuous feed like this is to de-confound regime from the time-window (Build #4 compared different time windows and couldn't separate coverage lift from regime).
+
+
+
+**Task A Results:**
+
+
 
 
 
