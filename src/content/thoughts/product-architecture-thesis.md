@@ -1,7 +1,7 @@
 ---
 title: product architecture / thesis
 topic: VSA Markets
-date: 2026-06-23T14:45:00
+date: 2026-06-23T17:48:00
 ---
 ### Mechanism
 
@@ -92,8 +92,6 @@ Looking at the **asset layer**, I'm not proposing to 'tokenize a milestone claim
    * This makes sense if you want full control of the wrapper (closest to the dual-layer model I previously built) and a captive sponsor
    * This doesn't make sense if the regulatory/setup cost is too high for an initial model
 
-
-
 The royalty/SPV are the recurring-revenue versions to potentially expand into; the CVR is a weak commercial thesis.
 
 ### Regulatory & Accounting Considerations
@@ -138,3 +136,15 @@ The issuer / mechanical-price-coupling model is a high regulatory load. 3 major 
 
    * verifiable neutrality is key to make that trustworthy, and even a clean proof may not beat the optics for a conservative counterparty.
 3. Issuer Model Concentrates Regulatory & Legal Cost
+
+
+
+# Integrated Codebase for v0:
+
+Goal: a self-contained end-to-end simulation of the sponsored-aggregation loop – a sponsor funds an LS-LMSR subsidy; agents trade a milestone market; price path; a milestone-contingent NOTE reprices via conversion (contractual coupling); sponsor's realized cost-of-capital ∆ vs. a no-market baseline; a neutrality-proof artifact.
+
+#### **Findings:**
+
+The verdict is KILL in both regimes tested. Under heavy informed flow, the maker *did* start being adversely selected (deepening flipped True), but it stayed immaterial in dollar-figures (~$2.79) because **an LMSR reprices on every trade, so a sharp informed wall makes the price efficient fast rather than leaving the sustained post-fill drift that large negative markout needs.**
+
+In other words, my simulated sponsored LMSR maker is *structurally more robust to adverse-selection than the CLOB makers my initial monitor measured on live Polymarket orderflow.*
