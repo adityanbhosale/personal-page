@@ -1,7 +1,7 @@
 ---
 title: product architecture / thesis
 topic: VSA Markets
-date: 2026-06-23T17:48:00
+date: 2026-06-23T18:41:00
 ---
 ### Mechanism
 
@@ -148,3 +148,7 @@ Goal: a self-contained end-to-end simulation of the sponsored-aggregation loop â
 The verdict is KILL in both regimes tested. Under heavy informed flow, the maker *did* start being adversely selected (deepening flipped True), but it stayed immaterial in dollar-figures (~$2.79) because **an LMSR reprices on every trade, so a sharp informed wall makes the price efficient fast rather than leaving the sustained post-fill drift that large negative markout needs.**
 
 In other words, my simulated sponsored LMSR maker is *structurally more robust to adverse-selection than the CLOB makers my initial monitor measured on live Polymarket orderflow.*
+
+
+
+### *Live Deployment: https://aggregation-demo-cyan.vercel.app/*
