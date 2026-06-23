@@ -1,7 +1,7 @@
 ---
 title: product architecture / thesis
 topic: VSA Markets
-date: 2026-06-23T14:09:00
+date: 2026-06-23T14:45:00
 ---
 ### Mechanism
 
@@ -10,8 +10,6 @@ Sponsor subsidizes a continuous LS-LMSR market to discovery the probability of a
 Value Prop: coupling between the instrument the market trades (milestone position) and the instrument that gets repriced. Every layer below exists to facilitate that coupling and enforce verifiability.
 
 This is an issuer model, not a protocol.
-
-
 
 ### Layers
 
@@ -49,8 +47,6 @@ This is an issuer model, not a protocol.
 
      * Does the sponsor benefit exceed the LMSR max loss for a real asset?
 
-
-
 ### Decision Point – Coupling Mechanism
 
 *"Price discovery reprices an instrument"* can mean a ton of different things. Essentially, this coupling mechanism (and it's neutrality / verifiability) is the true value proposition here.
@@ -68,15 +64,37 @@ This is an issuer model, not a protocol.
    * Customer in this case is a CFO / treasurer
    * This is the strongest case as it requires an issuer to manage it. It makes the prediction-market load-baring by construction.
 
-
-
 *You can't bind a contractual coupling onto an instrument you didn't structure yourself.* The path to being an issuer and the path to building a strong coupling mechanism are the same.
 
 Looking at the **asset layer**, I'm not proposing to 'tokenize a milestone claim,' but rather 'originate a repriced instrument whose valuation is methodologically or contractually bound to the discovered price.
 
+### Decision Point – Repriced Instrument
+
+1. CVR (contingent value right).
+
+   * Reprices via interim transfer value.
+   * This makes sense if you want the purest milestone-coupled security and a secondary-trading use case
+   * This doesn't make sense if you need a *primary financing event –* CVRs are deal byproducts, not capital raises
+2. **Milestone-contingent note / SAFE-like**
+
+   * conversion price or coupon steps on the probability
+   * This makes sense if the sponsor is *raising capital* *now* against the milestone (clean cost-of-capital narrative)
+   * This doesn't makes sense if the sponsor isn't actively financing; nothing to attach to
+   * ONLY OPTION WHERE COUPLING DRIVES A LIVE FINANCING DECISION && THE CONVERSION-REFERENCES-PRICE MECHANISM IS CONTRACTUALLY CLEAR
+3. Single-asset royalty interest
+
+   * NAV / mark for the holder
+   * This makes sense if the holder is a fund needing defensible marks (recurring buyer)
+   * This doesn't make sense if the asset has no royalty structure yet – we'd be creating cash-flow rights from scratch
+4. Single-asset SPV equity tranche
+
+   * NAV mandate
+   * This makes sense if you want full control of the wrapper (closest to the dual-layer model I previously built) and a captive sponsor
+   * This doesn't make sense if the regulatory/setup cost is too high for an initial model
 
 
 
+The royalty/SPV are the recurring-revenue versions to potentially expand into; the CVR is a weak commercial thesis.
 
 ### Regulatory & Accounting Considerations
 
@@ -93,6 +111,19 @@ The benefit of that price discovery takes one of three forms (matching the custo
 * defensible Level-3/NAV mark
 
 Notably, the subsidy side is quite favorable in biotech specifically: a strong base-rate prior (clinical phase-success by indication) means the maker only has to price the *residual* uncertainty, so the max loss is small compared the value of the decision/valuation produced.
+
+**Decision:** underwriting on cost-of-capital makes the most sense, as the defensible mark is inherently complementary. It's hard to quantify 'usable forecast'. CoC is the only metric that's large, quantifiable, and recurring
+
+* a credible continuous probability on a milestone lets the sponsor raise milestone-contingent capital at a tighter spread, or mark an existing instrument higher, and that ∆ is promising.
+
+**ASC-820 (US fair-value accounting)**: ranks valuation inputs in three tiers:
+
+* Level 1 = quoted prices in active markets (a liquid stock)
+* Level 2 = observable inputs other than quoted prices (comparable trades, yield curves, etc)
+* Level 3 = unobservable inputs (mgmt's internal models & assumptions)
+
+  * all early-stage R&D assets, CVRs, or private royalties are Level 3; marked by a DCF with a internally-derived PoS the holder picks (or an advisor picks, i.e., an investment bank)
+  * the value-proposition here is that the market-price derived by an on-chain, verifiable / neutral prediction market sponsored by the holder can replace that internally-derived PoS with an *observed one*
 
 ### Potential Revenue Model
 
