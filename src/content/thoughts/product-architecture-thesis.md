@@ -1,7 +1,7 @@
 ---
 title: product architecture / thesis
 topic: VSA Markets
-date: 2026-06-23T18:41:00
+date: 2026-06-23T20:25:00
 ---
 ### Mechanism
 
@@ -149,6 +149,12 @@ The verdict is KILL in both regimes tested. Under heavy informed flow, the maker
 
 In other words, my simulated sponsored LMSR maker is *structurally more robust to adverse-selection than the CLOB makers my initial monitor measured on live Polymarket orderflow.*
 
+###### *Live Deployment: https://aggregation-demo-cyan.vercel.app/*
 
+### **Clarifications**
 
-### *Live Deployment: https://aggregation-demo-cyan.vercel.app/*
+1. What "issuer, not protocol" means.
+
+   * Issuing the note means creating and selling the security – acting as the legal entity that structures the instrument, defines its terms and places it with investors. A protocol, by contrast, just provides infrastructure others use to issue (i.e., Uniswap doesn't own the tokens traded on it).
+   * We can only write a *binding* coupling onto an instrument we control the terms of.
+   *
