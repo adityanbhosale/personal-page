@@ -1,7 +1,7 @@
 ---
 title: product architecture / thesis
 topic: VSA Markets
-date: 2026-06-24T23:59:00
+date: 2026-06-25T00:29:00
 ---
 ### Mechanism
 
@@ -230,3 +230,11 @@ In other words, my simulated sponsored LMSR maker is *structurally more robust t
      * Stressed/Catalyst: high-information period – trial readout, PDUFA date, data release – when informed traders with real signal pile in and the price moves sharply.
      * I'm proving that an LMSR maker holds up without any adverse selection / - markout in both regimes – this is the value of credibility compression
      * *The regimes are my stress-test, and passing both is what showed me the differentiator isn't "we protect the market under fire," it's "we make the price trustworthy regardless."*
+
+
+
+# Public Sim Change Log (@ vsamarkets.dev)
+
+1. Change header line, currently "A five-step walkthrough for a sponsor / CFO. Every figure below comes from one simulation run," to something more descriptive of the larger goal.
+
+   *
