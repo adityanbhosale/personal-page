@@ -1,7 +1,7 @@
 ---
 title: product architecture / thesis
 topic: VSA Markets
-date: 2026-06-23T20:25:00
+date: 2026-06-24T23:59:00
 ---
 ### Mechanism
 
@@ -157,4 +157,76 @@ In other words, my simulated sponsored LMSR maker is *structurally more robust t
 
    * Issuing the note means creating and selling the security – acting as the legal entity that structures the instrument, defines its terms and places it with investors. A protocol, by contrast, just provides infrastructure others use to issue (i.e., Uniswap doesn't own the tokens traded on it).
    * We can only write a *binding* coupling onto an instrument we control the terms of.
-   *
+2. Sponsor Self-Dealing – what that actually looks like
+
+   * *sponsor's paying for and standing up the exact market whose price determines how much their asset is worth.*
+
+     * motive & means to push price in their favor by seeding trades
+     * i.e., seeding the market at an inflated prob.; trading into their own market through a sock-puppet to lift the price before a financing; choosing market parameters (liquidity level, resolution source, when the market opens/closes) to bias the outcome; quitely halting/restarting if the price moves against them
+     * proved via 'material harm to the maker' / post-fill markout
+3. Sponsorship/Liquidity Flow – how companies can fund a working market.
+
+   * An LS-LMSR market doesn't match buyers to sellers as in a CLOB ; an AMM quotes both sides continuously, and someone has to fund that maker's worst-case/base loss. That funder is the sponsor.
+   * Mechanics:
+
+   1. the sponsor deposits a subsidy (the LMSR's bounded max loss – in my simulation ~$2.86 for the chosen liquidity parameter; in reality a function of how much depth the sponsor wants for credibility sakes). 
+   2. That subsidy capitalizes the automated maker, which then stands ready to take the other side of any trade at the LMSR-determined price.
+   3. Now the agent trader population transacts against the maker: the **informed human traders** *(TA specialists, analysts, people with any read)* buy or sell based on their private view, moving the price toward their belief; the **agentic/noise flow** trades for non-informational reasons & provides **churn**.
+
+      * The maker absorbs all of it – its price updates after every trade per the LMSR cost function. The sponsor's subsidy is what makes this possible – without it, there's no counterparty and (per Milgrom-Stokey), no market.
+   4. If the milestone resolves and the maker ran a profit, that returns to the sponsor. If it lost up to the bound, that loss is the price the sponsor paid to buy a credible probability.
+
+      * The **subsidy is the cost of information**, **not a trading loss**. (Tetlock-Hahn)
+4. How Cost of Capital ∆ is measured.
+
+   * WACC is just the *rate of return a financier demands to provide money,* expressed as a %. If a biotech raises $1M and the investor requires 15% return, the cost of that capital is $150k. Lower cost of capital is obviously in the best interest of the company.
+   * In this model WACC is calculated as `r = r_base + π`, where r_base is the baseline financing rate (what any borrower pays) and π is the risk/information premium – the *extra* return the investor demands because they're uncertain about, and distrustful of, the milestone probability their note is priced on. The ∆ (the saving0 is measured as a straight before/after comparison of the financing cost of the *same note*:
+
+     * **Baseline:** the note is priced off the sponsor's self-reported prior probability, and because the investor distrusts a self-reported number, they charge a high premium π_high (12% in the sim – although that's an average WACC, or Ke, for any clinical-stage private biotech, in fact on the lower end). Financing cost = `note_value(p0) • r/(1+r)` with that high rate --> $202,474 in the sim.
+     * **With-market:** the same note is priced off the *independently verified* market probability, the investor trusts it, charges a lower premium π_low (4%, improbable for biotech, needs to be adjusted for realism) --> $133,373 in the sim.
+     * **∆ = baseline – with-market = $69,101**. That's the proposed saving for the sponsor.
+   * The saving results from the **level channel** (the probability itself changed, p0 0.70 --> p_mkt 0.728), which moves the note's value – generic to any forecast, and in my simulation slightly negative – versus the **premium channel** (12% --> 4% at the *same probability*), which only exists because the estimate is *verifiable*.
+
+     * **The saving lives in the premium, not the probability itself. A better point estimate isn't that valuable, trust in the estimate is what generates value.**
+     * Important: `note_value • r / (1+r)` is a *sylized one-period cost of carry*, not how a real convertible's WACC is computed (which really involves the conversion option's value, dilution, time to milestone, discount rate). My simulation is a mechanistic demonstration, not a true pricing model.
+5. Verifiable Neutrality & Use-Case
+
+   * In the orderbook clearing context, neutrality is used to prove the maker wasn't picked off (adversely selected), or prove the mid price was fairly computed.
+   * In a stakeholder market, however, "neutral" doesn't mean "the maker didn't bleed value", it means **"the sponsor didn't rig the price their about to reprice their own asset against"**.
+
+     * Verifiable Neutrality is the cryptographic answer to every self-dealing vector considered:
+
+       * prove the market was seeded at a declared prior and not silently re-seeded;
+       * prove the sponsor didn't trade into their own market;
+       * prove the resolution followed the pre-committed source and rule;
+       * prove the parameters weren't changed mid-flight;
+       * prove the price the note references is the actual market-cleared price and not a cherry-picked snapshot of trade convergence
+   * In other prediction markets (Polymarket, Kalshi), no participant is pricing their own security off the result, so neutrality is a nice-to-have feature. Here, the sponsor is, so the price is only worth anything to an *external party* – the investor or auditor – if that party can verify the incentive-crossed sponsor didn't author it.
+
+     * Without proof, you can't claim a "market price," just a number the sponsor produced internally.
+     * **Verifiable Neutrality is what converts π_high into π_low.**
+6. Note mechanics / repricing logic
+
+   * *Traditional milestone-contingent convertibles (SAFE-style)*: a sponsor raises cash now (face F) by selling a note that doesn't pay interest like debt; instead it converts into equity at a future event – here, the milestone resolution. 
+
+     * The note specifies what the holder gets in each outcome: if the milestone hits (YES) the note converts into equity worth more (because the asset is de-risked); if it misses (NO) it converts into less.
+     * Traditionally, the conversion terms are fixed in the contract, negotiated up front off the parties' *guesses* about the PoS.
+   * Value Proposition: *repricing off the continuous market*. Instead of fixing conversion off a guessed probability, the note's conversion economics reference the live market-implied probability *p*.
+
+     * `note-value(p) = g(p) • [ p • V_yes + (1-p) • V_no ]`
+     * That last part in \[ ] is the **probability-weighted expected conversion value** – what the equity you convert into is worth on average given probability p (Y_yes = $1.4M, V_no = $550k).
+     * g(p) is the **conversion ratchet** – a multiplier that runs from 0.97 (at p = 0) to 1.10 (at p = 1), so a higher market-implied probability earns the holder slightly more favorable conversion. As the market price p moves, `note_value(p)` moves with it – that's the contractual coupling, and it's why panel 3 of the demo lets the user scrub p and watch the value reprice.
+
+       * **The point is that conversion isn't a negotiated guess anymore; it's bound to *an observed, continuously-updating, verified probability*.** 
+   * A verified price for an asset is cheaper to borrow against because when an investor buys a note, they're taking on the risk that the probability it's priced at is wrong. Two sources of uncertainty, science & valuation integrity. If the probability is the sponsor's self-reported figure, the investor assumes it's optimistically biased, so they pad their required return with a large premium to protect against being lied to (π_high). If the probability comes from a market the investor can verify was neutral – not seeded by the sponsor, not traded by the sponsor, resolved by a pre-committed source – it's trustworthy.
+
+     * Not enough uninformed hedging flow for a completely unsubsidized LS-LMSR market, not enough liquidity.
+     * So we can try to build a subsidized prediction market on an asset that's verifiably neutral, so as to have the same valuation effectiveness & trust as an unsponsored true market.
+     * Lower premium = lower required return = lower WACC = sponsor raises the same money for cheaper.
+   * **Quiet vs. stress/catalyst regime:**
+
+     * two distinct market condition, different levels of informed trading
+     * Quiet: ordinary times – little new information, mostly noise/agentic flow, price drifts near prior
+     * Stressed/Catalyst: high-information period – trial readout, PDUFA date, data release – when informed traders with real signal pile in and the price moves sharply.
+     * I'm proving that an LMSR maker holds up without any adverse selection / - markout in both regimes – this is the value of credibility compression
+     * *The regimes are my stress-test, and passing both is what showed me the differentiator isn't "we protect the market under fire," it's "we make the price trustworthy regardless."*
