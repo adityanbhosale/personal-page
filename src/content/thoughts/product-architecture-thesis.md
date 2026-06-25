@@ -1,7 +1,7 @@
 ---
 title: product architecture / thesis
 topic: VSA Markets
-date: 2026-06-25T00:29:00
+date: 2026-06-25T13:28:00
 ---
 ### Mechanism
 
@@ -237,4 +237,6 @@ In other words, my simulated sponsored LMSR maker is *structurally more robust t
 
 1. Change header line, currently "A five-step walkthrough for a sponsor / CFO. Every figure below comes from one simulation run," to something more descriptive of the larger goal.
 
-   *
+   * *Changed to* "Price discovery as infrastructure – using prediction markets to reprice the illiquid, tail assets that traditional valuation can only estimate."
+   * Thesis line: "We believe a market's purpose is truth convergence and the repricing it enables — not liquidity for its own sake. Most prediction markets end at the bet; ours begin there, turning a verified probability into a repricing of real assets. We build for the illiquid tail others skip — milestone-driven, low-uninformed-flow markets like early-stage life-sciences R&D — using agentic trading, LS-LMSR market-making, and cryptographic neutrality as the ingredients for societal repricing where traditional valuation can only guess."
+2. Cosmetic: color scheme
