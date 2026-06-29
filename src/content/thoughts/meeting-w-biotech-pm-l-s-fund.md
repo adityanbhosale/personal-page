@@ -19,25 +19,13 @@ Mechanics:
 
 **The PIPE discount and any structured conversion terms are priced off the fund's *private estimate of where the asset is going* – i.e., it's milestone view. A verified probability is an input to the discount the investor demands.**
 
-
-
 * *"You price CVRs. A CVR is just a securitized milestone bet — and when it trades, its price is a market-implied probability of that milestone hitting."*
-
 * *"But a CVR only exists because an M&A deal minted it. The probability discovery is a byproduct of the transaction."*
-
 * *"Every other milestone in biotech has the identical structure — binary event, huge value riding on it — but no deal ever minted a vehicle, so no market, no price. The probability is just as real; it's invisible."*
-
 * *"VSA mints that vehicle deliberately, for any milestone, without needing an acquisition. CVR-style price discovery for the assets that never get a CVR."*
-
 * *(if he leans in)*
 
-   
-
   *"The hard part is that a CVR borrows its credibility from the deal behind it. Mine has no deal — so I have to manufacture the credibility the CVR gets for free. That's what the neutrality and verifiability work is for."*
-
-
-
-
 
 #### Necessary Contacts for Letters of Interest:
 
@@ -46,3 +34,15 @@ Mechanics:
   * Likely through a valuation committee, their fund admin, their audit firm.
 * Structured-credit / Issuer Side – i.e., someone at BlueOwl Life-Sciences or any credit fund. People who are issuing the credit in these private deals.
 * Sponsor / Biotech CFO who's actually issued milestone-contingent or convertible notes and felt the trust-premium pain – this is a demand-side person.
+
+
+
+### Model Walkthrough (Appndx)
+
+Harness: Proves a mechanism, not correctness of valuation. It doesn't claim the price is RIGHT.
+
+Pivotality: A small informed minority is pivotal: ~2% of the population moves the resting price to the informed consensus – but only under its stated conditions, and the threshold widens with expert disagreement.
+
+Manipulation Resistance: against a fixed, unlimited-budget counterparty pushing toward a false price target, the informed cohort must reach a minimum share to win the contest
+
+Substrate Neutrality: the original "with zero informed traders the price holds the neutral seed" hypothesis was **tested and falsified.** With no informed-flow, the price reverts to 0.493 from every seed via b-dilution.
