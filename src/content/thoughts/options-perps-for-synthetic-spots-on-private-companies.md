@@ -1,7 +1,7 @@
 ---
 title: options/perps for synthetic spots on private companies??
 topic: VSA Markets
-date: 2026-06-29T22:20:00
+date: 2026-06-30T12:27:00
 ---
 SolFi is a Prop AMM. A prop AMM is a professional market maker's quoting engine wearing an AMM costume. The on-chain contract is a near-hollow wrapper; the prices come from a private off-chain server running the firm's algo. Unlike Uniswap/Raydium/Orca, they don't like users pool liquidity – they run solely on capital provided by the AMM producer, and they only accept trades routed to them from aggregators like Jupiter. No frontend, no token, no community LPs. It's just on-chain infra operated by professional firms using their own capital and algos – closer to a TradFi prop desk.
 
