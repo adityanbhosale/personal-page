@@ -3,17 +3,37 @@ title: options/perps for synthetic spots on private companies??
 topic: VSA Markets
 date: 2026-06-30T12:27:00
 ---
+The SPCX perp referred to a price that didn’t exist yet but *would.*
+
+The on-chain synthetic called the first-day IPO ‘pop’ with reasonable accuracy, a second proof point after CBRS’s 1.3% miss.
+
+Caveats:
+
+1. Perp matched the best available signal; didn’t beat it.
+2. Accuracy was partly structural, not pure discovery.
+3. The neutrality-from-liquidity point is now clearer.
+
+
+
+Question: *Do prediction markets find truth?* My tail-markets application refer to prices that will never exist, unlike a pre-IPO exchange.
+
+
+
+Thesis: *A synthetic price counts as real not when it matches an external value, but when nothing inside the mechanism that produced it could have made it lie – and the perps, by borrowing their realness from an anchor they’re about to be graded against, show us exactly what has to be built when no anchor is coming.*
+
+
+
+\-------------------------------------
+
+
+
 SolFi is a Prop AMM. A prop AMM is a professional market maker's quoting engine wearing an AMM costume. The on-chain contract is a near-hollow wrapper; the prices come from a private off-chain server running the firm's algo. Unlike Uniswap/Raydium/Orca, they don't like users pool liquidity – they run solely on capital provided by the AMM producer, and they only accept trades routed to them from aggregators like Jupiter. No frontend, no token, no community LPs. It's just on-chain infra operated by professional firms using their own capital and algos – closer to a TradFi prop desk.
-
-
 
 ## Synthetic Underlying for Private-Asset Catalysts...
 
 Problem: single-asset private biotech has enormous value riding on a binary catalyst – a trial readout, an approval – an **no market prices it**. Public catalyst options exist but are expensive and indirect: a binary event creates a bimodal, un-hedgeable gap that options market-makers can only cover by loading huge premium into implied vol. And the cleaner instrument – a pre-IPO-style perps market, doesn't transfer, because a perp needs a *coming price* to anchor to (i.e., SpaceX upcoming trading on NAS), and a private single-asset biotech has no coming price. The readout produces a fact, not a price.
 
 So, the instrument that would let a fund express a catalyst view (with leverage) on a private asset simply has nothing to settle against.
-
-
 
 #### **Mechanism: Manufacturing the Anchor**
 
@@ -30,8 +50,6 @@ Two validated properties make **p** usable as a reference: a small informed mino
 * leverage, so a fund can express a catalyst view on margin rather than fully funding a position in the binary.
 
 The funding-rate tether means Layer 2 can't drift away from the harvested probability – the neutrality of Layer 1 propagates upward by construction.
-
-
 
 #### **Open Problems**
 
