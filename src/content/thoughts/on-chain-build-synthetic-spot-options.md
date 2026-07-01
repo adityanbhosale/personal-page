@@ -1,7 +1,7 @@
 ---
 title: "on-chain build: synthetic spot + options"
 topic: VSA Markets
-date: 2026-07-01T16:07:00
+date: 2026-07-01T18:39:00
 ---
 A subsidized harvest market maker that manufactures a continuous catalyst \*\*probability p\*\* (Layer 1 – synthetic spot), and a derivatives layer (perps/options on 'p') that funding-anchors to it (Layer 2). It inventories all relevant prior engineering and design work, states what is validated vs assumed vs unbuilt, specifies the target architecture, and lays out a phased, audit-first build plan with the security gate that must not be skipped.
 
@@ -135,3 +135,17 @@ Divergence:
     * Gap: A fund long a clinical-stage name is, in substance, long *one Ph3 readout* – but the only tools act on the whole company. Listed equity options don't exist, or are wide and illiquid, for a specific program or data window; shorting the name to neutralize the catalyst inherently includes pipeline, cash-runway, platform, and macro basis the trader doesn't want.
     * Today, this process is done bilaterally, OTC, expensively – trade process exists, done badly.
     * **Instrument:** subsidized LS-LMSR maker aggregates the informed cohort for a target/modality into a continuous catalyst probability p ∈ (0,1) – the synthetic "spot" of the event – and an option surface is written on p. Participation is **permissioned & institutional** (ECP-eligible, KYC'd via an on-chain identity layer), which is appropriate to the instrument and to do the counterparties who want it.
+
+
+
+## At this point, Layer 1's contracts (CTF, Adapter, Maker) are all on-chain; Gate A demo is done & assumptions marked, and options-framing is recorded. Everything's backed up across 5 repos + vsa-meta's README.md**.**
+
+
+
+## **Next Step:** Subsidy + Smoke-test
+
+*Turns "live and pricing" into "demonstrably trades" – requires USDC faucet.*
+
+1. Get testnet USDC into my deployer – the maker needs a USDC reserve, and i need USDC to buy with.
+2. `fundSubsidy` – approve + fund the maker's reserve (~6.93 USDC, my corrected maxLossBound for a = 0.05, symmetric 100/100).
+3. Smoke-test buy – approve USDC to the maker, then execute a small buy, then verify the position landed and the price moved.
