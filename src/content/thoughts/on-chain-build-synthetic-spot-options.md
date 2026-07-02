@@ -1,7 +1,7 @@
 ---
 title: "on-chain build: synthetic spot + options"
 topic: VSA Markets
-date: 2026-07-01T18:39:00
+date: 2026-07-01T20:15:00
 ---
 A subsidized harvest market maker that manufactures a continuous catalyst \*\*probability p\*\* (Layer 1 – synthetic spot), and a derivatives layer (perps/options on 'p') that funding-anchors to it (Layer 2). It inventories all relevant prior engineering and design work, states what is validated vs assumed vs unbuilt, specifies the target architecture, and lays out a phased, audit-first build plan with the security gate that must not be skipped.
 
