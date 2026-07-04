@@ -149,3 +149,9 @@ Divergence:
 1. Get testnet USDC into my deployer – the maker needs a USDC reserve, and i need USDC to buy with.
 2. `fundSubsidy` – approve + fund the maker's reserve (~6.93 USDC, my corrected maxLossBound for a = 0.05, symmetric 100/100).
 3. Smoke-test buy – approve USDC to the maker, then execute a small buy, then verify the position landed and the price moved.
+
+
+
+## Mapping to TradeXYZ perps mechanism:
+
+This is based on TradeXYZ full oracle / market price / external price / discovery-bounds documentation. Sharpest external analogy to my design and its central cautionary tail.
