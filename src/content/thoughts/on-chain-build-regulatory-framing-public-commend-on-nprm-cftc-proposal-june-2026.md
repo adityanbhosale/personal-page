@@ -12,13 +12,9 @@ CFTC – June 10, 2026 Notice of Proposed Rulemaking ("Prediction Markets; Publ
 2. whether it "involves" an enumerated activity (unlawful activity, terrorism, assassination, war, gaming)
 3. whether it's contrary to the public interest
 
-
-
 Perps are on-shore.
 
 CME / CFTC lawsuit on perps as futures rather than swaps.
-
-
 
 Polymarket runs an on-chain DeFi international platform and a separate CFTC-regulated U.S. exchange, having acquired QCEX  – a CFTC licensed derivatives exchange and clearinghouse (for $112M to secure the regulatory infrastructure for intermediated US access.
 
@@ -29,8 +25,6 @@ Polymarket runs an on-chain DeFi international platform and a separate CFTC-regu
   * Debevoise – flags that pharmaceutical, technology, and digital-asset sectors are particulary exposed because their most sensitive information concerns discrete milestones – trial results, FDA decisions, product launches – that become event-contract subjects, and an insider may not only possess nonpublic information but can be positioned to affect the event itself.
   * Freshfields – if no single input is clearly MNPI, but the combination of partial signals produces a highly accurate prediction, where does liability begin?
 * VSA's security model relies on recruiting informed flow – the "informed share X" that secures the anchor against leveraged products – and the regulator is mid-decision on informed flow that looks like MNPI, in exactly pharma/biotech.
-
-
 
 #### **Decisions:**
 
@@ -49,23 +43,22 @@ Polymarket runs an on-chain DeFi international platform and a separate CFTC-regu
      * Polymarket relied on this by deploying an on-chain surveillance solution with Chainalysis because every trade, position, and settlement is recorded on a public blockchain.
      * My Polymarket toxic-flow monitor is a prototype of the surveillance capacity this requires – core asset to cite.
 
-
-
 **Note that biotech catalyst contracts are *not* an enumerated prohibited activity, and they pass the public-interest utility bar better than sports or culture because the rule explicitly credits contracts that let businesses mitigate risk more effectively than the imprecise hedges offered by other instruments.**
 
 i.e., a clean catalyst volatility instruments vs. traditional equity options that bundle the readout with the whole company's macro / other intrinsic factors
 
-
-
-
-
 #### **Public Comment:** Prediction Markets; Public Interest Determinations
+
+Comment Tracking Number
+
+## mr9-leiu-h7hx
+
+
+
 
 The rule is "Prediction Markets; Public Interest Determinations," RUN 3038-AF65 (91 FR 35806), a 66-page proposed rule, and the deadline for commens in writing is July 27, 2026.
 
 Submit via Regulations.gov at regulations.gov/commentation/CFTC-2026-1189-0001 under Docket ID CFTC-2026-1189. The form allows you to type inline or attach a file (which is what I'll do).
-
-
 
 **Approach:** respond to the rule's own framework; not offering general support.
 
