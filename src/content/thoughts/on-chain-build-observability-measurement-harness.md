@@ -1,11 +1,9 @@
 ---
-title: "on-chain build: Observability/Measurement Harness"
+title: FEEDBACK (LEERINK / trader)
 topic: VSA Markets
-date: 2026-07-07T08:53:00
+date: 2026-07-07T17:31:00
 ---
 VERA US
-
-
 
 HORIZON
 
@@ -13,15 +11,7 @@ lisa kauffman
 
 adam futterman
 
-
-
-
-
 Liquidity is a solvable issue; go to banks for liquidity (banks with S&T desk just go to MMs to ask for what they can get for this); there is a lot opportunity in event markets for biotech. didn't trade that often with Leerink because he wasn't able to get good pricing... jake). look through electronic markets, go to banks, maybe even Leerink.. but probably not. prop trading vs. hedge funds vs. S&T desks (they're just relationship focused, they're they sell-side) 
-
-
-
-
 
 **desk Feedback Summarized:**
 
@@ -31,8 +21,6 @@ Liquidity is a solvable issue; go to banks for liquidity (banks with S&T desk ju
   * anyone who wants to trade a bespoke contract on one readout either has an information edge or is gambling, so a market maker has no uninformed flow to earn the spread against and no way to hedge the binary
   * slicing already thin interest into a more specific claim doesn't summon new participants; it concentrates the same small specialist pool into something even harder to make a two-sided market in.
 * As a liquid trading venue – a place where a fund expects to move size and get filled – the desk is right. Adam's 5,000-contract order sitting on the screen is a live demonstration: no MM will warehouse that much binary catalyst risk unpaid without a natural buyer, so it has to walk the book to find one.
-
-
 
 **Usman feedback summarized:**
 
@@ -63,4 +51,3 @@ Liquidity is a solvable issue; go to banks for liquidity (banks with S&T desk ju
 1. HFs (demand)
 2. S&T Desks (distribution – sell-side, relationship-driven, source liquidyt rather than provide it, NOT THE LP)
 3. Prop / electronic MMs are the liquidity – they'll actually warehouse these orders
-4.
