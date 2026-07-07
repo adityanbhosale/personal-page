@@ -1,9 +1,53 @@
 ---
 title: neutral agents codebase / LOI prep
 topic: VSA Markets
-date: 2026-06-25T17:24:00
+date: 2026-07-07T09:20:00
 ---
 # Letters of Intent
+
+### MD @ LEERINK:
+
+Framing: Two-layer catalyst-volatility exchange on-chain. Leerink cannot provide an LOI since they can't trade catalyst vol, especially on an unregulated testnet. CAN provide a LETTER OF INTEREST: short note in his own words validating the pricing gap, that he sees it in how these assets actually get valued, and that the approach is credible.
+
+
+
+Model Walkthrough: Essentially an instrument to value individual catalyst events under individual programs. Street expresses this catalyst view before resolution via equities & options that bundle the catalyst with everything else moving the stock (i.e, macro, other assets, internal financing). This is sort of why CVRs exist, because buyers and sellers can't agree on catalyst-contingent value, so they write it into a cotract.
+
+I'm building that missing market structure – a verifiable, continuously-updating price for an individual catalyst, with a thin derivatives layer so that risk can be isolated, traded, and hedged directly.
+
+**What's Built:** Layer 1 (the synthetic spot price based on a Liquidity-Sensitive LMSR automated market maker for thinner markets) is deployed as a live event contract on a testnet chain (which helps prove how manipulation-resistant the underlying spot will be, which is crucial in thin markets where bad actors could easily bias price discovery).
+
+At the moment, I'm building an initial version of the perps/options layer on top, as well as doing some regulatory mapping to understand what the path is to get this to be an onshore, CFTC-regulated decentralized exchange, similar to what Kalshi's doing with the perpetual futures they're hosting.
+
+Actually just submitted a public comment to the Secretary of the CFTC on their recent Proposed changes to Prediction Market jurisdiction, making a case for why a event contracts on scheduled, objectively-resolved corporate & regulatory catalyst events should be covered by the commission & why it satisfies their criteria for markets that act in the public-interest.
+
+
+
+**Who'd use this?**
+
+The direct customer buy-side event-vol – I mean these funds are already trading catalyst risk, just very imprecisely in my opinion, through equity options and sizing around dates; this market structure would let them express a clean view on the magnitude of a specific readout or hedge a concentrated catalyst exposure without the macro/financial noise in equities.
+
+And for a bank, continuous, credible price discovery on catalyst-contingent value could be a strong input for how these assets are valued in deals and financings.
+
+
+
+**What I need:**
+
+I'm raising a small pre-seed in the next month. The investors I'm talking to can evaluate the mechanism & the code quite accurately, but they don't have the biopharma depth to know whether the underlying problem is validated. So, a short note from someone who's tenured in pricing biopharma assets – i.e., saying in your own words that catalyst price discovery is a genuine gap you observe and the approach is credible – would be more convincing to them than anything I can prove through code.
+
+I can draft something up that's easy to edit so it'd just take a few minutes for you to read through. But curious if you'd be willing to write something like that for me?
+
+
+
+
+
+
+
+
+
+
+
+\--------------------------------------------------------
 
 **Weakpoints:**
 
@@ -68,8 +112,6 @@ Potential Work-Arounds:
 
    * Run many markets at varied true_p, resolve ~Bernoulli(true_p), score price vs realized outcomes (Brier/reliability curve). This **can falsify** – it catches systematic miscalibration from LS-LMSr spread bias, finite-N signal-mean error, or maker skew – but **a pass is weak evidence** because price = true_p and outcome~Bernoulli(true_p) make calibration hold nearly by construction. Frame it as a **bias detector / falsification gate, not proof.**
 
-
-
 In the circular setup, the market seed, informed agents' beliefs, and everything else all pointed at true_p, so convergence was mechanical. The fix is to deliberately *separate* them so that "price tracks the informed cohort" and "price tracks the agents/seed" make different, distinguishable predictions – then show which one wins.
 
 * seed the market at a neutral or deliberately-wrong value
@@ -79,8 +121,6 @@ In the circular setup, the market seed, informed agents' beliefs, and everything
 
   * If informed-controlled and agent-controlled predicted the same price, the test proves nothing
   * Forcing them apart is what converts it from tautology into a real, falsifiable experiment about who controls the price
-
-
 
 ###### **Build 1: Validation Harness (post-recon).**
 
@@ -94,12 +134,7 @@ Seed the market at a NEUTRAL or deliberately-OFFSEt value (i.e., 0.50, or a valu
 * The pivotal threshold (control ≥ 0.9) is ~2% of the population – but this is the floor, an artifact of two favorable conditions: a near-perfect informed signal (informed_sigma = 0.01) and directionless (mean-zero) noise, so the informed cohort is the only directional force in the market
 * The decline is monotone – even at 1% (2 agents) price is pulled 82% of the wya to the informed belief, though it stops settling tightly.
 * **Depth changes stability, not control** – as liquidity/subsidy rises, the control metric stays flat (~0.984) but path volatility and worst single-tick jump fall quickly. This reproduces the initial cold-start finding: with no depth the first trade moves price unilaterally (0.32 jump); deep markets move smoothly and hold.
-
-
-
-* the experimental separation is real, not nominal – seed (0.50) ≠ informed belief (0.75), offset enforced in code (__post_init__) refuses to run if they coincide), noise genuinely directionless, and the control metric distinguishes "tracks informed" (1.0) from "stuck at seed" (0.0). Thus, the result is non-circular.
-
-
+* the experimental separation is real, not nominal – seed (0.50) ≠ informed belief (0.75), offset enforced in code (**post_init**) refuses to run if they coincide), noise genuinely directionless, and the control metric distinguishes "tracks informed" (1.0) from "stuck at seed" (0.0). Thus, the result is non-circular.
 
 **Flagged Caveats:**
 
@@ -108,10 +143,6 @@ Seed the market at a NEUTRAL or deliberately-OFFSEt value (i.e., 0.50, or a valu
 * A **new dependency** (pandas) was pulled in by the mandated vendoring of convergence_tick –– flagged, pinned, added to requirements.txt
 * b-runaway observed at low informed fractions (b grew x140-243); labeled, doesn't affect the pivotality conclusion (price still settles)
 * `informed_sigma = 0.01` models experts as near-identical and near-correct – unrealistic; real experts disagree. (This is why I initially flagged adding a realistic-dispersion robustness cut to Pillar 4).
-
-
-
-
 
 ##### **Build 2: Adversarial Manipulation-Resistance**
 
@@ -122,8 +153,6 @@ Setup – 3 distinct points so the resting price discriminates among outcomes:
 * seed at p_seed (i.e., 0.50). informed believe p_informed (i.e., 0.75). adversary pushes toward p_target chosen DISTINCT from BOTH (i.e., 0.30 or 0.95) so "informed wins" (price --> 0.75), "adversary wins" (price --> p_target), and "stuck" are all distinguishable. asset p_target ≠ p_informed ≠ p_seed in code.
 * extend the vendored single-shot AdversarialTrader to a SUSTAINED, TARGET-SEEKING pusher: it trades repeatedly to drive and HOLD price at p_target, with a configurable capital/size budget.
 
-
-
 **Result:**
 
 Answer to "can a sponsor rig it" – theoretically no. The frontier discriminates correctly (3 distinct anchors: seed 0.50 < informed 0.75 < target 0.95, so informed-win and adversary-win land at different prices).
@@ -131,10 +160,6 @@ Answer to "can a sponsor rig it" – theoretically no. The frontier discriminat
 **At any finite budget tested (≤1000), the informed cohort defeats the adversary at every fraction down to 2% – the adversary exhausts its capital AND informed below ~5-10%; at ≥20% informed, the price holds even against an infinite-budget attacker.**
 
 The agent proved the experiment isn't rigged toward the informed by *showing the adversary genuinely wins in the unlimited-capital + tiny-informed corner.* That's the credibility feature – a test where the defender always wins is not a good test; this one involves the defender losing exactly where theory says it should.
-
-
-
-
 
 ##### **Build 3: Substrate Neutrality**
 
@@ -150,8 +175,6 @@ So in a real (standard market), the adversary's ~$20k flips a 2% market but a 5%
 
 *The net cost to manipulate is low, but the gross-capital barrier plus LS-LMSR's b-growth defense means that beyond ~5% informed participation, even a $100k adversary can't fully rig the price.*
 
-
-
 # **RECAP**
 
 **Initial Goals:**
@@ -159,8 +182,6 @@ So in a real (standard market), the adversary's ~$20k flips a 2% market but a 5%
 * Compile / Build out the agent-trader population – the most proprietary part of the model and the part we'd own end to end.
 * Treat integrity, A/B testing, and neutrality vs. analogous markets as the core concern, because a sponsor setting the price is a valid point of concern.
 * Decision made up front: **prove convergence / control with the existing two-class population before adding complexity (**benchmark-first, no new archetypes**)**.
-
-
 
 **Key Reframes & Conceptual Shifts:**
 
@@ -170,8 +191,6 @@ So in a real (standard market), the adversary's ~$20k flips a 2% market but a 5%
 
   * inherently a mechanism-rooted claim, non-circular, more defensible
 * Relabeling enforced everywhere: true_p --> p_informed ("the informed cohort's belief"); never "truth" in code, output, or artifacts.
-
-
 
 **What the recon found (before building)**
 
@@ -187,8 +206,6 @@ So in a real (standard market), the adversary's ~$20k flips a 2% market but a 5%
 * **Pillar 3** – Substrate Neutrality: zero-informed (pure-agent) test for directional drift + graceful-degredation test.
 * **Pillar 4** – Robustness: multi-seed % CI bands (idiom attributed from compute_ci_band, reimplemented not vendored – the source was truth-coupled) + a numpy-only bootstrap A/B comparator. Plus realistic dispersion and widened-budget cuts.
 * Vendored with provenance: `metrics.py`, `adversarial.py` (verbatim, repointed to `p_informed`). New dep: `pandas` (pulled in by the vendored convergence_tick; flagged, pinned). Committed: 15 files, private repo, data/ gitignored (artifacts regenerate from seed).
-
-
 
 ##### Discovered:
 
