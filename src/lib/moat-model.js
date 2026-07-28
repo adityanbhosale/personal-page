@@ -29,7 +29,9 @@
 export const PORTCO_COMPONENTS = {
   kueski: {
     label: 'Kueski',
-    color: '#2563eb',
+    // Rendering colour now comes from --series-N via usePalette(); this is
+    // retained only as a stable identity hint for the model data.
+    color: '#6ea8fe',
     startingMoat: 0.85,
     components: [
       {
@@ -80,7 +82,7 @@ export const PORTCO_COMPONENTS = {
 
   tpaga: {
     label: 'Tpaga',
-    color: '#dc2626',
+    color: '#e8796f',
     startingMoat: 0.70,
     components: [
       {
@@ -122,7 +124,7 @@ export const PORTCO_COMPONENTS = {
 
   yassir: {
     label: 'Yassir',
-    color: '#16a34a',
+    color: '#63c98a',
     startingMoat: 0.65,
     components: [
       {
@@ -174,7 +176,7 @@ export const PORTCO_COMPONENTS = {
 
   vammo: {
     label: 'Vammo',
-    color: '#ea580c',
+    color: '#f0913f',
     startingMoat: 0.75,
     components: [
       {

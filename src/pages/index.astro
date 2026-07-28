@@ -1,202 +1,374 @@
 ---
 // src/pages/index.astro
+import Base from "../layouts/Base.astro";
+
+// Rendered server-side so the no-JS fallback shows the real zone abbreviation
+// (EDT/EST) and real hand positions rather than a hardcoded guess. The client
+// script takes over and adds the time itself.
+const nyParts = new Intl.DateTimeFormat("en-US", {
+  timeZone: "America/New_York",
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+  timeZoneName: "short",
+}).formatToParts(new Date());
+const part = (type: string) => nyParts.find((p) => p.type === type)?.value ?? "";
+const tzLabel = part("timeZoneName") || "EDT";
+const mins = parseInt(part("minute"), 10) || 0;
+const hour12 = (parseInt(part("hour"), 10) || 12) % 12;
+const hourAngle = hour12 * 30 + mins * 0.5;
+const minAngle = mins * 6;
 ---
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Aditya Bhosale" />
-  <title>Aditya Bhosale</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+<Base title="Aditya Bhosale">
   <style is:global>
-    :root {
-    --bg: #ffffff;
-    --ink: #1a1a1a;
-    --ink-muted: #555555;
-    --link: #1a1a1a;
-    --rule: #d8d8d8;
-    --cta-bg: #1a1a1a;
-    --cta-bg-hover: #000000;
-    --cta-fg: #ffffff;
-  }
+    /*
+      Poster scale, homepage only. Setting the size on `main` rather than on
+      each element means the ch-based column widens in step with the type, so
+      the hero keeps exactly the line breaks it had at the smaller size.
+    */
+    main {
+      font-size: clamp(17px, 0.9vw + 8px, 24px);
+      line-height: 1.5;
+    }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+    /*
+      Content sits below a band of dark air so the text meets the building
+      rather than floating above it. Capped rather than pure vh: on a tall
+      window 20vh runs to 350px+ and pushes the hero off the first screen.
+      Padding, not transform, so scrolling behaves normally. `html body` only
+      to outrank the layout's own `body` rule regardless of injection order.
+    */
+    body .scroll-inner { padding-top: clamp(80px, 13vh, 200px); }
 
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'EB Garamond', Georgia, serif;
-    font-size: 19px;
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-    padding: 60px 24px 80px;
-  }
+    @media (max-width: 700px) {
+      /* Shallower still, so the hero is on screen without scrolling. */
+      body .scroll-inner { padding-top: clamp(56px, 11vh, 120px); }
+    }
 
-  main {
-    max-width: 620px;
-    margin: 0 auto;
-  }
+    /*
+      Pinned timestamp. Same treatment as the footer: no fill, never
+      interactive, never in the way of a scroll.
+    */
+    .site-clock {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 2;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5em;
+      padding: clamp(14px, 2.2vh, 28px) 16px;
+      font-size: clamp(15px, 0.4vw + 11px, 18px);
+      line-height: 1;
+      color: var(--ink-muted);
+      text-shadow: 0 1px 6px var(--halo);
+      font-variant-numeric: tabular-nums;
+    }
 
-  h1 {
-    font-size: 28px;
-    font-weight: 500;
-    margin-bottom: 6px;
-    letter-spacing: -0.01em;
-  }
+    /*
+      Scroll hint. Lives outside .scroll-shell so the content dissolve never
+      touches it, and never takes pointer events. Starts `hidden`, so with JS
+      off it is not rendered at all — the script only reveals it when the
+      shell genuinely overflows.
+    */
+    .scroll-hint {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: calc(var(--footer-band) + 16px);
+      z-index: 2;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      color: var(--ink-muted);
+      /* Matches the footer links. */
+      font-size: clamp(16px, 0.45vw + 10px, 19px);
+      line-height: 1;
+      text-shadow: 0 1px 6px var(--halo);
+      /* Only the dismissal is animated; it does not move or pulse. */
+      transition: opacity 400ms ease;
+    }
 
-  h1 a {
-    color: var(--ink);
-    text-decoration: none;
-  }
+    .scroll-hint[hidden] { display: none; }
+    .scroll-hint[data-out="1"] { opacity: 0; }
 
-  .socials {
-    margin-bottom: 28px;
-    color: var(--ink-muted);
-    font-size: 16px;
-  }
+    /* The bar itself is inert; only this control takes pointer events. */
+    .theme-toggle {
+      pointer-events: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: 0;
+      padding: 2px;
+      margin-left: 0.15em;
+      color: inherit;
+      cursor: pointer;
+      line-height: 0;
+      transition: color 0.15s ease;
+    }
 
-  .socials a {
-    color: var(--ink-muted);
-    text-decoration: none;
-    margin-right: 14px;
-  }
+    .theme-toggle:hover { color: var(--accent-hover); }
 
-  .socials a:hover {
-    color: var(--ink);
-    text-decoration: underline;
-  }
+    /* Matches the focus ring used on links. */
+    .theme-toggle:focus-visible {
+      outline: 1px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
 
-  p {
-    margin-bottom: 18px;
-  }
+    .theme-toggle svg { width: 1em; height: 1em; }
 
-  a {
-    color: var(--link);
-  }
+    /*
+      Sun offers light while dark is active; moon offers dark once light is.
+      Scoped under .theme-toggle so these outrank the `svg` sizing rule above.
+    */
+    .theme-toggle .icon-sun { display: block; }
+    .theme-toggle .icon-moon { display: none; }
+    :root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
+    :root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 
-  a:hover {
-    text-decoration: none;
-  }
+    .site-clock .clock {
+      width: 1em;
+      height: 1em;
+      flex: none;
+      overflow: visible;
+    }
 
-  .label {
-    font-style: italic;
-    color: var(--ink-muted);
-    margin-top: 28px;
-    margin-bottom: 8px;
-    font-size: 17px;
-  }
+    /*
+      Every block sits greyed-out at rest. Hovering anywhere within a block
+      brings that whole block forward — brighter and heavier. On a near-black
+      background "stronger" means more contrast, so the hover state moves
+      toward the off-white rather than away from it.
+    */
+    .block {
+      color: var(--ink-muted);
+      transform: scale(1);
+      /* Grows rightward off the left margin so the column edge stays put. */
+      transform-origin: left center;
+      /*
+        Weight comes from a stroke, not font-weight: changing the weight
+        alters glyph advances and re-wraps the paragraphs mid-hover. A stroke
+        thickens the same outlines and touches no layout metrics.
+        Deliberately no `will-change: transform` — promoting the layer makes
+        Chrome scale a stale bitmap and leaves the serif permanently soft.
+        Without it the text re-rasterises crisp at the new size.
+      */
+      -webkit-text-stroke: 0 currentColor;
+      transition: color 0.28s ease, transform 0.28s ease,
+                  -webkit-text-stroke-width 0.28s ease;
+    }
 
-  /* CTA button — promoted current build link */
-  .cta-wrap {
-    margin: 36px 0 40px;
-  }
+    .block:hover {
+      /* Was a literal #ffffff, which turned hovered text white on paper. */
+      color: var(--ink-strong);
+      transform: scale(1.015);
+      -webkit-text-stroke-width: 0.1px;
+    }
 
-  .cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--cta-bg);
-    color: var(--cta-fg);
-    padding: 14px 22px;
-    text-decoration: none;
-    font-family: 'EB Garamond', Georgia, serif;
-    font-size: 18px;
-    font-weight: 500;
-    letter-spacing: -0.005em;
-    border-radius: 2px;
-    transition: background 0.15s ease, transform 0.15s ease;
-  }
+    @media (prefers-reduced-motion: reduce) {
+      .block { transition: color 0.28s ease; }
+      .block:hover { transform: none; }
+    }
 
-  .cta:hover {
-    background: var(--cta-bg-hover);
-    transform: translateY(-1px);
-  }
+    /* Children track the block's state instead of holding their own colour. */
+    .block h2,
+    .block p {
+      color: inherit;
+      transition: color 0.28s ease;
+    }
 
-  .cta-arrow {
-    font-size: 0.9em;
-    line-height: 1;
-  }
+    /* Relative hierarchy is held with opacity so it survives both states. */
+    .block h2 { opacity: 0.72; }
 
-  .cta-sublabel {
-    display: block;
-    margin-top: 8px;
-    font-style: italic;
-    color: var(--ink-muted);
-    font-size: 15px;
-    line-height: 1.4;
-  }
+    .hero p {
+      margin-bottom: 1.5em;
+      text-wrap: pretty;
+    }
 
-  hr {
-    border: none;
-    border-top: 1px solid var(--rule);
-    margin: 36px 0 28px;
-  }
+    /* Secondary blocks — deliberately recessed against the hero copy. */
+    .recessed {
+      margin-top: 3.4em;
+    }
 
-  .footer-links {
-    color: var(--ink-muted);
-    font-size: 16px;
-  }
+    /* Peer blocks sit closer to each other than to the hero. */
+    .recessed + .recessed {
+      margin-top: 2.1em;
+    }
 
-  .footer-links a {
-    color: var(--ink-muted);
-    text-decoration: none;
-    margin-right: 18px;
-  }
+    .recessed h2 {
+      font-size: 0.9em;
+      font-weight: 400;
+      font-style: italic;
+      letter-spacing: 0;
+      margin-bottom: 10px;
+    }
 
-  .footer-links a:hover {
-    color: var(--ink);
-    text-decoration: underline;
-  }
+    .recessed p {
+      font-size: 0.9em;
+      /*
+        ch resolves against this element's own (smaller) font, so capping at
+        the same ch value as the main column yields the same characters per
+        line rather than ~10 more.
+      */
+      max-width: var(--measure);
+      line-height: 1.5;
+      text-wrap: pretty;
+      margin-bottom: 0;
+    }
 
-  /* arrow superscript */
-  .ext::after {
-    content: " ↗︎";
-    font-size: 0.85em;
-  }
+    /* Touch devices have no hover — show everything at full strength. */
+    @media (hover: none) {
+      .block { color: var(--ink); }
+      .block h2 { opacity: 0.66; }
+    }
 
-  @media (max-width: 600px) {
-    body { padding: 40px 20px 60px; font-size: 18px; }
-    h1 { font-size: 24px; }
-    .cta { font-size: 17px; padding: 13px 20px; }
-  }
+    @media (max-width: 600px) {
+      .recessed { margin-top: 2.6em; }
+      .recessed + .recessed { margin-top: 1.8em; }
+    }
   </style>
-</head>
-<body>
-  <main>
 
-<h1><a href="/">Aditya Bhosale</a></h1>
+  <div class="site-clock" slot="top">
+    <svg class="clock" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7" />
+      <line class="clock-hour" x1="12" y1="12" x2="12" y2="7" stroke="currentColor"
+            stroke-width="1.9" stroke-linecap="round" transform={`rotate(${hourAngle} 12 12)`} />
+      <line class="clock-min" x1="12" y1="12" x2="12" y2="4.8" stroke="currentColor"
+            stroke-width="1.5" stroke-linecap="round" transform={`rotate(${minAngle} 12 12)`} />
+    </svg>
+    <span class="clock-text">{tzLabel}</span>
+    <button class="theme-toggle" type="button" aria-label="Toggle light mode">
+      <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="4.4" stroke="currentColor" stroke-width="1.7" />
+        <g stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+          <line x1="12" y1="1.6" x2="12" y2="4" /><line x1="12" y1="20" x2="12" y2="22.4" />
+          <line x1="1.6" y1="12" x2="4" y2="12" /><line x1="20" y1="12" x2="22.4" y2="12" />
+          <line x1="4.6" y1="4.6" x2="6.3" y2="6.3" /><line x1="17.7" y1="17.7" x2="19.4" y2="19.4" />
+          <line x1="19.4" y1="4.6" x2="17.7" y2="6.3" /><line x1="6.3" y1="17.7" x2="4.6" y2="19.4" />
+        </g>
+      </svg>
+      <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M20 14.4A8.6 8.6 0 0 1 9.6 4a8.6 8.6 0 1 0 10.4 10.4z"
+              stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+      </svg>
+    </button>
+  </div>
 
-<div class="socials">
-  <a class="ext" href="https://www.linkedin.com/in/adityanbhosale" target="_blank" rel="noopener">li</a>
-  <a class="ext" href="https://github.com/adityanbhosale" target="_blank" rel="noopener">gh</a>
-  <a class="ext" href="/projects">recent projects</a>
-  <a class="ext" href="/thoughts">working notes</a>
-  <a class="ext" href="https://substack.com/@adityabhosale3" target="_blank" rel="noopener">writings</a>
-  <a href="mailto:adityanb@sas.upenn.edu">email</a>
-</div>
+  <div class="scroll-hint" slot="overlay" hidden>
+    <svg width="13" height="34" viewBox="0 0 13 34" fill="none" aria-hidden="true" focusable="false">
+      <line x1="6.5" y1="0" x2="6.5" y2="24" stroke="currentColor" stroke-width="1" />
+      <polyline points="2.5,26 6.5,31 10.5,26" stroke="currentColor" stroke-width="1.4"
+                stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    <span>scroll</span>
+  </div>
 
-<p>I'm an undergraduate at the University of Pennsylvania studying economics and computer science, minoring in biology. These days, I enjoy spending most of my time studying / building agentic systems, on-chain market infrastructure, prediction market design, and the bridge between regulated finance and public blockchains.</p>
+  <div class="block hero">
+    <p>Hey, I'm Aditya – Undergrad @ Penn. Currently exploring synthetic market structures, event contracts, &amp; liquidity constraints in traditional finance.</p>
 
-<p>I'm an incoming 2027 summer M&amp;A analyst at Leerink Partners, a boutique investment bank in New York City, on the biopharma coverage team. Earlier work spans engineered T-Cell research at Penn's Center for Cell Immunotherapy, options pricing for real-world assets at UCL, and leading a handful of pro-bono tech / life-sciences consulting projects through Penn's Undergraduate Biotech Society &amp; Wharton's Venture Lab.</p>
+    <p>I'm an incoming investment banking summer analyst at Leerink Partners where I'll be joining the biopharma coverage group. Prior to my endeavors in markets &amp; finance, I spent 3+ years in a CAR-T lab at Penn Medicine, wrote on options-pricing for RWAs at UCL, and led a handful of pro-bono tech / life-sciences consulting projects through Penn's Undergraduate Biotech Society &amp; Wharton's Venture Lab.</p>
+  </div>
 
-<p class="label">some active interests</p>
+  <section class="block recessed">
+    <h2>active interests</h2>
+    <p>automated market makers, prediction markets, smart contracts, trading agents, scoring rules, tokenized RWAs, regulated stablecoins, institutional-bridge thesis for crypto, biotech equity research, options pricing, market microstructure</p>
+  </section>
 
-<p>automated market makers, prediction markets, smart contracts, trading agents, scoring rules, tokenized RWAs, regulated stablecoins, institutional-bridge thesis for crypto, biotech equity research, options pricing, market microstructure</p>
+  <section class="block recessed">
+    <h2>thesis</h2>
+    <p>Traditional finance is changing. Most of what I'm researching or building exists to close the gap between innovative decentralized systems &amp; regulated capital markets.</p>
+  </section>
 
-<p class="label">thesis</p>
+  <script is:inline>
+    // Keeps the pinned clock live. Server-rendered markup already carries the
+    // correct zone and hand angles, so a failure here degrades to that rather
+    // than to something wrong.
+    (function () {
+      var root = document.querySelector('.site-clock');
+      if (!root || !window.Intl || !Intl.DateTimeFormat) return;
+      var text = root.querySelector('.clock-text');
+      var hourHand = root.querySelector('.clock-hour');
+      var minHand = root.querySelector('.clock-min');
+      var fmt;
+      try {
+        fmt = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'America/New_York',
+          hour: 'numeric', minute: '2-digit', hour12: true, timeZoneName: 'short'
+        });
+      } catch (e) { return; }
 
-<p>Traditional finance is changing. Most of what I'm researching or building exists to close the gap between innovative decentralized systems (i.e. blockchains, smart markets, prediction markets, etc.) &amp; regulated capital markets. I believe the most influential financial infrastructure companies in the next decade will be able to serve both, and the most interesting problems require fluency in each.</p>
+      function tick() {
+        var parts = fmt.formatToParts(new Date());
+        var v = {};
+        for (var i = 0; i < parts.length; i++) v[parts[i].type] = parts[i].value;
+        if (!v.hour || !v.minute) return;
+        var mins = parseInt(v.minute, 10) || 0;
+        var h12 = (parseInt(v.hour, 10) || 12) % 12;
+        // Zone abbreviation comes from Intl, so EDT/EST follows DST on its own.
+        text.textContent = (v.timeZoneName || '') + ': ' + v.hour + ':' + v.minute +
+          ' ' + String(v.dayPeriod || '').toLowerCase();
+        hourHand.setAttribute('transform', 'rotate(' + (h12 * 30 + mins * 0.5) + ' 12 12)');
+        minHand.setAttribute('transform', 'rotate(' + (mins * 6) + ' 12 12)');
+      }
+      tick();
+      setInterval(tick, 30000);
+    })();
 
+    // Theme toggle. Default is dark on first visit regardless of the OS
+    // preference; the choice persists and is re-applied in <head> before paint.
+    (function () {
+      var root = document.documentElement;
+      var btn = document.querySelector('.theme-toggle');
+      if (!btn) return;
+      function relabel() {
+        btn.setAttribute('aria-label',
+          root.getAttribute('data-theme') === 'light' ? 'Toggle dark mode' : 'Toggle light mode');
+      }
+      btn.addEventListener('click', function () {
+        var next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+        if (next === 'light') root.setAttribute('data-theme', 'light');
+        else root.removeAttribute('data-theme');
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', next === 'light' ? '#f2f0eb' : '#0c0c0d');
+        relabel();
+      });
+      relabel();
+    })();
 
-<hr>
+    // Scroll hint: shown only when there is somewhere to scroll to, dismissed
+    // permanently on the first scroll of the session.
+    (function () {
+      // Deferred to load: this script sits inside <main>, while the hint is
+      // projected after the footer, so it does not exist yet at parse time.
+      // Waiting also lets the webfont swap settle before measuring overflow.
+      function start() {
+        var hint = document.querySelector('.scroll-hint');
+        var shell = document.querySelector('.scroll-shell');
+        if (!hint || !shell) return;
+        // Nothing to scroll to, or the reader already scrolled past the offer.
+        if (shell.scrollTop > 0 || shell.scrollHeight - shell.clientHeight < 4) return;
 
-<div class="footer-links">
-  <a class="ext" href="/cv.pdf" target="_blank" rel="noopener">cv</a>
-</div>
+        hint.hidden = false;
+        var gone = false;
+        shell.addEventListener('scroll', function dismiss() {
+          if (gone) return;
+          gone = true;
+          hint.setAttribute('data-out', '1');
+          setTimeout(function () {
+            if (hint.parentNode) hint.parentNode.removeChild(hint);
+          }, 450);
+        }, { passive: true, once: true });
+      }
 
-</main>
-</body>
-</html>
+      if (document.readyState === 'complete') start();
+      else addEventListener('load', start, { once: true });
+    })();
+  </script>
+</Base>

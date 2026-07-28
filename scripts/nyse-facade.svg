@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Source silhouette for the dithered site background.
+
+  A flat, single-colour reading of the NYSE facade at 18 Broad Street:
+  triangular pediment, entablature, six Corinthian columns, stylobate and
+  three step tiers. No interior detail — everything beyond the outline gets
+  destroyed by the dither anyway, and detail would compete with body text.
+
+  Drawn as a white mask on black. scripts/generate-dither-bg.mjs scales the
+  white down to a mid-grey before dithering, which is what produces the
+  ordered pattern; a pure white shape would dither to a flat block.
+
+  Frame is 2400x1600. The building is anchored bottom-centre and spans
+  y=470..1600, i.e. the lower ~70% of the frame.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1600" viewBox="0 0 2400 1600">
+  <rect width="2400" height="1600" fill="#000000"/>
+
+  <g fill="#ffffff">
+    <!--
+      Pediment, drawn as a raking cornice band rather than a solid triangle.
+      Filled solid, this is the one large unbroken area in the whole facade,
+      and a big flat field of ~45% dither reads as a grey wash rather than a
+      shape — the columns only read because the dark gaps define them. The
+      inner triangle is the outer one inset 45px about its incentre, so the
+      band keeps a constant width; the tympanum stays dark.
+    -->
+    <path fill-rule="evenodd"
+          d="M300,650 L1200,470 L2100,650 Z
+             M755,605 L1200,516 L1645,605 Z"/>
+
+    <!-- Entablature -->
+    <rect x="330" y="650" width="1740" height="80"/>
+
+    <!-- Capitals -->
+    <rect x="385"  y="730" width="130" height="34"/>
+    <rect x="685"  y="730" width="130" height="34"/>
+    <rect x="985"  y="730" width="130" height="34"/>
+    <rect x="1285" y="730" width="130" height="34"/>
+    <rect x="1585" y="730" width="130" height="34"/>
+    <rect x="1885" y="730" width="130" height="34"/>
+
+    <!-- Column shafts -->
+    <rect x="400"  y="764" width="100" height="656"/>
+    <rect x="700"  y="764" width="100" height="656"/>
+    <rect x="1000" y="764" width="100" height="656"/>
+    <rect x="1300" y="764" width="100" height="656"/>
+    <rect x="1600" y="764" width="100" height="656"/>
+    <rect x="1900" y="764" width="100" height="656"/>
+
+    <!-- Column bases -->
+    <rect x="388"  y="1420" width="124" height="26"/>
+    <rect x="688"  y="1420" width="124" height="26"/>
+    <rect x="988"  y="1420" width="124" height="26"/>
+    <rect x="1288" y="1420" width="124" height="26"/>
+    <rect x="1588" y="1420" width="124" height="26"/>
+    <rect x="1888" y="1420" width="124" height="26"/>
+
+    <!-- Stylobate -->
+    <rect x="350" y="1446" width="1700" height="54"/>
+
+    <!-- Steps -->
+    <rect x="290" y="1500" width="1820" height="34"/>
+    <rect x="245" y="1534" width="1910" height="33"/>
+    <rect x="200" y="1567" width="2000" height="33"/>
+  </g>
+</svg>

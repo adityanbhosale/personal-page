@@ -17,6 +17,7 @@ import {
   PORTCO_COMPONENTS,
 } from '../lib/moat-model.js';
 import { Slider, Toggle } from './Slider.jsx';
+import { usePalette } from '../lib/palette.js';
 
 // ============================================================================
 // Helpers
@@ -43,6 +44,7 @@ function monthToQuarterLabel(monthOffset) {
 // ============================================================================
 
 function ChartTooltip({ active, payload, label, scenarios }) {
+  const PALETTE = usePalette();
   if (!active || !payload || payload.length === 0) return null;
 
   const monthOffset = label;
@@ -51,17 +53,17 @@ function ChartTooltip({ active, payload, label, scenarios }) {
   return (
     <div
       style={{
-        backgroundColor: '#ffffff',
-        border: '1px solid #e5e7eb',
+        backgroundColor: PALETTE.surface,
+        border: `1px solid ${PALETTE.rule}`,
         borderRadius: 6,
         padding: 12,
         fontSize: 13,
-        boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+        boxShadow: `0 6px 18px ${PALETTE.shadow}`,
         maxWidth: 320,
       }}
     >
-      <div style={{ fontWeight: 600, marginBottom: 8, color: '#111827' }}>
-        {quarterLabel} <span style={{ color: '#6b7280', fontWeight: 400 }}>(month {monthOffset})</span>
+      <div style={{ fontWeight: 600, marginBottom: 8, color: PALETTE.ink }}>
+        {quarterLabel} <span style={{ color: PALETTE.inkFaint, fontWeight: 400 }}>(month {monthOffset})</span>
       </div>
       {payload.map((entry) => {
         const portcoKey = entry.dataKey;
@@ -79,8 +81,8 @@ function ChartTooltip({ active, payload, label, scenarios }) {
                   borderRadius: 2,
                 }}
               />
-              <span style={{ fontWeight: 500, color: '#111827' }}>{portco.label}</span>
-              <span style={{ color: '#6b7280' }}>
+              <span style={{ fontWeight: 500, color: PALETTE.ink }}>{portco.label}</span>
+              <span style={{ color: PALETTE.inkFaint }}>
                 moat = {entry.value.toFixed(3)}
               </span>
             </div>
@@ -96,6 +98,7 @@ function ChartTooltip({ active, payload, label, scenarios }) {
 // ============================================================================
 
 function ScenarioControl({ label, value, min, max, onChange, valueLabel, explanation, disabled = false }) {
+  const PALETTE = usePalette();
   return (
     <div style={{ marginBottom: 24 }}>
       <div
@@ -110,7 +113,7 @@ function ScenarioControl({ label, value, min, max, onChange, valueLabel, explana
           style={{
             fontSize: 14,
             fontWeight: 500,
-            color: '#111827',
+            color: PALETTE.ink,
             display: 'block',
           }}
         >
@@ -119,7 +122,7 @@ function ScenarioControl({ label, value, min, max, onChange, valueLabel, explana
         <span
           style={{
             fontSize: 13,
-            color: '#6b7280',
+            color: PALETTE.inkFaint,
             fontVariantNumeric: 'tabular-nums',
           }}
         >
@@ -130,7 +133,7 @@ function ScenarioControl({ label, value, min, max, onChange, valueLabel, explana
       <div
         style={{
           fontSize: 12,
-          color: '#6b7280',
+          color: PALETTE.inkFaint,
           marginTop: 6,
           lineHeight: 1.5,
         }}
@@ -146,6 +149,7 @@ function ScenarioControl({ label, value, min, max, onChange, valueLabel, explana
 // ============================================================================
 
 export default function MoatVisualization() {
+  const PALETTE = usePalette();
   const [scenarios, setScenarios] = useState(DEFAULT_SCENARIOS);
 
   // Compute curves whenever scenarios change
@@ -167,7 +171,7 @@ export default function MoatVisualization() {
       style={{
         fontFamily:
           "'EB Garamond', Georgia, serif",
-        color: '#111827',
+        color: PALETTE.ink,
         maxWidth: 1000,
         margin: '0 auto',
         padding: '24px 0',
@@ -176,29 +180,29 @@ export default function MoatVisualization() {
       {/* Chart */}
       <div style={{ marginBottom: 32 }}>
         <ResponsiveContainer width="100%" height={420}>
-        <LineChart data={curveData} margin={{ top: 20, right: 30, left: 0, bottom: 50 }}>            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+        <LineChart data={curveData} margin={{ top: 20, right: 30, left: 0, bottom: 50 }}>            <CartesianGrid strokeDasharray="3 3" stroke={PALETTE.grid} />
             <XAxis
               dataKey="month"
-              tick={{ fontSize: 12, fill: '#6b7280' }}
+              tick={{ fontSize: 12, fill: PALETTE.inkFaint }}
               label={{
                 value: 'Months from May 2026',
                 position: 'insideBottom',
                 offset: -15,
-                style: { fontSize: 13, fill: '#374151' },
+                style: { fontSize: 13, fill: PALETTE.inkMuted },
               }}
               ticks={[0, 6, 12, 18, 24, 30, 36]}
               tickFormatter={(m) => `${m}`}
             />
             <YAxis
               domain={[0, 1]}
-              tick={{ fontSize: 12, fill: '#6b7280' }}
+              tick={{ fontSize: 12, fill: PALETTE.inkFaint }}
               tickFormatter={(v) => v.toFixed(2)}
               label={{
                 value: 'Normalized moat strength',
                 angle: -90,
                 position: 'insideLeft',
                 offset: 15,
-                style: { fontSize: 13, fill: '#374151', textAnchor: 'middle' },
+                style: { fontSize: 13, fill: PALETTE.inkMuted, textAnchor: 'middle' },
               }}
             />
             <Tooltip content={<ChartTooltip scenarios={scenarios} />} />
@@ -207,14 +211,14 @@ export default function MoatVisualization() {
               iconType="rect"
               verticalAlign="bottom"
             />
-            {['kueski', 'tpaga', 'yassir', 'vammo'].map((key) => {
+            {['kueski', 'tpaga', 'yassir', 'vammo'].map((key, seriesIndex) => {
               const portco = PORTCO_COMPONENTS[key];
               return <Line
                 key={key}
                 type="monotone"
                 dataKey={key}
                 name={portco.label}
-                stroke={portco.color}
+                stroke={PALETTE.series[seriesIndex]}
                 strokeWidth={2.25}
                 dot={false}
                 activeDot={{ r: 4 }}
@@ -227,7 +231,7 @@ export default function MoatVisualization() {
       {/* Scenario controls */}
       <div
         style={{
-          borderTop: '1px solid #e5e7eb',
+          borderTop: `1px solid ${PALETTE.rule}`,
           paddingTop: 24,
           marginTop: 8,
         }}
@@ -240,16 +244,16 @@ export default function MoatVisualization() {
             marginBottom: 20,
           }}
         >
-          <h3 style={{ fontSize: 18, fontWeight: 600, margin: 0, color: '#111827' }}>
+          <h3 style={{ fontSize: 18, fontWeight: 600, margin: 0, color: PALETTE.ink }}>
             Scenarios
           </h3>
           <button
             onClick={reset}
             style={{
               fontSize: 13,
-              color: '#6b7280',
+              color: PALETTE.inkFaint,
               background: 'none',
-              border: '1px solid #e5e7eb',
+              border: `1px solid ${PALETTE.rule}`,
               padding: '4px 10px',
               borderRadius: 4,
               cursor: 'pointer',
@@ -304,7 +308,7 @@ export default function MoatVisualization() {
             />
           </div>
 
-          <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px dashed #e5e7eb' }}>
+          <div style={{ marginTop: 32, paddingTop: 24, borderTop: `1px dashed ${PALETTE.rule}` }}>
           <ScenarioControl
             label="Colombia open finance secondary regulation completion"
             value={scenarios.colombiaOpenFinance.catalystMonth}
@@ -332,18 +336,19 @@ export default function MoatVisualization() {
       {/* Component breakdown at current point */}
       <div
         style={{
-          borderTop: '1px solid #e5e7eb',
+          borderTop: `1px solid ${PALETTE.rule}`,
           marginTop: 32,
           paddingTop: 24,
         }}
       >
-        <h3 style={{ fontSize: 18, fontWeight: 600, margin: '0 0 16px', color: '#111827' }}>
+        <h3 style={{ fontSize: 18, fontWeight: 600, margin: '0 0 16px', color: PALETTE.ink }}>
           Component breakdown at month 24
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-          {Object.keys(PORTCO_COMPONENTS).map((key) => {
+          {Object.keys(PORTCO_COMPONENTS).map((key, seriesIndex) => {
             const result = computeMoatAtTime(key, scenarios, 24);
             const portco = PORTCO_COMPONENTS[key];
+            const seriesColor = PALETTE.series[seriesIndex % PALETTE.series.length];
             return (
               <div key={key}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -352,23 +357,23 @@ export default function MoatVisualization() {
                       display: 'inline-block',
                       width: 10,
                       height: 10,
-                      backgroundColor: portco.color,
+                      backgroundColor: seriesColor,
                       borderRadius: 2,
                     }}
                   />
                   <span style={{ fontWeight: 600, fontSize: 14 }}>{portco.label}</span>
-                  <span style={{ fontSize: 13, color: '#6b7280', fontVariantNumeric: 'tabular-nums' }}>
+                  <span style={{ fontSize: 13, color: PALETTE.inkFaint, fontVariantNumeric: 'tabular-nums' }}>
                     moat = {result.moat.toFixed(3)}
                   </span>
                 </div>
-                <table style={{ width: '100%', fontSize: 12, color: '#374151' }}>
+                <table style={{ width: '100%', fontSize: 12, color: PALETTE.inkMuted }}>
                   <tbody>
                     {Object.entries(result.components).map(([name, comp]) => (
                       <tr key={name}>
-                        <td style={{ padding: '2px 0', color: '#6b7280' }}>
+                        <td style={{ padding: '2px 0', color: PALETTE.inkFaint }}>
                           {comp.displayName}
                           {comp.type === 'growth' && (
-                            <span style={{ marginLeft: 4, fontSize: 10, color: '#16a34a' }}>(↑)</span>
+                            <span style={{ marginLeft: 4, fontSize: 10, color: PALETTE.positive }}>(↑)</span>
                           )}
                         </td>
                         <td
