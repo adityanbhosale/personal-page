@@ -1,7 +1,7 @@
 ---
 title: 3000 ft; feedback
 topic: Martingale
-date: 2026-07-25T17:07:00
+date: 2026-07-28T15:18:00
 ---
 might be better to sell this sort of hedging / financial product to a party that's less financially sophisticated (i.e., biotechs) rather than efficient market participants like a crossover / royalty / credit desk.
 
