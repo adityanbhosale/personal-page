@@ -55,7 +55,8 @@ const { title, description = title, width = "measure" } = Astro.props;
       --ink-faint: #6e6a63;
       --rule: #232327;
       --accent: #bfa07a;
-      --accent-hover: #d8bd99;
+      /* Hover highlight: light blue, at the same contrast the brass had. */
+      --accent-hover: #9cc3fb;
       /* The canvas duotone, read by the WebGL layer as uniforms. */
       --dither-bg: #0c0c0d;
       --dither-fg: #26262c;
@@ -97,7 +98,8 @@ const { title, description = title, width = "measure" } = Astro.props;
       --ink-faint: #827d73;
       --rule: #ddd8ce;
       --accent: #594529;
-      --accent-hover: #403321;
+      /* A light blue would vanish on paper; this is the same hue, deepened. */
+      --accent-hover: #17337f;
       --dither-bg: #f2f0eb;
       --dither-fg: #d8d4cb;
       --halo: rgba(242, 240, 235, 0.92);
