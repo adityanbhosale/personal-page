@@ -1,4 +1,6 @@
 ---
+import Base from "../../layouts/Base.astro";
+
 const projects = [
   {
     slug: "kalshi-polymarket-microstructure",
@@ -20,242 +22,71 @@ const projects = [
   },
 ];
 ---
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="projects — Aditya Bhosale" />
-  <title>projects — Aditya Bhosale</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-    --bg: #ffffff;
-    --ink: #1a1a1a;
-    --ink-muted: #555555;
-    --link: #1a1a1a;
-    --rule: #d8d8d8;
-    --cta-bg: #1a1a1a;
-    --cta-bg-hover: #000000;
-    --cta-fg: #ffffff;
-  }
+<Base title="projects — Aditya Bhosale" description="projects — Aditya Bhosale">
+  <style is:global>
+    .project-list { margin-top: 40px; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'EB Garamond', Georgia, serif;
-    font-size: 19px;
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-    padding: 60px 24px 80px;
-  }
-
-  main {
-    max-width: 620px;
-    margin: 0 auto;
-  }
-
-  h1 {
-    font-size: 28px;
-    font-weight: 500;
-    margin-bottom: 6px;
-    letter-spacing: -0.01em;
-  }
-
-  h1 a {
-    color: var(--ink);
-    text-decoration: none;
-  }
-
-  .socials {
-    margin-bottom: 28px;
-    color: var(--ink-muted);
-    font-size: 16px;
-  }
-
-  .socials a {
-    color: var(--ink-muted);
-    text-decoration: none;
-    margin-right: 14px;
-  }
-
-  .socials a:hover {
-    color: var(--ink);
-    text-decoration: underline;
-  }
-
-  p {
-    margin-bottom: 18px;
-  }
-
-  a {
-    color: var(--link);
-  }
-
-  a:hover {
-    text-decoration: none;
-  }
-
-  .label {
-    font-style: italic;
-    color: var(--ink-muted);
-    margin-top: 28px;
-    margin-bottom: 8px;
-    font-size: 17px;
-  }
-
-  /* CTA button — promoted current build link */
-  .cta-wrap {
-    margin: 36px 0 40px;
-  }
-
-  .cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--cta-bg);
-    color: var(--cta-fg);
-    padding: 14px 22px;
-    text-decoration: none;
-    font-family: 'EB Garamond', Georgia, serif;
-    font-size: 18px;
-    font-weight: 500;
-    letter-spacing: -0.005em;
-    border-radius: 2px;
-    transition: background 0.15s ease, transform 0.15s ease;
-  }
-
-  .cta:hover {
-    background: var(--cta-bg-hover);
-    transform: translateY(-1px);
-  }
-
-  .cta-arrow {
-    font-size: 0.9em;
-    line-height: 1;
-  }
-
-  .cta-sublabel {
-    display: block;
-    margin-top: 8px;
-    font-style: italic;
-    color: var(--ink-muted);
-    font-size: 15px;
-    line-height: 1.4;
-  }
-
-  hr {
-    border: none;
-    border-top: 1px solid var(--rule);
-    margin: 36px 0 28px;
-  }
-
-  .footer-links {
-    color: var(--ink-muted);
-    font-size: 16px;
-  }
-
-  .footer-links a {
-    color: var(--ink-muted);
-    text-decoration: none;
-    margin-right: 18px;
-  }
-
-  .footer-links a:hover {
-    color: var(--ink);
-    text-decoration: underline;
-  }
-
-  /* arrow superscript */
-  .ext::after {
-    content: " ↗︎";
-    font-size: 0.85em;
-  }
-
-  @media (max-width: 600px) {
-    body { padding: 40px 20px 60px; font-size: 18px; }
-    h1 { font-size: 24px; }
-    .cta { font-size: 17px; padding: 13px 20px; }
-  }
-
-    .project-list {
-      margin-top: 12px;
-    }
     .project {
-      padding: 22px 0;
-      border-bottom: 1px solid #d8d8d8;
+      padding: 28px 0;
+      border-bottom: 1px solid var(--rule);
     }
-    .project:last-child {
-      border-bottom: none;
-    }
+
+    .project:last-child { border-bottom: none; }
+
     .project h2 {
       font-size: 21px;
       font-weight: 500;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       letter-spacing: -0.005em;
     }
+
     .project h2 a {
       color: var(--ink);
       text-decoration: none;
+      transition: color 0.15s ease;
     }
-    .project h2 a:hover {
-      text-decoration: underline;
-      text-decoration-color: var(--ink-muted);
-      text-underline-offset: 3px;
-    }
+
+    .project h2 a:hover { color: var(--accent-hover); }
+
     .project p {
       color: var(--ink-muted);
-      font-size: 17px;
-      line-height: 1.5;
+      font-size: 18px;
+      line-height: 1.55;
       margin-bottom: 0;
     }
-    
+
     .project-meta {
-        font-style: italic;
-        color: var(--ink-muted);
-        font-size: 15px;
-        margin-bottom: 10px;
+      font-style: italic;
+      color: var(--ink-faint);
+      font-size: 16px;
+      margin-bottom: 10px;
     }
-    
+
     .project h2 .arrow {
-        display: inline-block;
-        margin-left: 6px;
-        font-size: 0.75em;
-        color: var(--ink-muted);
-        vertical-align: 1px;
-        transition: transform 0.15s ease;
+      display: inline-block;
+      margin-left: 7px;
+      font-size: 0.72em;
+      color: var(--ink-faint);
+      vertical-align: 2px;
+      transition: transform 0.15s ease, color 0.15s ease;
     }
 
     .project h2 a:hover .arrow {
-        transform: translate(2px, -2px);
-    }
-    
-    .back-link {
-      display: inline-block;
-      margin-bottom: 24px;
-      color: var(--ink-muted);
-      font-size: 16px;
+      transform: translate(2px, -2px);
+      color: var(--accent-hover);
     }
   </style>
-</head>
-<body>
-  <main>
-    <a href="/" class="back-link">← back</a>
-    <h1>recent projects</h1>
 
-    <div class="project-list">
-      {projects.map((p) => (
-  <article class="project">
-    <h2><a href={`/projects/${p.slug}`}>{p.title}<span class="arrow">↗</span></a></h2>
-    <div class="project-meta">{p.meta}</div>
-    <p>{p.blurb}</p>
-  </article>
-))}
-    </div>
-  </main>
-</body>
-</html>
+  <a href="/" class="back-link">← back</a>
+  <h1>recent projects</h1>
+
+  <div class="project-list">
+    {projects.map((p) => (
+      <article class="project">
+        <h2><a href={`/projects/${p.slug}`}>{p.title}<span class="arrow">↗</span></a></h2>
+        <div class="project-meta">{p.meta}</div>
+        <p>{p.blurb}</p>
+      </article>
+    ))}
+  </div>
+</Base>

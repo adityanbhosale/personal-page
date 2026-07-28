@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as SliderPrimitive from '@radix-ui/react-slider';
+import { PALETTE } from '../lib/palette.js';
 
 /**
  * Slider — Radix-based slider with custom inline styling.
@@ -35,7 +36,7 @@ export function Slider({ value, min, max, step = 1, onChange, disabled = false }
     >
       <SliderPrimitive.Track
         style={{
-          backgroundColor: '#e5e7eb',
+          backgroundColor: PALETTE.rule,
           position: 'relative',
           flexGrow: 1,
           borderRadius: 9999,
@@ -45,7 +46,7 @@ export function Slider({ value, min, max, step = 1, onChange, disabled = false }
         <SliderPrimitive.Range
           style={{
             position: 'absolute',
-            backgroundColor: '#111827',
+            backgroundColor: PALETTE.accent,
             borderRadius: 9999,
             height: '100%',
           }}
@@ -56,10 +57,10 @@ export function Slider({ value, min, max, step = 1, onChange, disabled = false }
           display: 'block',
           width: 16,
           height: 16,
-          backgroundColor: '#ffffff',
-          border: '2px solid #111827',
+          backgroundColor: PALETTE.ink,
+          border: `2px solid ${PALETTE.accent}`,
           borderRadius: '50%',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.5)',
           cursor: disabled ? 'not-allowed' : 'grab',
           outline: 'none',
         }}
@@ -81,7 +82,7 @@ export function Toggle({ checked, onChange, label }) {
         gap: 8,
         cursor: 'pointer',
         fontSize: 14,
-        color: '#374151',
+        color: PALETTE.inkMuted,
       }}
     >
       <span
@@ -90,7 +91,7 @@ export function Toggle({ checked, onChange, label }) {
           display: 'inline-block',
           width: 36,
           height: 20,
-          backgroundColor: checked ? '#111827' : '#d1d5db',
+          backgroundColor: checked ? PALETTE.accent : PALETTE.rule,
           borderRadius: 9999,
           transition: 'background-color 150ms',
         }}
@@ -103,9 +104,9 @@ export function Toggle({ checked, onChange, label }) {
             left: checked ? 18 : 2,
             width: 16,
             height: 16,
-            backgroundColor: '#ffffff',
+            backgroundColor: PALETTE.ink,
             borderRadius: '50%',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.5)',
             transition: 'left 150ms',
           }}
         />

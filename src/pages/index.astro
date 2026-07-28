@@ -1,202 +1,37 @@
 ---
 // src/pages/index.astro
+import Base from "../layouts/Base.astro";
 ---
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Aditya Bhosale" />
-  <title>Aditya Bhosale</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+<Base title="Aditya Bhosale">
   <style is:global>
-    :root {
-    --bg: #ffffff;
-    --ink: #1a1a1a;
-    --ink-muted: #555555;
-    --link: #1a1a1a;
-    --rule: #d8d8d8;
-    --cta-bg: #1a1a1a;
-    --cta-bg-hover: #000000;
-    --cta-fg: #ffffff;
-  }
+    .hero h1 { margin-bottom: 18px; }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+    .hero .nav { margin-bottom: 64px; }
 
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'EB Garamond', Georgia, serif;
-    font-size: 19px;
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-    padding: 60px 24px 80px;
-  }
+    .hero p {
+      margin-bottom: 1.5em;
+      text-wrap: pretty;
+    }
 
-  main {
-    max-width: 620px;
-    margin: 0 auto;
-  }
-
-  h1 {
-    font-size: 28px;
-    font-weight: 500;
-    margin-bottom: 6px;
-    letter-spacing: -0.01em;
-  }
-
-  h1 a {
-    color: var(--ink);
-    text-decoration: none;
-  }
-
-  .socials {
-    margin-bottom: 28px;
-    color: var(--ink-muted);
-    font-size: 16px;
-  }
-
-  .socials a {
-    color: var(--ink-muted);
-    text-decoration: none;
-    margin-right: 14px;
-  }
-
-  .socials a:hover {
-    color: var(--ink);
-    text-decoration: underline;
-  }
-
-  p {
-    margin-bottom: 18px;
-  }
-
-  a {
-    color: var(--link);
-  }
-
-  a:hover {
-    text-decoration: none;
-  }
-
-  .label {
-    font-style: italic;
-    color: var(--ink-muted);
-    margin-top: 28px;
-    margin-bottom: 8px;
-    font-size: 17px;
-  }
-
-  /* CTA button — promoted current build link */
-  .cta-wrap {
-    margin: 36px 0 40px;
-  }
-
-  .cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--cta-bg);
-    color: var(--cta-fg);
-    padding: 14px 22px;
-    text-decoration: none;
-    font-family: 'EB Garamond', Georgia, serif;
-    font-size: 18px;
-    font-weight: 500;
-    letter-spacing: -0.005em;
-    border-radius: 2px;
-    transition: background 0.15s ease, transform 0.15s ease;
-  }
-
-  .cta:hover {
-    background: var(--cta-bg-hover);
-    transform: translateY(-1px);
-  }
-
-  .cta-arrow {
-    font-size: 0.9em;
-    line-height: 1;
-  }
-
-  .cta-sublabel {
-    display: block;
-    margin-top: 8px;
-    font-style: italic;
-    color: var(--ink-muted);
-    font-size: 15px;
-    line-height: 1.4;
-  }
-
-  hr {
-    border: none;
-    border-top: 1px solid var(--rule);
-    margin: 36px 0 28px;
-  }
-
-  .footer-links {
-    color: var(--ink-muted);
-    font-size: 16px;
-  }
-
-  .footer-links a {
-    color: var(--ink-muted);
-    text-decoration: none;
-    margin-right: 18px;
-  }
-
-  .footer-links a:hover {
-    color: var(--ink);
-    text-decoration: underline;
-  }
-
-  /* arrow superscript */
-  .ext::after {
-    content: " ↗︎";
-    font-size: 0.85em;
-  }
-
-  @media (max-width: 600px) {
-    body { padding: 40px 20px 60px; font-size: 18px; }
-    h1 { font-size: 24px; }
-    .cta { font-size: 17px; padding: 13px 20px; }
-  }
+    @media (max-width: 600px) {
+      .hero .nav { margin-bottom: 44px; }
+    }
   </style>
-</head>
-<body>
-  <main>
 
-<h1><a href="/">Aditya Bhosale</a></h1>
+  <div class="hero">
+    <h1><a href="/">Aditya Bhosale</a></h1>
 
-<div class="socials">
-  <a class="ext" href="https://www.linkedin.com/in/adityanbhosale" target="_blank" rel="noopener">li</a>
-  <a class="ext" href="https://github.com/adityanbhosale" target="_blank" rel="noopener">gh</a>
-  <a class="ext" href="/projects">recent projects</a>
-  <a class="ext" href="/thoughts">working notes</a>
-  <a class="ext" href="https://substack.com/@adityabhosale3" target="_blank" rel="noopener">writings</a>
-  <a href="mailto:adityanb@sas.upenn.edu">email</a>
-</div>
+    <nav class="nav">
+      <a class="ext" href="https://www.linkedin.com/in/adityanbhosale" target="_blank" rel="noopener">li</a>
+      <a class="ext" href="https://github.com/adityanbhosale" target="_blank" rel="noopener">gh</a>
+      <a href="/projects">recent projects</a>
+      <a href="/thoughts">working notes</a>
+      <a class="ext" href="https://substack.com/@adityabhosale3" target="_blank" rel="noopener">writings</a>
+      <a href="mailto:adityanb@sas.upenn.edu">email</a>
+    </nav>
 
-<p>I'm an undergraduate at the University of Pennsylvania studying economics and computer science, minoring in biology. These days, I enjoy spending most of my time studying / building agentic systems, on-chain market infrastructure, prediction market design, and the bridge between regulated finance and public blockchains.</p>
+    <p>Hey, I'm Aditya – Undergrad @ Penn. Currently exploring synthetic market structures, event contracts, &amp; liquidity constraints in traditional finance.</p>
 
-<p>I'm an incoming 2027 summer M&amp;A analyst at Leerink Partners, a boutique investment bank in New York City, on the biopharma coverage team. Earlier work spans engineered T-Cell research at Penn's Center for Cell Immunotherapy, options pricing for real-world assets at UCL, and leading a handful of pro-bono tech / life-sciences consulting projects through Penn's Undergraduate Biotech Society &amp; Wharton's Venture Lab.</p>
-
-<p class="label">some active interests</p>
-
-<p>automated market makers, prediction markets, smart contracts, trading agents, scoring rules, tokenized RWAs, regulated stablecoins, institutional-bridge thesis for crypto, biotech equity research, options pricing, market microstructure</p>
-
-<p class="label">thesis</p>
-
-<p>Traditional finance is changing. Most of what I'm researching or building exists to close the gap between innovative decentralized systems (i.e. blockchains, smart markets, prediction markets, etc.) &amp; regulated capital markets. I believe the most influential financial infrastructure companies in the next decade will be able to serve both, and the most interesting problems require fluency in each.</p>
-
-
-<hr>
-
-<div class="footer-links">
-  <a class="ext" href="/cv.pdf" target="_blank" rel="noopener">cv</a>
-</div>
-
-</main>
-</body>
-</html>
+    <p>I'm an incoming investment banking summer analyst at Leerink Partners where I'll be joining the biopharma coverage group. Prior to my endeavors in markets &amp; finance, I spent 3+ years in a CAR-T lab at Penn Medicine, wrote on options-pricing for RWAs at UCL, and led a handful of pro-bono tech / life-sciences consulting projects through Penn's Undergraduate Biotech Society &amp; Wharton's Venture Lab.</p>
+  </div>
+</Base>

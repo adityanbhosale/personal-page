@@ -1,5 +1,6 @@
 ---
 import { getCollection, render } from "astro:content";
+import Base from "../layouts/Base.astro";
 
 const allPosts = await getCollection("thoughts");
 
@@ -47,294 +48,184 @@ const postsWithContent = await Promise.all(
 
 const contentMap = new Map(postsWithContent.map(({ post, Content, preview }) => [post.id, { Content, preview }]));
 ---
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="working notes — Aditya Bhosale" />
-  <title>working notes — Aditya Bhosale</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-    --bg: #ffffff;
-    --ink: #1a1a1a;
-    --ink-muted: #555555;
-    --link: #1a1a1a;
-    --rule: #d8d8d8;
-    --cta-bg: #1a1a1a;
-    --cta-bg-hover: #000000;
-    --cta-fg: #ffffff;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: 'EB Garamond', Georgia, serif;
-    font-size: 19px;
-    line-height: 1.55;
-    -webkit-font-smoothing: antialiased;
-    padding: 60px 24px 80px;
-  }
-
-  main {
-    max-width: 620px;
-    margin: 0 auto;
-  }
-
-  h1 {
-    font-size: 28px;
-    font-weight: 500;
-    margin-bottom: 6px;
-    letter-spacing: -0.01em;
-  }
-
-  h1 a {
-    color: var(--ink);
-    text-decoration: none;
-  }
-
-  .socials {
-    margin-bottom: 28px;
-    color: var(--ink-muted);
-    font-size: 16px;
-  }
-
-  .socials a {
-    color: var(--ink-muted);
-    text-decoration: none;
-    margin-right: 14px;
-  }
-
-  .socials a:hover {
-    color: var(--ink);
-    text-decoration: underline;
-  }
-
-  p {
-    margin-bottom: 18px;
-  }
-
-  a {
-    color: var(--link);
-  }
-
-  a:hover {
-    text-decoration: none;
-  }
-
-  .label {
-    font-style: italic;
-    color: var(--ink-muted);
-    margin-top: 28px;
-    margin-bottom: 8px;
-    font-size: 17px;
-  }
-
-  /* CTA button — promoted current build link */
-  .cta-wrap {
-    margin: 36px 0 40px;
-  }
-
-  .cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--cta-bg);
-    color: var(--cta-fg);
-    padding: 14px 22px;
-    text-decoration: none;
-    font-family: 'EB Garamond', Georgia, serif;
-    font-size: 18px;
-    font-weight: 500;
-    letter-spacing: -0.005em;
-    border-radius: 2px;
-    transition: background 0.15s ease, transform 0.15s ease;
-  }
-
-  .cta:hover {
-    background: var(--cta-bg-hover);
-    transform: translateY(-1px);
-  }
-
-  .cta-arrow {
-    font-size: 0.9em;
-    line-height: 1;
-  }
-
-  .cta-sublabel {
-    display: block;
-    margin-top: 8px;
-    font-style: italic;
-    color: var(--ink-muted);
-    font-size: 15px;
-    line-height: 1.4;
-  }
-
-  hr {
-    border: none;
-    border-top: 1px solid var(--rule);
-    margin: 36px 0 28px;
-  }
-
-  .footer-links {
-    color: var(--ink-muted);
-    font-size: 16px;
-  }
-
-  .footer-links a {
-    color: var(--ink-muted);
-    text-decoration: none;
-    margin-right: 18px;
-  }
-
-  .footer-links a:hover {
-    color: var(--ink);
-    text-decoration: underline;
-  }
-
-  /* arrow superscript */
-  .ext::after {
-    content: " ↗︎";
-    font-size: 0.85em;
-  }
-
-  @media (max-width: 600px) {
-    body { padding: 40px 20px 60px; font-size: 18px; }
-    h1 { font-size: 24px; }
-    .cta { font-size: 17px; padding: 13px 20px; }
-  }
-
+<Base title="working notes — Aditya Bhosale" description="working notes — Aditya Bhosale">
+  <style is:global>
     h2.topic {
-      font-size: 22px;
+      font-size: 21px;
       font-weight: 500;
-      margin-top: 48px;
-      margin-bottom: 14px;
-      letter-spacing: -0.005em;
+      color: var(--ink-muted);
+      font-style: italic;
+      margin-top: 64px;
+      margin-bottom: 18px;
+      letter-spacing: 0;
     }
+
+    section:first-of-type h2.topic { margin-top: 44px; }
 
     details.entry {
-      margin-bottom: 24px;
-      border-bottom: 1px solid #d8d8d8;
-      padding-bottom: 18px;
+      border-bottom: 1px solid var(--rule);
+      padding: 20px 0;
     }
-    details.entry:last-child {
-      border-bottom: none;
-    }
+
+    details.entry:last-child { border-bottom: none; }
 
     details.entry > summary {
       cursor: pointer;
       list-style: none;
-      padding: 4px 0;
       position: relative;
-      padding-right: 60px;
+      padding-right: 84px;
       transition: opacity 0.15s ease;
     }
-    details.entry > summary::-webkit-details-marker {
-      display: none;
-    }
-    details.entry > summary:hover {
-      opacity: 0.7;
-    }
+
+    details.entry > summary::-webkit-details-marker { display: none; }
+    details.entry > summary:hover .entry-title { color: var(--accent-hover); }
 
     .entry-date {
       font-style: italic;
-      color: var(--ink-muted);
+      color: var(--ink-faint);
       font-size: 16px;
       margin-bottom: 2px;
     }
+
     .entry-title {
-      font-size: 19px;
+      font-size: 20px;
       font-weight: 500;
-      margin-bottom: 4px;
       display: block;
+      margin-bottom: 4px;
+      transition: color 0.15s ease;
     }
+
     .entry-preview {
       color: var(--ink-muted);
-      font-size: 17px;
-      line-height: 1.5;
+      font-size: 18px;
+      line-height: 1.55;
     }
 
     .expand-cue {
       position: absolute;
       right: 0;
-      top: 6px;
-      color: var(--ink-muted);
-      font-size: 14px;
+      top: 4px;
+      color: var(--ink-faint);
+      font-size: 15px;
       font-style: italic;
     }
-    details.entry[open] .expand-cue::after {
-      content: "[ collapse ]";
-    }
-    details.entry:not([open]) .expand-cue::after {
-      content: "[ expand ]";
+
+    details.entry[open] .expand-cue::after { content: "collapse ↑"; }
+    details.entry:not([open]) .expand-cue::after { content: "expand ↓"; }
+    details.entry > summary:hover .expand-cue { color: var(--accent-hover); }
+
+    details.entry[open] > summary .entry-preview { display: none; }
+    details.entry[open] > summary { margin-bottom: 16px; }
+
+    /* Rendered markdown */
+    .entry-body { font-size: 19px; }
+    .entry-body p { margin-bottom: 1em; }
+    .entry-body :last-child { margin-bottom: 0; }
+
+    .entry-body h1,
+    .entry-body h2,
+    .entry-body h3,
+    .entry-body h4 {
+      font-size: 19px;
+      font-weight: 600;
+      margin: 1.4em 0 0.5em;
+      letter-spacing: 0;
     }
 
-    details.entry[open] > summary .entry-preview {
-      display: none;
-    }
-    details.entry[open] > summary {
-      margin-bottom: 12px;
+    .entry-body ul,
+    .entry-body ol {
+      margin: 0 0 1em 1.2em;
     }
 
-    .entry-body {
-      padding-top: 4px;
-    }
-    .entry-body p {
-      margin-bottom: 14px;
-    }
-    .entry-body :last-child {
-      margin-bottom: 0;
-    }
+    .entry-body li { margin-bottom: 0.35em; }
 
-    .back-link {
-      display: inline-block;
-      margin-bottom: 24px;
+    .entry-body blockquote {
+      border-left: 1px solid var(--rule);
+      padding-left: 18px;
       color: var(--ink-muted);
-      font-size: 16px;
+      font-style: italic;
+      margin: 0 0 1em;
     }
+
+    .entry-body code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.85em;
+      background: var(--bg-raised);
+      padding: 1px 5px;
+      border-radius: 2px;
+      color: var(--ink);
+    }
+
+    .entry-body pre {
+      background: var(--bg-raised);
+      padding: 16px 18px;
+      border-radius: 3px;
+      overflow-x: auto;
+      margin: 0 0 1em;
+    }
+
+    .entry-body pre code { background: none; padding: 0; }
+
+    .entry-body hr { margin: 1.5em 0; }
+
+    .entry-body img { max-width: 100%; height: auto; }
+
+    .entry-body table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9em;
+      margin: 0 0 1em;
+      display: block;
+      overflow-x: auto;
+    }
+
+    .entry-body th,
+    .entry-body td {
+      border-bottom: 1px solid var(--rule);
+      padding: 7px 10px 7px 0;
+      text-align: left;
+    }
+
     .empty-state {
       color: var(--ink-muted);
       font-style: italic;
     }
+
+    @media (max-width: 600px) {
+      details.entry > summary { padding-right: 0; }
+      .expand-cue { position: static; display: block; margin-top: 6px; }
+      h2.topic { margin-top: 48px; }
+    }
   </style>
-</head>
-<body>
-  <main>
-    <a href="/" class="back-link">← back</a>
-    <h1>working notes</h1>
 
-    {topics.length === 0 && (
-      <p class="empty-state">nothing here yet.</p>
-    )}
+  <a href="/" class="back-link">← back</a>
+  <h1>working notes</h1>
 
-    {topics.map((topic) => (
-      <section>
-        <h2 class="topic">{topic}</h2>
-        {byTopic[topic].map((post) => {
-          const entry = contentMap.get(post.id)!;
-          return (
-            <details class="entry">
-              <summary>
-                <div class="entry-date">
-                  {post.data.date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-                </div>
-                <span class="entry-title">{post.data.title}</span>
-                <span class="entry-preview">{entry.preview}</span>
-                <span class="expand-cue"></span>
-              </summary>
-              <div class="entry-body">
-                <entry.Content />
+  {topics.length === 0 && (
+    <p class="empty-state">nothing here yet.</p>
+  )}
+
+  {topics.map((topic) => (
+    <section>
+      <h2 class="topic">{topic}</h2>
+      {byTopic[topic].map((post) => {
+        const entry = contentMap.get(post.id)!;
+        return (
+          <details class="entry">
+            <summary>
+              <div class="entry-date">
+                {post.data.date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
               </div>
-            </details>
-          );
-        })}
-      </section>
-    ))}
-  </main>
-</body>
-</html>
+              <span class="entry-title">{post.data.title}</span>
+              <span class="entry-preview">{entry.preview}</span>
+              <span class="expand-cue"></span>
+            </summary>
+            <div class="entry-body">
+              <entry.Content />
+            </div>
+          </details>
+        );
+      })}
+    </section>
+  ))}
+</Base>

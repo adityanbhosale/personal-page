@@ -1,0 +1,62 @@
+---
+// src/layouts/Project.astro — shell for a single project write-up.
+import Base from "./Base.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = title } = Astro.props;
+---
+<Base title={`${title} — Aditya Bhosale`} description={description}>
+  <style is:global>
+    .project-detail h1 {
+      font-size: 27px;
+      line-height: 1.25;
+      margin-bottom: 36px;
+    }
+
+    .project-detail .article-body p {
+      margin-bottom: 1.15em;
+      text-wrap: pretty;
+    }
+
+    .project-detail code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.82em;
+      background: var(--bg-raised);
+      padding: 1px 5px;
+      border-radius: 2px;
+    }
+
+    .project-detail .links {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--rule);
+      font-size: 17px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 22px;
+    }
+
+    .project-detail .links a { text-decoration: none; }
+
+    @media (max-width: 600px) {
+      .project-detail h1 { font-size: 24px; }
+    }
+  </style>
+
+  <div class="project-detail">
+    <a href="/projects" class="back-link">← projects</a>
+    <h1>{title}</h1>
+
+    <div class="article-body">
+      <slot />
+    </div>
+
+    <div class="links">
+      <slot name="links" />
+    </div>
+  </div>
+</Base>

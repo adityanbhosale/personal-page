@@ -1,0 +1,160 @@
+---
+// src/layouts/Base.astro
+// Shared shell for every route: fonts, palette tokens, base type.
+// Pages add their own `<style is:global>` block for page-specific rules.
+interface Props {
+  title: string;
+  description?: string;
+  /** `measure` = ~60ch reading column. `wide` = roomier, for the viz page. */
+  width?: "measure" | "wide";
+}
+
+const { title, description = title, width = "measure" } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#0c0c0d" />
+  <title>{title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <style is:global>
+    :root {
+      --bg: #0c0c0d;
+      --bg-raised: #141416;
+      --ink: #e8e6e1;
+      --ink-muted: #918c84;
+      --ink-faint: #6e6a63;
+      --rule: #232327;
+      --accent: #bfa07a;
+      --accent-hover: #d8bd99;
+      --measure: 60ch;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { background: var(--bg); }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'EB Garamond', Georgia, serif;
+      font-size: 21px;
+      line-height: 1.65;
+      /* Deliberately NOT antialiased: on a near-black background that thins
+         Garamond's hairlines until they shimmer. Default rendering keeps
+         the strokes with enough body to read at 21px. */
+      padding: 96px 24px 128px;
+    }
+
+    main {
+      max-width: min(var(--measure), 100%);
+      margin: 0 auto;
+    }
+
+    main.wide {
+      --measure: 1000px;
+    }
+
+    ::selection {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    h1 {
+      font-size: 30px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+    }
+
+    h1 a {
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    p { margin-bottom: 1.15em; }
+    p:last-child { margin-bottom: 0; }
+
+    a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.18em;
+      text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent);
+      transition: color 0.15s ease, text-decoration-color 0.15s ease;
+    }
+
+    a:hover {
+      color: var(--accent-hover);
+      text-decoration-color: var(--accent-hover);
+    }
+
+    a:focus-visible {
+      outline: 1px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 1px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--rule);
+    }
+
+    /* Nav-style links: quiet until touched, no underline at rest. */
+    .nav {
+      font-size: 17px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 20px;
+    }
+
+    .nav a {
+      color: var(--ink-muted);
+      text-decoration: none;
+    }
+
+    .nav a:hover {
+      color: var(--accent-hover);
+    }
+
+    .back-link {
+      display: inline-block;
+      color: var(--ink-muted);
+      font-size: 17px;
+      text-decoration: none;
+      margin-bottom: 40px;
+    }
+
+    .back-link:hover { color: var(--accent-hover); }
+
+    /* Outbound arrow mark */
+    .ext::after {
+      content: " ↗";
+      font-size: 0.8em;
+      vertical-align: 0.15em;
+      color: var(--ink-faint);
+      transition: color 0.15s ease;
+    }
+
+    .nav a.ext:hover::after,
+    a.ext:hover::after { color: var(--accent-hover); }
+
+    @media (max-width: 600px) {
+      body { padding: 56px 22px 80px; font-size: 19px; }
+      h1 { font-size: 26px; }
+      .nav { font-size: 16px; gap: 4px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class={width === "wide" ? "wide" : undefined}>
+    <slot />
+  </main>
+</body>
+</html>
