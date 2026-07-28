@@ -79,7 +79,7 @@ const { title, description = title, width = "measure" } = Astro.props;
       --measure: 78ch;
       /* Heights of the two fixed bands content fades under. */
       --clock-band: 44px;
-      --footer-band: 58px;
+      --footer-band: 82px;
     }
 
     /*
@@ -205,6 +205,15 @@ const { title, description = title, width = "measure" } = Astro.props;
       pointer-events: none;
     }
 
+    .site-footer .colophon {
+      margin: 7px 0 0;
+      text-align: center;
+      font-size: clamp(13px, 0.3vw + 9px, 15px);
+      line-height: 1.2;
+      color: var(--ink-faint);
+      text-shadow: 0 1px 6px var(--halo);
+    }
+
     .site-footer .nav a {
       pointer-events: auto;
       /* Carries the links where they cross lit dither cells. */
@@ -254,7 +263,7 @@ const { title, description = title, width = "measure" } = Astro.props;
     }
 
     @media (max-width: 700px) {
-      :root { --clock-band: 40px; --footer-band: 92px; }
+      :root { --clock-band: 40px; --footer-band: 114px; }
       .scroll-shell { --fade-bottom: 120px; }
     }
 
@@ -395,6 +404,7 @@ const { title, description = title, width = "measure" } = Astro.props;
       <a class="ext" href="https://adibhosale.substack.com" target="_blank" rel="noopener">writings</a>
       <a href="mailto:adityanb@sas.upenn.edu">adityanb [at] upenn [dot] edu</a>
     </nav>
+    <p class="colophon">© 2026 Aditya Bhosale</p>
   </footer>
   <slot name="overlay" />
   <script is:inline>
