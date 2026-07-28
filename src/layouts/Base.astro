@@ -17,12 +17,30 @@ const { title, description = title, width = "measure" } = Astro.props;
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content={description} />
-  <meta name="color-scheme" content="dark" />
+  <meta name="color-scheme" content="dark light" />
+  <script is:inline>
+    // Applied before first paint so a stored light theme never flashes dark.
+    // Default is dark on first visit, deliberately ignoring prefers-color-scheme.
+    try {
+      if (localStorage.getItem('theme') === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    } catch (e) {}
+  </script>
   <meta name="theme-color" content="#0c0c0d" />
   <title>{title}</title>
+  <!-- The visible name heading was removed from the homepage, so link
+       previews rely on these staying intact. -->
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <!-- Variable axis so font-weight can interpolate on hover rather than snapping. -->
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet" />
   <style is:global>
     :root {
       --bg: #0c0c0d;
@@ -33,28 +51,191 @@ const { title, description = title, width = "measure" } = Astro.props;
       --rule: #232327;
       --accent: #bfa07a;
       --accent-hover: #d8bd99;
-      --measure: 60ch;
+      /* The canvas duotone, read by the WebGL layer as uniforms. */
+      --dither-bg: #0c0c0d;
+      --dither-fg: #26262c;
+      --halo: rgba(12, 12, 13, 0.9);
+      --measure: 78ch;
+      /* Heights of the two fixed bands content fades under. */
+      --clock-band: 44px;
+      --footer-band: 58px;
+    }
+
+    /*
+      Light theme. Each value is solved to the same contrast ratio against the
+      paper ground that its dark counterpart has against #0c0c0d, so the
+      hierarchy and hover relationships read identically in both modes.
+        ink 15.9:1 (dark 15.7) · muted 5.9:1 (5.9) · faint 3.6:1 (3.6)
+        accent 8.0:1 (7.9) · hover 10.8:1 (10.9) · dither tones 1.30:1 (1.30)
+    */
+    :root[data-theme="light"] {
+      --bg: #f2f0eb;
+      --bg-raised: #e7e4dc;
+      --ink: #161616;
+      --ink-muted: #605c54;
+      --ink-faint: #827d73;
+      --rule: #ddd8ce;
+      --accent: #594529;
+      --accent-hover: #403321;
+      --dither-bg: #f2f0eb;
+      --dither-fg: #d8d4cb;
+      --halo: rgba(242, 240, 235, 0.92);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    html { background: var(--bg); }
+    html { background: var(--bg); height: 100%; overflow: hidden; }
 
     body {
       background: var(--bg);
       color: var(--ink);
       font-family: 'EB Garamond', Georgia, serif;
-      font-size: 21px;
-      line-height: 1.65;
+      /*
+        Fluid body type, and the single knob everything else scales from:
+        h1 and the section labels are sized in em, so they stay proportional
+        without needing their own clamps. The column is sized in ch, so it
+        widens as the type grows rather than staying a fixed box.
+      */
+      font-size: clamp(19px, 0.55vw + 12px, 24px);
+      line-height: 1.6;
       /* Deliberately NOT antialiased: on a near-black background that thins
          Garamond's hairlines until they shimmer. Default rendering keeps
          the strokes with enough body to read at 21px. */
-      padding: 96px 24px 128px;
+      /* Scrolling happens inside .scroll-shell, not on the document. */
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /*
+      Backdrop. Two fixed layers sit at z-index 0 and content is lifted to
+      z-index 1 — rather than pushing the layers to a negative z-index, which
+      would put them behind body's own background and hide them.
+      position:fixed instead of background-attachment:fixed, broken on iOS.
+
+      There is deliberately no darkening veil over the reading column: the
+      silhouette is meant to stay legible edge to edge, and text legibility
+      is handled by the text-shadow on `main` instead.
+    */
+    .bg-dither,
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /*
+      Static fallback, and the first thing painted. Stays as-is for no-WebGL,
+      touch and reduced-motion; the canvas hides it only once it has drawn an
+      identical first frame, so there is no flash between the two.
+    */
+    :root[data-theme="light"] .bg-dither {
+      background-image: url('/nyse-dither-light.png');
+    }
+
+    .bg-dither {
+      background-image: url('/nyse-dither.png');
+      background-size: cover;
+      background-position: center bottom;
+      background-repeat: no-repeat;
+      /* Keep the dither cells hard-edged; smoothing averages them into a
+         flat wash and the texture disappears. */
+      image-rendering: pixelated;
+    }
+
+    /* Displacement layer. Sized in JS to device pixels for a 1:1 render. */
+    .bg-canvas {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    /*
+      Sits over the steps at the foot of the fixed backdrop. No background
+      fill — the dither reads straight through. pointer-events are off on the
+      bar so it can never swallow a scroll or block content underneath; only
+      the links themselves are interactive.
+    */
+    .site-footer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      pointer-events: none;
+      padding: 12px clamp(16px, 4vw, 96px) clamp(18px, 2.4vh, 30px);
+    }
+
+    .site-footer .nav {
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .site-footer .nav a {
+      pointer-events: auto;
+      /* Carries the links where they cross lit dither cells. */
+      text-shadow: 0 1px 6px var(--halo);
+      padding: 3px 0;
+    }
+
+    @media (max-width: 700px) {
+      /*
+        Two rows are fine here. Kept tight so the pair still sits over the
+        building's base rather than riding up onto the columns, while the row
+        gap plus per-link padding keeps tap targets from touching.
+      */
+      .site-footer { padding: 8px 16px clamp(12px, 1.8vh, 20px); }
+      .site-footer .nav { row-gap: 7px; }
+      .site-footer .nav a { padding: 4px 0; }
+    }
+
+    /*
+      Viewport-anchored dissolve. A mask on a document-scrolled element would
+      travel with the text; anchoring it to a fixed shell that the content
+      scrolls *inside* keeps the fade zones parked against the viewport edges.
+      The background layers and the canvas are siblings of this shell, never
+      children, so the building renders at full strength straight through the
+      fade — only text dissolves.
+    */
+    .scroll-shell {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      --fade-top: 80px;
+      --fade-bottom: 180px;
+      -webkit-mask-image: linear-gradient(to bottom,
+        transparent 0,
+        transparent var(--clock-band),
+        #000 calc(var(--clock-band) + var(--fade-top)),
+        #000 calc(100% - var(--footer-band) - var(--fade-bottom)),
+        transparent calc(100% - var(--footer-band)));
+      mask-image: linear-gradient(to bottom,
+        transparent 0,
+        transparent var(--clock-band),
+        #000 calc(var(--clock-band) + var(--fade-top)),
+        #000 calc(100% - var(--footer-band) - var(--fade-bottom)),
+        transparent calc(100% - var(--footer-band)));
+    }
+
+    @media (max-width: 700px) {
+      :root { --clock-band: 40px; --footer-band: 92px; }
+      .scroll-shell { --fade-bottom: 120px; }
+    }
+
+    /* Carries what used to be body's padding. */
+    .scroll-inner {
+      padding: clamp(64px, 12vh, 160px) clamp(22px, 4vw, 96px) clamp(120px, 15vh, 190px);
     }
 
     main {
+      position: relative;
+      z-index: 1;
       max-width: min(var(--measure), 100%);
       margin: 0 auto;
+      /* Carries the text over the dither cells now that nothing dims them. */
+      text-shadow: 0 1px 8px var(--halo);
     }
 
     main.wide {
@@ -67,7 +248,7 @@ const { title, description = title, width = "measure" } = Astro.props;
     }
 
     h1 {
-      font-size: 30px;
+      font-size: 1.4em;
       font-weight: 500;
       letter-spacing: -0.01em;
       line-height: 1.2;
@@ -108,10 +289,16 @@ const { title, description = title, width = "measure" } = Astro.props;
 
     /* Nav-style links: quiet until touched, no underline at rest. */
     .nav {
-      font-size: 17px;
+      font-size: clamp(16px, 0.45vw + 10px, 19px);
       display: flex;
-      flex-wrap: wrap;
-      gap: 4px 20px;
+      /* One row at desktop widths; only phones are allowed to wrap it. */
+      flex-wrap: nowrap;
+      white-space: nowrap;
+      gap: 0.3em 0.85em;
+    }
+
+    @media (max-width: 700px) {
+      .nav { flex-wrap: wrap; }
     }
 
     .nav a {
@@ -126,7 +313,7 @@ const { title, description = title, width = "measure" } = Astro.props;
     .back-link {
       display: inline-block;
       color: var(--ink-muted);
-      font-size: 17px;
+      font-size: clamp(16px, 0.45vw + 10px, 19px);
       text-decoration: none;
       margin-bottom: 40px;
     }
@@ -146,15 +333,243 @@ const { title, description = title, width = "measure" } = Astro.props;
     a.ext:hover::after { color: var(--accent-hover); }
 
     @media (max-width: 600px) {
-      body { padding: 56px 22px 80px; font-size: 19px; }
-      h1 { font-size: 26px; }
-      .nav { font-size: 16px; gap: 4px 16px; }
+      /* Only the properties phones actually need — the shorthand used to
+         clobber the footer clearance in padding-bottom. */
+      .scroll-inner { padding-top: 48px; padding-left: 22px; padding-right: 22px; }
+      .nav { gap: 0.3em 0.7em; }
     }
   </style>
 </head>
 <body>
-  <main class={width === "wide" ? "wide" : undefined}>
-    <slot />
-  </main>
+  <div class="bg-dither" aria-hidden="true"></div>
+  <canvas class="bg-canvas" aria-hidden="true"></canvas>
+  <slot name="top" />
+  <div class="scroll-shell">
+    <div class="scroll-inner">
+      <main class={width === "wide" ? "wide" : undefined}>
+        <slot />
+      </main>
+    </div>
+  </div>
+  <footer class="site-footer">
+    <nav class="nav">
+      <a class="ext" href="https://www.linkedin.com/in/adityanbhosale" target="_blank" rel="noopener">li</a>
+      <a class="ext" href="https://github.com/adityanbhosale" target="_blank" rel="noopener">gh</a>
+      <a class="ext" href="https://x.com/adi_bhos" target="_blank" rel="noopener">x</a>
+      <a href="/projects">recent projects</a>
+      <a href="/thoughts">working notes</a>
+      <a class="ext" href="https://adibhosale.substack.com" target="_blank" rel="noopener">writings</a>
+      <a href="mailto:adityanb@sas.upenn.edu">adityanb [at] upenn [dot] edu</a>
+    </nav>
+  </footer>
+  <slot name="overlay" />
+  <script is:inline>
+    /*
+      Agitates the dither cells near the cursor. One full-viewport WebGL layer
+      samples the same PNG the static fallback uses and renders it 1:1, so the
+      resting frame is pixel-identical to the CSS background; only the texture
+      lookup is displaced, never the palette, so the duotone is preserved
+      exactly. Falls through to the static PNG on no-WebGL, touch and
+      reduced-motion.
+    */
+    (function () {
+      var still = document.querySelector('.bg-dither');
+      var canvas = document.querySelector('.bg-canvas');
+      if (!still || !canvas || !window.matchMedia) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+
+      var opts = { alpha: false, antialias: false, depth: false, stencil: false, powerPreference: 'low-power' };
+      var gl = canvas.getContext('webgl', opts) || canvas.getContext('experimental-webgl', opts);
+      if (!gl) return;
+
+      var IMG_W = 2400, IMG_H = 1600;
+      var SRC_CELL = 2;      // dither cell size in source pixels
+      var CELL_MULT = 6;     // displace in blocks this many dither cells wide
+      var RADIUS_CSS = 185;  // agitation radius, css px
+      var THROW = 3.2;       // peak displacement, in blocks
+
+      var FRAG = [
+        'precision highp float;',
+        'uniform sampler2D uTex;',
+        'uniform vec2 uRes, uOffset, uDraw, uCursor;',
+        'uniform float uRadius, uAmp, uTime, uCell;',
+        'uniform vec3 uBg, uFg;',
+        // Cheap 2D->2D hash; stable per cell, so a cell jitters rather than crawls.
+        'vec2 hash22(vec2 p){',
+        '  vec3 p3=fract(vec3(p.xyx)*vec3(0.1031,0.1030,0.0973));',
+        '  p3+=dot(p3,p3.yzx+33.33);',
+        '  return fract((p3.xx+p3.yz)*p3.zy)*2.0-1.0;',
+        '}',
+        'void main(){',
+        // gl_FragCoord is bottom-left origin; flip to match CSS/pointer space.
+        '  vec2 px=vec2(gl_FragCoord.x,uRes.y-gl_FragCoord.y);',
+        '  vec2 disp=vec2(0.0);',
+        '  if(uAmp>0.0){',
+        '    vec2 cell=floor(px/uCell);',
+        '    float fall=1.0-smoothstep(0.0,uRadius,distance((cell+0.5)*uCell,uCursor));',
+        '    if(fall>0.0){',
+        // Stepped time so cells kick in discrete jolts, not a smooth drift.
+        '      float t=floor(uTime*14.0);',
+        '      disp=hash22(cell+vec2(t*0.7321,t*0.3137))*fall*uAmp*uCell*' + THROW.toFixed(1) + ';',
+        '    }',
+        '  }',
+                // The texture carries only two values; read the red channel as a
+        // lit/unlit flag and take the colours from uniforms, so a theme swap
+        // changes nothing about the displacement maths.
+        '  float lit=step(0.1,texture2D(uTex,(px+disp-uOffset)/uDraw).r);',
+        '  gl_FragColor=vec4(mix(uBg,uFg,lit),1.0);',
+        '}'
+      ].join(String.fromCharCode(10));
+
+      function compile(type, src) {
+        var sh = gl.createShader(type);
+        gl.shaderSource(sh, src);
+        gl.compileShader(sh);
+        return gl.getShaderParameter(sh, gl.COMPILE_STATUS) ? sh : null;
+      }
+      var vs = compile(gl.VERTEX_SHADER, 'attribute vec2 aPos;void main(){gl_Position=vec4(aPos,0.0,1.0);}');
+      var fs = compile(gl.FRAGMENT_SHADER, FRAG);
+      if (!vs || !fs) return;
+
+      var prog = gl.createProgram();
+      gl.attachShader(prog, vs); gl.attachShader(prog, fs); gl.linkProgram(prog);
+      if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return;
+      gl.useProgram(prog);
+
+      // Single oversized triangle covers the viewport with no seam.
+      var buf = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      var aPos = gl.getAttribLocation(prog, 'aPos');
+      gl.enableVertexAttribArray(aPos);
+      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
+
+      var U = {};
+      ['uRes', 'uOffset', 'uDraw', 'uCursor', 'uRadius', 'uAmp', 'uTime', 'uCell', 'uTex', 'uBg', 'uFg']
+        .forEach(function (n) { U[n] = gl.getUniformLocation(prog, n); });
+
+      var tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      // NEAREST mirrors image-rendering:pixelated on the fallback layer.
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+      var drawW = 0, drawH = 0, offX = 0, offY = 0, cellPx = 2, radiusPx = 150, dpr = 1;
+      var bg = [0, 0, 0], fg = [0, 0, 0];
+
+      function readTone(name) {
+        var v = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        var m = /^#([0-9a-f]{6})$/i.exec(v);
+        if (!m) return [0, 0, 0];
+        var n = parseInt(m[1], 16);
+        return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+      }
+      function readTheme() {
+        bg = readTone('--dither-bg');
+        fg = readTone('--dither-fg');
+      }
+
+      function layout() {
+        dpr = window.devicePixelRatio || 1;
+        var w = Math.max(1, Math.round((canvas.clientWidth || innerWidth) * dpr));
+        var h = Math.max(1, Math.round((canvas.clientHeight || innerHeight) * dpr));
+        if (canvas.width !== w || canvas.height !== h) {
+          canvas.width = w; canvas.height = h;
+          gl.viewport(0, 0, w, h);
+        }
+        // Replicates background-size:cover + background-position:center bottom.
+        var s = Math.max(w / IMG_W, h / IMG_H);
+        drawW = IMG_W * s; drawH = IMG_H * s;
+        offX = (w - drawW) / 2; offY = h - drawH;
+        cellPx = SRC_CELL * s * CELL_MULT;
+        radiusPx = RADIUS_CSS * dpr;
+      }
+
+      // `active` is simply whether the pointer is over the page. The jitter no
+      // longer keys off cursor speed — it boils continuously wherever the
+      // cursor rests, and only eases out when the pointer leaves.
+      var cx = -1e4, cy = -1e4, amp = 0, active = false, prev = 0, raf = 0;
+
+      function render(t) {
+        gl.uniform2f(U.uRes, canvas.width, canvas.height);
+        gl.uniform2f(U.uOffset, offX, offY);
+        gl.uniform2f(U.uDraw, drawW, drawH);
+        gl.uniform2f(U.uCursor, cx * dpr, cy * dpr);
+        gl.uniform1f(U.uRadius, radiusPx);
+        gl.uniform1f(U.uAmp, amp);
+        gl.uniform1f(U.uTime, t / 1000);
+        gl.uniform1f(U.uCell, cellPx);
+        gl.uniform1i(U.uTex, 0);
+        gl.uniform3f(U.uBg, bg[0], bg[1], bg[2]);
+        gl.uniform3f(U.uFg, fg[0], fg[1], fg[2]);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      }
+
+      function frame(now) {
+        var dt = Math.min(now - prev, 64) || 16;
+        prev = now;
+        // tau=100ms => ~300ms to full strength, and ~300ms back to rest.
+        amp += ((active ? 1 : 0) - amp) * (1 - Math.exp(-dt / 100));
+        render(now);
+        // Park only once the pointer has left and the pattern has settled.
+        if (!active && amp < 0.002) {
+          amp = 0;
+          render(now);   // land exactly on the resting frame
+          raf = 0;
+          return;
+        }
+        raf = requestAnimationFrame(frame);
+      }
+
+      function start() { if (!raf) { prev = performance.now(); raf = requestAnimationFrame(frame); } }
+
+      addEventListener('pointermove', function (e) {
+        cx = e.clientX; cy = e.clientY;
+        active = true;
+        start();
+      }, { passive: true });
+
+      addEventListener('resize', function () { layout(); render(performance.now()); });
+
+      // A theme swap only re-reads two colours and redraws one frame; the
+      // texture, geometry and jitter state are untouched, so nothing re-inits.
+      new MutationObserver(function () {
+        readTheme();
+        render(performance.now());
+      }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+      function stop() { active = false; start(); }
+      addEventListener('blur', stop);
+      document.addEventListener('pointerleave', stop);
+      // Don't burn frames on a hidden tab.
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) stop();
+      });
+      canvas.addEventListener('webglcontextlost', function (e) {
+        e.preventDefault();
+        if (raf) { cancelAnimationFrame(raf); raf = 0; }
+        canvas.style.display = 'none';
+        still.style.display = '';   // fall back to the PNG
+      });
+
+      var img = new Image();
+      img.onload = function () {
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+        readTheme();
+        layout();
+        render(0);
+        // Swap only once an identical frame is on screen, so there is no flash.
+        canvas.style.display = 'block';
+        still.style.display = 'none';
+      };
+      img.src = '/nyse-dither.png';
+    })();
+  </script>
 </body>
 </html>
