@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as SliderPrimitive from '@radix-ui/react-slider';
-import { PALETTE } from '../lib/palette.js';
+import { usePalette } from '../lib/palette.js';
 
 /**
  * Slider — Radix-based slider with custom inline styling.
@@ -13,6 +13,7 @@ import { PALETTE } from '../lib/palette.js';
  *   disabled: boolean
  */
 export function Slider({ value, min, max, step = 1, onChange, disabled = false }) {
+  const PALETTE = usePalette();
   return (
     <SliderPrimitive.Root
       className="moat-slider-root"
@@ -60,7 +61,7 @@ export function Slider({ value, min, max, step = 1, onChange, disabled = false }
           backgroundColor: PALETTE.ink,
           border: `2px solid ${PALETTE.accent}`,
           borderRadius: '50%',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.5)',
+          boxShadow: `0 1px 3px ${PALETTE.shadow}`,
           cursor: disabled ? 'not-allowed' : 'grab',
           outline: 'none',
         }}
@@ -74,6 +75,7 @@ export function Slider({ value, min, max, step = 1, onChange, disabled = false }
  * Switch / Toggle — minimal native styling.
  */
 export function Toggle({ checked, onChange, label }) {
+  const PALETTE = usePalette();
   return (
     <label
       style={{
@@ -106,7 +108,7 @@ export function Toggle({ checked, onChange, label }) {
             height: 16,
             backgroundColor: PALETTE.ink,
             borderRadius: '50%',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.5)',
+            boxShadow: `0 1px 2px ${PALETTE.shadow}`,
             transition: 'left 150ms',
           }}
         />

@@ -17,7 +17,7 @@ import {
   PORTCO_COMPONENTS,
 } from '../lib/moat-model.js';
 import { Slider, Toggle } from './Slider.jsx';
-import { PALETTE } from '../lib/palette.js';
+import { usePalette } from '../lib/palette.js';
 
 // ============================================================================
 // Helpers
@@ -44,6 +44,7 @@ function monthToQuarterLabel(monthOffset) {
 // ============================================================================
 
 function ChartTooltip({ active, payload, label, scenarios }) {
+  const PALETTE = usePalette();
   if (!active || !payload || payload.length === 0) return null;
 
   const monthOffset = label;
@@ -57,7 +58,7 @@ function ChartTooltip({ active, payload, label, scenarios }) {
         borderRadius: 6,
         padding: 12,
         fontSize: 13,
-        boxShadow: '0 6px 18px rgba(0,0,0,0.55)',
+        boxShadow: `0 6px 18px ${PALETTE.shadow}`,
         maxWidth: 320,
       }}
     >
@@ -97,6 +98,7 @@ function ChartTooltip({ active, payload, label, scenarios }) {
 // ============================================================================
 
 function ScenarioControl({ label, value, min, max, onChange, valueLabel, explanation, disabled = false }) {
+  const PALETTE = usePalette();
   return (
     <div style={{ marginBottom: 24 }}>
       <div
@@ -147,6 +149,7 @@ function ScenarioControl({ label, value, min, max, onChange, valueLabel, explana
 // ============================================================================
 
 export default function MoatVisualization() {
+  const PALETTE = usePalette();
   const [scenarios, setScenarios] = useState(DEFAULT_SCENARIOS);
 
   // Compute curves whenever scenarios change
@@ -208,14 +211,14 @@ export default function MoatVisualization() {
               iconType="rect"
               verticalAlign="bottom"
             />
-            {['kueski', 'tpaga', 'yassir', 'vammo'].map((key) => {
+            {['kueski', 'tpaga', 'yassir', 'vammo'].map((key, seriesIndex) => {
               const portco = PORTCO_COMPONENTS[key];
               return <Line
                 key={key}
                 type="monotone"
                 dataKey={key}
                 name={portco.label}
-                stroke={portco.color}
+                stroke={PALETTE.series[seriesIndex]}
                 strokeWidth={2.25}
                 dot={false}
                 activeDot={{ r: 4 }}
@@ -342,9 +345,10 @@ export default function MoatVisualization() {
           Component breakdown at month 24
         </h3>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-          {Object.keys(PORTCO_COMPONENTS).map((key) => {
+          {Object.keys(PORTCO_COMPONENTS).map((key, seriesIndex) => {
             const result = computeMoatAtTime(key, scenarios, 24);
             const portco = PORTCO_COMPONENTS[key];
+            const seriesColor = PALETTE.series[seriesIndex % PALETTE.series.length];
             return (
               <div key={key}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -353,7 +357,7 @@ export default function MoatVisualization() {
                       display: 'inline-block',
                       width: 10,
                       height: 10,
-                      backgroundColor: portco.color,
+                      backgroundColor: seriesColor,
                       borderRadius: 2,
                     }}
                   />

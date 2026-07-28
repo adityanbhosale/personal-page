@@ -24,10 +24,15 @@ const { title, description = title, width = "measure" } = Astro.props;
     try {
       if (localStorage.getItem('theme') === 'light') {
         document.documentElement.setAttribute('data-theme', 'light');
+        document.addEventListener('DOMContentLoaded', function () {
+          var m = document.querySelector('meta[name="theme-color"]');
+          if (m) m.setAttribute('content', '#f2f0eb');
+        });
       }
     } catch (e) {}
   </script>
   <meta name="theme-color" content="#0c0c0d" />
+  <!-- kept in step with the theme by the script below and the toggle -->
   <title>{title}</title>
   <!-- The visible name heading was removed from the homepage, so link
        previews rely on these staying intact. -->
@@ -55,6 +60,22 @@ const { title, description = title, width = "measure" } = Astro.props;
       --dither-bg: #0c0c0d;
       --dither-fg: #26262c;
       --halo: rgba(12, 12, 13, 0.9);
+      /* Peak contrast against the ground — what a hovered block reaches. */
+      --ink-strong: #ffffff;
+      /* Recharts writes colours as SVG attributes, where var() never
+         resolves, so the island reads these through getComputedStyle. */
+      --chart-surface: #17171a;
+      --chart-ink: #e8e6e1;
+      --chart-ink-muted: #b3aea6;
+      --chart-ink-faint: #8a857e;
+      --chart-rule: #2a2a30;
+      --chart-grid: #1c1c20;
+      --chart-positive: #63c98a;
+      --chart-shadow: rgba(0, 0, 0, 0.55);
+      --series-1: #6ea8fe;
+      --series-2: #e8796f;
+      --series-3: #63c98a;
+      --series-4: #f0913f;
       --measure: 78ch;
       /* Heights of the two fixed bands content fades under. */
       --clock-band: 44px;
@@ -80,6 +101,19 @@ const { title, description = title, width = "measure" } = Astro.props;
       --dither-bg: #f2f0eb;
       --dither-fg: #d8d4cb;
       --halo: rgba(242, 240, 235, 0.92);
+      --ink-strong: #000000;
+      --chart-surface: #ffffff;
+      --chart-ink: #161616;
+      --chart-ink-muted: #4a463f;
+      --chart-ink-faint: #6f6a61;
+      --chart-rule: #ddd8ce;
+      --chart-grid: #e7e3da;
+      --chart-positive: #1f7a44;
+      --chart-shadow: rgba(22, 22, 22, 0.16);
+      --series-1: #1d4ed8;
+      --series-2: #b02a20;
+      --series-3: #1f7a44;
+      --series-4: #b45309;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }

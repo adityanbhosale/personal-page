@@ -64,7 +64,7 @@ const minAngle = mins * 6;
       font-size: clamp(15px, 0.4vw + 11px, 18px);
       line-height: 1;
       color: var(--ink-muted);
-      text-shadow: 0 1px 6px rgba(12, 12, 13, 0.95);
+      text-shadow: 0 1px 6px var(--halo);
       font-variant-numeric: tabular-nums;
     }
 
@@ -89,7 +89,7 @@ const minAngle = mins * 6;
       /* Matches the footer links. */
       font-size: clamp(16px, 0.45vw + 10px, 19px);
       line-height: 1;
-      text-shadow: 0 1px 6px rgba(12, 12, 13, 0.95);
+      text-shadow: 0 1px 6px var(--halo);
       /* Only the dismissal is animated; it does not move or pulse. */
       transition: opacity 400ms ease;
     }
@@ -165,7 +165,8 @@ const minAngle = mins * 6;
     }
 
     .block:hover {
-      color: #ffffff;
+      /* Was a literal #ffffff, which turned hovered text white on paper. */
+      color: var(--ink-strong);
       transform: scale(1.015);
       -webkit-text-stroke-width: 0.1px;
     }
@@ -334,6 +335,8 @@ const minAngle = mins * 6;
         if (next === 'light') root.setAttribute('data-theme', 'light');
         else root.removeAttribute('data-theme');
         try { localStorage.setItem('theme', next); } catch (e) {}
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute('content', next === 'light' ? '#f2f0eb' : '#0c0c0d');
         relabel();
       });
       relabel();

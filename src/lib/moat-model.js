@@ -29,6 +29,8 @@
 export const PORTCO_COMPONENTS = {
   kueski: {
     label: 'Kueski',
+    // Rendering colour now comes from --series-N via usePalette(); this is
+    // retained only as a stable identity hint for the model data.
     color: '#6ea8fe',
     startingMoat: 0.85,
     components: [
