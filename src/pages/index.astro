@@ -133,11 +133,29 @@ const minAngle = mins * 6;
     :root[data-theme="light"] .theme-toggle .icon-sun { display: none; }
     :root[data-theme="light"] .theme-toggle .icon-moon { display: block; }
 
-    .site-clock .clock {
+    /*
+      Place and time are each an icon+label pair. Grouping them keeps the icon
+      welded to its own label when the bar wraps on a narrow screen, instead of
+      the pin drifting onto one row and "New York, NY" onto the next.
+    */
+    .site-clock .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4em;
+      white-space: nowrap;
+    }
+
+    .site-clock .clock,
+    .site-clock .pin {
       width: 1em;
       height: 1em;
       flex: none;
       overflow: visible;
+    }
+
+    @media (max-width: 700px) {
+      /* Two short rows beat one clipped row once the bar runs out of width. */
+      .site-clock { flex-wrap: wrap; row-gap: 0.35em; }
     }
 
     /*
@@ -235,14 +253,24 @@ const minAngle = mins * 6;
   </style>
 
   <div class="site-clock" slot="top">
-    <svg class="clock" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7" />
-      <line class="clock-hour" x1="12" y1="12" x2="12" y2="7" stroke="currentColor"
-            stroke-width="1.9" stroke-linecap="round" transform={`rotate(${hourAngle} 12 12)`} />
-      <line class="clock-min" x1="12" y1="12" x2="12" y2="4.8" stroke="currentColor"
-            stroke-width="1.5" stroke-linecap="round" transform={`rotate(${minAngle} 12 12)`} />
-    </svg>
-    <span class="clock-text">{tzLabel}</span>
+    <span class="chip">
+      <svg class="pin" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M12 21.5c4-5 6.4-8.4 6.4-11.5a6.4 6.4 0 1 0-12.8 0c0 3.1 2.4 6.5 6.4 11.5z"
+              fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" />
+        <circle cx="12" cy="9.7" r="2.3" fill="none" stroke="currentColor" stroke-width="1.7" />
+      </svg>
+      <span>New York, NY</span>
+    </span>
+    <span class="chip">
+      <svg class="clock" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.7" />
+        <line class="clock-hour" x1="12" y1="12" x2="12" y2="7" stroke="currentColor"
+              stroke-width="1.9" stroke-linecap="round" transform={`rotate(${hourAngle} 12 12)`} />
+        <line class="clock-min" x1="12" y1="12" x2="12" y2="4.8" stroke="currentColor"
+              stroke-width="1.5" stroke-linecap="round" transform={`rotate(${minAngle} 12 12)`} />
+      </svg>
+      <span class="clock-text">{tzLabel}</span>
+    </span>
     <button class="theme-toggle" type="button" aria-label="Toggle light mode">
       <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <circle cx="12" cy="12" r="4.4" stroke="currentColor" stroke-width="1.7" />
