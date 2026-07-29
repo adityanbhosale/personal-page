@@ -1,184 +1,158 @@
 /**
- * Build-time generator for the site favicons, cut from the portrait in me.jpg.
+ * Build-time generator for the site favicons: an "AB" monogram set in
+ * EB Garamond, the same face the site reads in.
  *
  *   node scripts/generate-favicons.mjs
  *
  * Emits into public/:
+ *   favicon.svg          vector, what modern browsers actually use
  *   favicon.ico          16 + 32 packed into one ICO (PNG entries, alpha intact)
- *   favicon-16x16.png    RGBA, transparent margin
- *   favicon-32x32.png    RGBA, transparent margin
- *   icon-192.png         RGBA
- *   icon-512.png         RGBA
- *   apple-touch-icon.png 180x180, opaque #0c0c0d behind the circle
+ *   favicon-16x16.png
+ *   favicon-32x32.png
+ *   icon-192.png
+ *   icon-512.png
+ *   apple-touch-icon.png 180x180, opaque — iOS discards alpha anyway
  *
- * The face is composited as a circle at CIRCLE_DIAMETER of the canvas, leaving
- * a small transparent margin so the icon reads as an avatar rather than a
- * full-bleed square. The 180 is the exception: iOS masks to its own shape and
- * composites onto an unknown background, so it gets a solid ground instead of
- * transparency — an alpha margin there would show as a light halo.
+ * The glyphs are converted to outlines with opentype.js rather than set as
+ * SVG <text>. Text would leave the mark at the mercy of whatever font happens
+ * to resolve at rasterise time — librsvg has no access to the webfont, so a
+ * build machine without EB Garamond installed would silently substitute
+ * something else. Outlines make the output deterministic everywhere and let
+ * favicon.svg ship without an embedded font.
  *
- * NOTE: icon-192/512 are generated but nothing references them, because this
- * project has no web manifest. Add one (and link it from Base.astro) if they
- * are ever needed; they are emitted here so the set is complete.
+ * Proportions were tuned by rendering and looking, not derived: a 34% cap
+ * height puts the two letters at ~67% of the canvas width, which leaves
+ * visible breathing room inside the 94% disc. At the 40% cap tried first,
+ * "AB" spanned 78% and crowded the rim. The 16px icon steps up to a 38% cap
+ * — see CAP_HEIGHT_SMALL.
  *
- * On the crop: CROP runs hairline-to-chin with the face at ~80% of the frame
- * height, centred on the face rather than the source frame. Landmarks measured
- * off the 987x1358 source: hairline y=536, chin y=1099, face centre (471, 818).
- *
- * On the tone treatment: the photo is bright to the point of mild
- * overexposure, so the face carries little separation once downsampled. Rather
- * than stretching contrast — which blocks the hair into a flat mass and clips
- * the already-hot highlights — the small sizes get a gamma curve pulling
- * midtones down with both endpoints pinned, plus mild output sharpening after
- * the downscale. Applied ONLY at 16 and 32, where the pixel budget needs it.
- *
- * On the vignette: a face is taller than it is wide but a circle is not, so
- * framing hairline-to-chin puts the circle's widest band over background —
- * here, blown-out sky, which read as two bright wings at 3 and 9 o'clock
- * against a dark tab bar. A mild radial darkening toward the rim sinks them
- * into the surround without visibly touching skin tone.
- *
- * Uses sharp (already a project dependency), matching generate-dither-bg.mjs.
+ * The disc is deliberately the site's own near-black with off-white letters —
+ * a 15:1 ratio, the strongest of the options tried, which is what carries the
+ * mark at 16px where the serifs are down to a pixel or so. On a dark browser
+ * tab strip the disc recedes and the letters read as floating; on a light one
+ * the whole disc reads. Both were checked against real tab-bar greys.
  */
 import sharp from 'sharp';
-import { writeFileSync, statSync } from 'node:fs';
+import opentype from 'opentype.js';
+import { writeFileSync, statSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const SRC = resolve(ROOT, 'me.jpg');
 const PUBLIC = resolve(ROOT, 'public');
+const FONT = resolve(
+  ROOT,
+  'node_modules/@fontsource/eb-garamond/files/eb-garamond-latin-700-normal.woff'
+);
 
-/** Square crop in source pixels. Source is 987x1358. */
-const CROP = { left: 119, top: 466, width: 704, height: 704 };
+const INITIALS = 'AB';
 
-/** Circle diameter as a fraction of the canvas; the remainder is margin. */
-const CIRCLE_DIAMETER = 0.88;
-/** Supersampling factor for the circle mask, for a clean antialiased edge. */
-const MASK_SUPERSAMPLE = 8;
+/** Disc and ink. Mirrors --bg / --ink from the layout's dark palette. */
+const DISC = '#0c0c0d';
+const INK = '#e8e6e1';
 
-/** Midtone pull for the small sizes: out = 255 * (in/255)^GAMMA, GAMMA > 1. */
-const GAMMA = 1.25;
-/** Output sharpening radius for the small sizes, applied after the downscale. */
-const SHARPEN_SIGMA = 0.8;
-/** Above this size the image reads unaided, so it ships untreated. */
-const TREAT_UPTO = 32;
+/** Disc diameter as a fraction of the canvas; the rest is transparent margin. */
+const DISC_DIAMETER = 0.94;
+/** Cap height as a fraction of the canvas. Drives the letters' final size. */
+const CAP_HEIGHT = 0.34;
+/**
+ * Optical size: at 16px the 34% cap leaves strokes under a pixel and the
+ * letters grey out, so the smallest icon gets proportionally larger letters.
+ * This is the usual optical-sizing move, not a fudge — the mark is meant to
+ * look the same weight, which at this size means drawing it bigger.
+ */
+const CAP_HEIGHT_SMALL = 0.38;
+const SMALL_UPTO = 16;
+/** Extra space between the two letters, in font units (em = 1000). */
+const TRACKING = 20;
 
-/** Rim darkening: starts at this fraction of the radius, reaching VIGNETTE. */
-const VIGNETTE_START = 0.55;
-const VIGNETTE = 0.35;
+/** Supersample factor when rasterising to PNG, for clean antialiasing. */
+const SUPERSAMPLE = 10;
 
-/** Ground behind the circle on the apple-touch-icon. Matches --bg. */
-const IOS_BG = { r: 0x0c, g: 0x0c, b: 0x0d };
+/** Ground behind the disc on the apple-touch-icon. Matches --bg. */
+const IOS_BG = '#0c0c0d';
 
-const LUT = Buffer.alloc(256);
-for (let i = 0; i < 256; i++) LUT[i] = Math.round(255 * Math.pow(i / 255, GAMMA));
+const fontBuf = readFileSync(FONT);
+const font = opentype.parse(
+  fontBuf.buffer.slice(fontBuf.byteOffset, fontBuf.byteOffset + fontBuf.length)
+);
 
 /**
- * Single-channel antialiased circular alpha.
+ * The initials as outline path data, scaled and centred within a `size` box.
  *
- * The backing rect matters: with a transparent SVG background, raw() yields
- * two interleaved channels (grey + alpha) and indexing it as one silently
- * produces a hard-edged, horizontally squashed mask.
+ * Centring uses the glyphs' real bounding box rather than font metrics: the
+ * ascender/descender include room for accents and descenders that "AB" does
+ * not use, so metric-based centring sits the mark visibly high in the disc.
  */
-async function circleAlpha(size) {
-  const big = size * MASK_SUPERSAMPLE;
-  const r = (big * CIRCLE_DIAMETER) / 2;
-  const svg =
-    `<svg width="${big}" height="${big}" xmlns="http://www.w3.org/2000/svg">` +
-    `<rect width="${big}" height="${big}" fill="#000"/>` +
-    `<circle cx="${big / 2}" cy="${big / 2}" r="${r}" fill="#fff"/></svg>`;
-  // mitchell rather than lanczos: no ringing overshoot on a hard circle edge.
-  return sharp(Buffer.from(svg))
-    .removeAlpha()
-    .greyscale()
-    .resize(size, size, { kernel: 'mitchell' })
-    .raw()
-    .toBuffer();
+function monogram(size, capHeight = CAP_HEIGHT) {
+  const em = 1000;
+  const [first, second] = INITIALS;
+  const pathFirst = font.getPath(first, 0, 0, em);
+  const pathSecond = font.getPath(
+    second,
+    font.getAdvanceWidth(first, em) + TRACKING,
+    0,
+    em
+  );
+
+  const combined = new opentype.Path();
+  combined.extend(pathFirst);
+  combined.extend(pathSecond);
+  const box = combined.getBoundingBox();
+
+  const capHeightUnits = box.y2 - box.y1;
+  const width = box.x2 - box.x1;
+  const scale = (size * capHeight) / capHeightUnits;
+
+  return {
+    d: `${pathFirst.toPathData(3)} ${pathSecond.toPathData(3)}`,
+    tx: size / 2 - (box.x1 + width / 2) * scale,
+    ty: size / 2 - (box.y1 + capHeightUnits / 2) * scale,
+    scale,
+  };
 }
 
-/** Raw RGB of the face crop at `size`, tone-treated only at the small sizes. */
-async function faceRgb(size) {
-  let pipeline = sharp(SRC)
-    .extract(CROP)
-    .resize(size, size, { kernel: 'lanczos3' })
-    .flatten({ background: '#ffffff' });
-
-  const treat = size <= TREAT_UPTO;
-  if (treat) pipeline = pipeline.sharpen({ sigma: SHARPEN_SIGMA });
-
-  const rgb = await pipeline.removeAlpha().raw().toBuffer();
-  if (treat) for (let i = 0; i < rgb.length; i++) rgb[i] = LUT[rgb[i]];
-  return rgb;
+/** The mark as an SVG document. `ground` fills the whole square when set. */
+function markSvg(size, ground = null, capHeight = CAP_HEIGHT) {
+  const m = monogram(size, capHeight);
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" ` +
+    `viewBox="0 0 ${size} ${size}">` +
+    (ground ? `<rect width="${size}" height="${size}" fill="${ground}"/>` : '') +
+    `<circle cx="${size / 2}" cy="${size / 2}" r="${(size * DISC_DIAMETER) / 2}" fill="${DISC}"/>` +
+    `<g fill="${INK}" transform="translate(${m.tx} ${m.ty}) scale(${m.scale})">` +
+    `<path d="${m.d}"/></g></svg>`
+  );
 }
 
 /**
- * Circular avatar at `size`. With `ground`, the circle is composited onto that
- * solid colour and the result is opaque; without, the margin stays transparent.
+ * Rasterise the mark at `size`, supersampling everything except the smallest
+ * icon — see the comment on `scale` below for why 16px is the exception.
  */
-async function avatar(size, ground = null) {
-  const rgb = await faceRgb(size);
-  const alpha = await circleAlpha(size);
+async function raster(size, ground = null) {
+  const small = size <= SMALL_UPTO;
+  const cap = small ? CAP_HEIGHT_SMALL : CAP_HEIGHT;
+  // At 16px, rasterising straight to the target beats supersampling and
+  // downsampling: the resampler softens strokes that are already sub-pixel,
+  // where the SVG rasteriser's own hinting-free AA holds them together.
+  const scale = small ? 1 : SUPERSAMPLE;
+  const svg = Buffer.from(markSvg(size * scale, ground, cap));
+  const pipeline =
+    scale === 1 ? sharp(svg) : sharp(svg).resize(size, size, { kernel: 'lanczos3' });
 
-  const channels = ground ? 3 : 4;
-  const out = Buffer.alloc(size * size * channels);
-  const radius = (size * CIRCLE_DIAMETER) / 2;
-  const centre = (size - 1) / 2;
-
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const i = y * size + x;
-
-      // Rim darkening, eased quadratically from VIGNETTE_START to the edge.
-      const d = Math.hypot(x - centre, y - centre) / radius;
-      let k = 1;
-      if (d > VIGNETTE_START) {
-        const t = Math.min(1, (d - VIGNETTE_START) / (1 - VIGNETTE_START));
-        k = 1 - VIGNETTE * t * t;
-      }
-
-      const r = rgb[i * 3] * k;
-      const g = rgb[i * 3 + 1] * k;
-      const b = rgb[i * 3 + 2] * k;
-      const a = alpha[i];
-      const o = i * channels;
-
-      if (ground) {
-        // Source-over onto the solid ground, so the edge stays antialiased.
-        const f = a / 255;
-        out[o] = Math.round(r * f + ground.r * (1 - f));
-        out[o + 1] = Math.round(g * f + ground.g * (1 - f));
-        out[o + 2] = Math.round(b * f + ground.b * (1 - f));
-      } else {
-        out[o] = Math.round(r);
-        out[o + 1] = Math.round(g);
-        out[o + 2] = Math.round(b);
-        out[o + 3] = a;
-      }
-    }
-  }
-
-  // Encoding splits on whether the icon carries alpha, and it matters a lot.
-  //
-  // Left to choose, sharp emits a palette PNG. For the opaque icon that is
-  // nearly free — all 256 entries go to colour, and the measured mean channel
-  // error is ~1/255. But once there is an alpha channel, the quantiser has to
-  // spend entries on colour+alpha combinations, and the same image comes back
-  // with a mean error of ~24/255 and the circle's rim collapsed to ~20 alpha
-  // levels. So: palette when opaque, truecolour when not.
-  return sharp(out, { raw: { width: size, height: size, channels } })
-    .png(
-      ground
-        ? { palette: true, quality: 100, compressionLevel: 9, effort: 10 }
-        : { palette: false, compressionLevel: 9, effort: 10 }
-    )
-    .toBuffer();
+  // As in the previous photo-based set: palette quantisation is nearly free
+  // for an opaque icon but badly lossy once alpha shares the 256 entries.
+  return ground
+    ? pipeline
+        .removeAlpha()
+        .png({ palette: true, quality: 100, compressionLevel: 9, effort: 10 })
+        .toBuffer()
+    : pipeline.png({ palette: false, compressionLevel: 9, effort: 10 }).toBuffer();
 }
 
 /**
- * Pack PNG buffers into an ICO. PNG-compressed entries have been supported for
- * well over a decade and carry their own alpha, so no BMP frames or AND masks
- * are needed; the 32bpp in each directory entry declares that alpha.
+ * Pack PNG buffers into an ICO. PNG-compressed entries carry their own alpha,
+ * so no BMP frames or AND masks are needed; 32bpp declares that alpha.
  */
 function buildIco(entries) {
   const header = Buffer.alloc(6);
@@ -205,11 +179,15 @@ function buildIco(entries) {
   return Buffer.concat([header, dir, ...entries.map((e) => e.data)]);
 }
 
-const png16 = await avatar(16);
-const png32 = await avatar(32);
-const png192 = await avatar(192);
-const png512 = await avatar(512);
-const png180 = await avatar(180, IOS_BG);
+// The vector favicon is authored on a 64-unit canvas: large enough that the
+// rounded path data keeps its precision, small enough to stay legible.
+writeFileSync(resolve(PUBLIC, 'favicon.svg'), `${markSvg(64)}\n`);
+
+const png16 = await raster(16);
+const png32 = await raster(32);
+const png192 = await raster(192);
+const png512 = await raster(512);
+const png180 = await raster(180, IOS_BG);
 
 writeFileSync(resolve(PUBLIC, 'favicon-16x16.png'), png16);
 writeFileSync(resolve(PUBLIC, 'favicon-32x32.png'), png32);
@@ -240,9 +218,8 @@ for (const name of [
   );
 }
 
-// sharp cannot decode ICO, so report it from the container we just built.
-{
-  const { size } = statSync(resolve(PUBLIC, 'favicon.ico'));
-  const dims = [png16, png32].map((b, i) => `${[16, 32][i]}`).join('+');
-  console.log(`${'favicon.ico'.padEnd(22)} ${dims}   alpha=yes  ${(size / 1024).toFixed(1)}KB`);
+// sharp cannot decode ICO or report on SVG here, so both come off disk.
+for (const name of ['favicon.ico', 'favicon.svg']) {
+  const { size } = statSync(resolve(PUBLIC, name));
+  console.log(`${name.padEnd(22)} ${'vec'.padStart(3)}     ${(size / 1024).toFixed(1)}KB`);
 }
