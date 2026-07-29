@@ -12,15 +12,19 @@
  * No web manifest exists in this project, so the 192/512 pair is deliberately
  * not generated. Add it here alongside a manifest if one is ever introduced.
  *
- * On the crop: me.jpg is a phone screenshot, so the frame includes the Photos
- * UI chrome and the subject sits well above centre. A centred square crop
- * would land on a shirt collar. CROP is therefore hand-placed on the face.
+ * On the crop: CROP is hand-placed to run hairline-to-chin with the face at
+ * ~80% of the frame height, centred horizontally on the face rather than on
+ * the source frame. Landmarks measured off the 987x1358 source: hairline
+ * y=536, chin y=1099, face centre (471, 818).
  *
- * On the contrast: the background is bare branches against bright sky, at
- * roughly the same luminance as the face, so at 16-32px the head barely
- * separates from it. The mild linear stretch below buys back enough edge for
- * the eye and jaw to survive the downscale. It is deliberately mild — pushed
- * further, the hair blocks up into a flat silhouette.
+ * On the tone treatment: the photo is bright to the point of mild
+ * overexposure, so the face carries little separation once it is downsampled.
+ * Rather than stretching contrast — which blocks the hair into a flat mass and
+ * clips the already-hot highlights — the small sizes get a gamma curve that
+ * pulls midtones down while pinning both endpoints, plus mild output
+ * sharpening after the downscale. This is applied ONLY at 16 and 32, where the
+ * pixel budget needs the help; the 180 is left in its natural tone, since at
+ * that size the photo reads on its own and sharpening would only add halos.
  *
  * Uses sharp (already a project dependency), matching generate-dither-bg.mjs.
  */
@@ -33,23 +37,48 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = resolve(ROOT, 'me.jpg');
 const PUBLIC = resolve(ROOT, 'public');
 
-/** Square crop in source pixels. Source is 1206x2622. */
-const CROP = { left: 210, top: 828, width: 720, height: 720 };
+/** Square crop in source pixels. Source is 987x1358. */
+const CROP = { left: 119, top: 466, width: 704, height: 704 };
 
-/** Contrast slope about mid-grey, and a touch of saturation to hold skin tone. */
-const CONTRAST = 1.22;
-const SATURATION = 1.08;
+/** Midtone pull for the small sizes: out = 255 * (in/255)^GAMMA, GAMMA > 1. */
+const GAMMA = 1.25;
+/** Output sharpening radius for the small sizes, applied after the downscale. */
+const SHARPEN_SIGMA = 0.8;
+/** Above this size the image reads unaided, so it ships untreated. */
+const TREAT_UPTO = 32;
+
+/**
+ * Applies the midtone curve through a 256-entry LUT. Endpoints map to
+ * themselves, so blacks and the sky highlight are left where they are and only
+ * the skin tones move.
+ */
+const LUT = Buffer.alloc(256);
+for (let i = 0; i < 256; i++) LUT[i] = Math.round(255 * Math.pow(i / 255, GAMMA));
+
+async function pullMidtones(buf, size) {
+  const raw = await sharp(buf).raw().toBuffer();
+  for (let i = 0; i < raw.length; i++) raw[i] = LUT[raw[i]];
+  return sharp(raw, { raw: { width: size, height: size, channels: 3 } })
+    .png({ compressionLevel: 9, effort: 10 })
+    .toBuffer();
+}
 
 /** Square PNG at `size`, as a buffer. */
 async function square(size) {
-  return sharp(SRC)
+  let pipeline = sharp(SRC)
     .extract(CROP)
-    .linear(CONTRAST, -(128 * (CONTRAST - 1)))
-    .modulate({ saturation: SATURATION })
     .resize(size, size, { kernel: 'lanczos3' })
-    .flatten({ background: '#ffffff' }) // no alpha: ICO and iOS both want opaque
+    .flatten({ background: '#ffffff' }); // no alpha: ICO and iOS both want opaque
+
+  const treat = size <= TREAT_UPTO;
+  if (treat) pipeline = pipeline.sharpen({ sigma: SHARPEN_SIGMA });
+
+  const buf = await pipeline
+    .removeAlpha()
     .png({ compressionLevel: 9, effort: 10 })
     .toBuffer();
+
+  return treat ? pullMidtones(buf, size) : buf;
 }
 
 /**
