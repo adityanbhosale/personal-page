@@ -1,7 +1,6 @@
 ---
 // src/pages/index.astro
 import Base from "../layouts/Base.astro";
-import { projects } from "../lib/projects";
 
 // Rendered server-side so the no-JS fallback shows the real zone abbreviation
 // (EDT/EST) and real hand positions rather than a hardcoded guess. The client
@@ -241,40 +240,6 @@ const minAngle = mins * 6;
       margin-bottom: 0;
     }
 
-    /*
-      The one block in the main column that holds links. `list-style: none` is
-      required rather than cosmetic: the layout's `* { padding: 0 }` reset
-      leaves the markers rendering outside the content box.
-    */
-    .projects ul { list-style: none; }
-
-    .projects li + li { margin-top: 1.15em; }
-
-    /*
-      Links take the block's colour instead of the brass `a` default, so the
-      section still greys and brightens as one unit — a fixed-colour link
-      would sit out of that transition and break it. Deriving the underline
-      from currentColor means it tracks the hover state for free, while still
-      giving the only links on the page a visible affordance at rest.
-    */
-    .projects a {
-      color: inherit;
-      text-decoration-color: color-mix(in srgb, currentColor 28%, transparent);
-    }
-
-    .projects a:hover {
-      color: var(--accent-hover);
-      text-decoration-color: var(--accent-hover);
-    }
-
-    /* Titles read as peers of the section body, not a third heading level. */
-    .projects li > a { font-size: 0.9em; }
-
-    .projects li p { margin-top: 2px; }
-
-    /* Recedes by opacity, not colour, for the reason given above. */
-    .projects .when { font-style: italic; opacity: 0.75; }
-
     /* Touch devices have no hover — show everything at full strength. */
     @media (hover: none) {
       .block { color: var(--ink); }
@@ -337,18 +302,6 @@ const minAngle = mins * 6;
 
     <p>I'm an incoming investment banking summer analyst at Leerink Partners where I'll be joining the biopharma coverage group. Prior to my endeavors in markets &amp; finance, I spent 3+ years in a CAR-T lab at Penn Medicine, wrote on options-pricing for RWAs at UCL, and led a handful of pro-bono tech / life-sciences consulting projects through Penn's Undergraduate Biotech Society &amp; Wharton's Venture Lab.</p>
   </div>
-
-  <section class="block recessed projects">
-    <h2><a href="/projects">recent projects</a></h2>
-    <ul>
-      {projects.map((p) => (
-        <li>
-          <a href={`/projects/${p.slug}`}>{p.title}</a>
-          <p><span class="when">{p.date}</span> — {p.summary}</p>
-        </li>
-      ))}
-    </ul>
-  </section>
 
   <section class="block recessed">
     <h2>active interests</h2>
