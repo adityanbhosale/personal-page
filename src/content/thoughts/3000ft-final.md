@@ -3,7 +3,7 @@ title: 3000ft final
 topic: Martingale
 date: 2026-08-07T12:53:00
 ---
-This entry discusses all sections of `Martingale_Technical_Brief` that are difficult to understand on first pass.
+This entry discusses all sections of `Martingale_Technical_Brief` in conversational detail.
 
 **Document Structure:**
 
