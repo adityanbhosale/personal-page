@@ -1,5 +1,5 @@
 ---
-title: 3000ft final
+title: Martingale_Technical_Brief
 topic: Martingale
 date: 2026-08-07T12:53:00
 ---
