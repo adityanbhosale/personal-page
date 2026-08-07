@@ -23,19 +23,19 @@ This entry discusses all sections of `Martingale_Technical_Brief` in conversatio
    * Underlying Themes
 4. Mechanism
 
-   * System Overview
-   * Layer 1 – the Anchor
-   * Layer 2 Justification – the Conservation Identity
-   * Layer 2 – the Dated Future
-   * Settlement – Clear Resolution & Zero Protocol Loss
-   * Deployment Overview
+   * **System Overview**
+   * **Layer 1 – the Anchor**
+   * **Layer 2 Justification – the Conservation Identity**
+   * **Layer 2 – the Dated Future**
+   * **Settlement – Clear Resolution & Zero Protocol Loss**
+   * **Deployment Overview**
 5. Working Around the Binary Jump
 
    * Breaking Down the Pricing Object
    * Solution
    * Market Maker as a Warehousing Counterparty
-   * Instrument Ordering: the Straddle Leads
-   * The Cold-Start Price p0, and Measurable Premium
+   * **Instrument Ordering: the Straddle Leads**
+   * **The Cold-Start Price p0, and Measurable Premium**
 6. Liquidity as an Underwriting Business
 
    * Institutional Feedback
