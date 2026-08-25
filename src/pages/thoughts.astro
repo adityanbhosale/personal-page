@@ -5,19 +5,49 @@ import Base from "../layouts/Base.astro";
 const allPosts = await getCollection("thoughts");
 
 // Group by topic
-const byTopic: Record<string, typeof allPosts> = {};
+const byTopic = new Map<string, typeof allPosts>();
 for (const post of allPosts) {
   const t = post.data.topic;
-  if (!byTopic[t]) byTopic[t] = [];
-  byTopic[t].push(post);
+  const bucket = byTopic.get(t);
+  if (bucket) bucket.push(post);
+  else byTopic.set(t, [post]);
 }
 
-// Sort posts within each topic by date, newest first
-for (const topic of Object.keys(byTopic)) {
-  byTopic[topic].sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+// Newest first inside every topic.
+for (const bucket of byTopic.values()) {
+  bucket.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 }
 
-const topics = Object.keys(byTopic).sort();
+/*
+  Section order: the pinned topic first (matched case-insensitively so a
+  stray "martingale" in the CMS still lands on top), then every other topic
+  by its most recent entry, newest first. Because each bucket is already
+  sorted, [0] is that topic's latest.
+*/
+const PINNED_TOPIC = "martingale";
+const latestOf = (t: string) => byTopic.get(t)![0].data.date.getTime();
+
+const topics = [...byTopic.keys()].sort((a, b) => {
+  const aPinned = a.trim().toLowerCase() === PINNED_TOPIC;
+  const bPinned = b.trim().toLowerCase() === PINNED_TOPIC;
+  if (aPinned !== bPinned) return aPinned ? -1 : 1;
+  return latestOf(b) - latestOf(a);
+});
+
+// Stable, unique slugs — used for the anchor id, the aria-controls pair and
+// the localStorage key, so renaming a topic simply forgets its state rather
+// than corrupting another topic's.
+const slugOf = new Map<string, string>();
+const taken = new Set<string>();
+for (const topic of topics) {
+  const base =
+    topic.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "topic";
+  let slug = base;
+  let n = 2;
+  while (taken.has(slug)) slug = `${base}-${n++}`;
+  taken.add(slug);
+  slugOf.set(topic, slug);
+}
 
 // Render each post's Markdown body to HTML, and extract preview text
 const postsWithContent = await Promise.all(
@@ -50,17 +80,296 @@ const contentMap = new Map(postsWithContent.map(({ post, Content, preview }) => 
 ---
 <Base title="working notes — Aditya Bhosale" description="working notes — Aditya Bhosale">
   <style is:global>
+    /*
+      Page geometry. The column keeps the site's 78ch measure; the rail and
+      its toggle tab are extra width to the left of it, so the reading line
+      length is identical to every other page in both rail states.
+      Without JS there is no rail at all, and `main` is exactly as wide as
+      it was before this page grew one.
+    */
+    main {
+      /* Tapers below ~1250px so the rail never squeezes the reading
+         column harder than it has to at mid widths. */
+      --rail-open-w: clamp(170px, 16vw, 214px);
+      --tab-col-w: 44px;
+      --rail-top: 132px;
+      --motion: 200ms;
+      /*
+        The utility voice for the rail, the counts and the tab. The site has
+        no monospace UI register — its quiet register is this small muted
+        italic serif (nav, back-link, entry dates, the expand cues) — so that
+        is what these inherit. Swap this one line for
+        `ui-monospace, SFMono-Regular, Menlo, monospace` to take the whole
+        chrome mono instead.
+      */
+      --util-font: 'EB Garamond', Georgia, serif;
+      --measure: calc(78ch + var(--rail-open-w) + var(--tab-col-w));
+    }
+
+    html:not(.js) main { --measure: 78ch; }
+
+    .notes-layout { display: flex; align-items: stretch; }
+
+    /*
+      Full-height so the sticky box inside it has somewhere to travel. Width
+      is the only thing that animates: the panel is anchored to the rail's
+      right edge, so shrinking the rail carries the panel off to the left
+      rather than squashing it.
+    */
+    .topic-rail {
+      position: relative;
+      flex: 0 0 auto;
+      width: var(--rail-open-w);
+    }
+
+    html.anim .topic-rail { transition: width var(--motion) ease; }
+    .notes-layout[data-rail="closed"] .topic-rail { width: 0; }
+    html:not(.js) .topic-rail { display: none; }
+
+    /*
+      Zero-height sticky anchor. Sticky rather than fixed: `position: fixed`
+      inside the masked .scroll-shell is unreliable, and sticky gets the same
+      parked-while-scrolling behaviour for free.
+    */
+    .rail-sticky {
+      position: sticky;
+      top: var(--rail-top);
+      height: 0;
+      /* Each entry summary is position:relative, so without a z-index here
+         the phone drawer would paint underneath the notes it slides over. */
+      z-index: 4;
+    }
+
+    .rail-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: var(--rail-open-w);
+      padding-right: 22px;
+      max-height: calc(100vh - var(--rail-top) - var(--footer-band) - 24px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+
+    html.anim .rail-panel {
+      transition: opacity var(--motion) ease, visibility 0s;
+    }
+
+    .notes-layout[data-rail="closed"] .rail-panel {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    html.anim .notes-layout[data-rail="closed"] .rail-panel {
+      transition: opacity var(--motion) ease, visibility 0s var(--motion);
+    }
+
+    .rail-heading {
+      font-family: var(--util-font);
+      font-size: 15px;
+      font-style: italic;
+      color: var(--ink-faint);
+      margin: 0 0 9px;
+      line-height: 1.3;
+    }
+
+    .rail-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      border-left: 1px solid var(--rule);
+    }
+
+    .rail-link {
+      font-family: var(--util-font);
+      display: flex;
+      align-items: baseline;
+      gap: 0.6em;
+      padding: 5px 0 5px 12px;
+      margin-left: -1px;
+      border-left: 1px solid transparent;
+      color: var(--ink-muted);
+      text-decoration: none;
+      font-size: 16px;
+      line-height: 1.35;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .rail-link:hover { color: var(--accent-hover); }
+    .rail-link:hover .rail-count { color: var(--accent-hover); }
+
+    .rail-link[aria-current="true"] {
+      color: var(--ink);
+      border-left-color: var(--accent);
+    }
+
+    .rail-count {
+      margin-left: auto;
+      font-style: italic;
+      font-size: 0.82em;
+      color: var(--ink-faint);
+      font-variant-numeric: tabular-nums;
+      transition: color 0.15s ease;
+    }
+
+    /*
+      The tab keeps a lane of its own rather than riding the rail's right
+      edge, so it can never end up on top of the notes when the rail is shut.
+    */
+    .rail-tab-col {
+      flex: 0 0 auto;
+      width: var(--tab-col-w);
+    }
+
+    html:not(.js) .rail-tab-col { display: none; }
+
+    .tab-sticky {
+      position: sticky;
+      top: var(--rail-top);
+      z-index: 5;
+    }
+
+    .rail-tab {
+      display: flex;
+      margin-left: 12px;
+      align-items: center;
+      justify-content: center;
+      width: 21px;
+      height: 34px;
+      padding: 0;
+      background: none;
+      border: 1px solid var(--rule);
+      border-radius: 2px;
+      color: var(--ink-faint);
+      font: inherit;
+      font-family: var(--util-font);
+      font-size: 15px;
+      line-height: 1;
+      cursor: pointer;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .rail-tab:hover {
+      color: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .rail-tab:focus-visible,
+    .topic-toggle:focus-visible {
+      outline: 1px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 1px;
+    }
+
+    .rail-tab-mark { display: block; }
+    html.anim .rail-tab,
+    html.anim .rail-tab-mark { transition: transform var(--motion) ease, margin-left var(--motion) ease, color 0.15s ease, border-color 0.15s ease; }
+    .notes-layout[data-rail="closed"] .rail-tab-mark { transform: rotate(180deg); }
+
+    .notes-column {
+      flex: 1 1 auto;
+      min-width: 0;
+      max-width: 78ch;
+      margin: 0 auto;
+    }
+
+    /* ---- topic sections ---- */
+
     h2.topic {
       font-size: 21px;
       font-weight: 500;
-      color: var(--ink-muted);
-      font-style: italic;
       margin-top: 64px;
       margin-bottom: 18px;
       letter-spacing: 0;
     }
 
-    section:first-of-type h2.topic { margin-top: 44px; }
+    .topic-section:first-of-type h2.topic { margin-top: 44px; }
+
+    /* A shut section gives back the gap it was holding for its notes. */
+    .topic-section[data-collapsed="true"] h2.topic { margin-bottom: 0; }
+    html.anim h2.topic { transition: margin-bottom var(--motion) ease; }
+
+    .topic-toggle {
+      display: flex;
+      align-items: baseline;
+      gap: 0.42em;
+      width: 100%;
+      padding: 0;
+      background: none;
+      border: 0;
+      font: inherit;
+      font-style: italic;
+      color: var(--ink-muted);
+      text-align: left;
+      cursor: pointer;
+      transition: color 0.15s ease;
+    }
+
+    html:not(.js) .topic-toggle { cursor: default; }
+    html.js .topic-toggle:hover { color: var(--accent-hover); }
+    html.js .topic-toggle:hover .topic-chev,
+    html.js .topic-toggle:hover .topic-count { color: var(--accent-hover); }
+
+    .topic-chev {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      line-height: 1;
+      text-align: center;
+      font-style: normal;
+      font-size: 0.6em;
+      color: var(--ink-faint);
+      transform: rotate(90deg);
+      transition: color 0.15s ease;
+    }
+
+    /* Sits in the same right-hand gutter as each entry's expand cue. */
+    .topic-count { margin-left: auto; }
+
+    html.anim .topic-chev { transition: transform var(--motion) ease, color 0.15s ease; }
+    .topic-section[data-collapsed="true"] .topic-chev { transform: rotate(0deg); }
+    html:not(.js) .topic-chev { display: none; }
+
+    .topic-count {
+      font-family: var(--util-font);
+      font-size: 0.72em;
+      color: var(--ink-faint);
+      font-variant-numeric: tabular-nums;
+      transition: color 0.15s ease;
+    }
+
+    /*
+      Height animation via grid-template-rows: 0fr/1fr — no JS measurement,
+      and the section still grows on its own when an entry inside it opens.
+      The inner wrapper carries overflow/min-height so the row can actually
+      reach zero.
+    */
+    .topic-notes {
+      display: grid;
+      grid-template-rows: 1fr;
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .topic-notes-inner {
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    html.anim .topic-notes {
+      transition: grid-template-rows var(--motion) ease, opacity var(--motion) ease, visibility 0s;
+    }
+
+    .topic-section[data-collapsed="true"] .topic-notes {
+      grid-template-rows: 0fr;
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    html.anim .topic-section[data-collapsed="true"] .topic-notes {
+      transition: grid-template-rows var(--motion) ease, opacity var(--motion) ease, visibility 0s var(--motion);
+    }
 
     p.page-descriptor {
       font-size: 16px;
@@ -201,42 +510,366 @@ const contentMap = new Map(postsWithContent.map(({ post, Content, preview }) => 
       font-style: italic;
     }
 
+    /*
+      Phones: the rail lane collapses entirely and the panel becomes a
+      drawer that slides over the notes from the screen edge. It is still the
+      same sticky-anchored box, so it stays put while the page scrolls.
+    */
+    @media (max-width: 700px) {
+      main {
+        --rail-top: 96px;
+        --tab-col-w: 0px;
+        --drawer-w: min(76vw, 252px);
+        --measure: 78ch;
+      }
+
+      .topic-rail,
+      .notes-layout[data-rail="closed"] .topic-rail { width: 0; }
+
+      .rail-panel {
+        right: auto;
+        left: -22px;
+        width: var(--drawer-w);
+        padding: 16px 18px 18px;
+        background: var(--bg);
+        border-right: 1px solid var(--rule);
+        border-top: 1px solid var(--rule);
+        border-bottom: 1px solid var(--rule);
+        border-radius: 0 2px 2px 0;
+        transform: translateX(0);
+        z-index: 4;
+      }
+
+      html.anim .rail-panel {
+        transition: transform var(--motion) ease, opacity var(--motion) ease, visibility 0s;
+      }
+
+      .notes-layout[data-rail="closed"] .rail-panel { transform: translateX(-102%); }
+
+      html.anim .notes-layout[data-rail="closed"] .rail-panel {
+        transition: transform var(--motion) ease, opacity var(--motion) ease, visibility 0s var(--motion);
+      }
+
+      /* Parked at the screen edge when shut; rides the drawer's inner edge
+         when open, so it stays a handle on the panel rather than a lid on it. */
+      .rail-tab { margin-left: -20px; }
+      .notes-layout[data-rail="open"] .rail-tab { margin-left: calc(var(--drawer-w) - 71px); }
+    }
+
     @media (max-width: 600px) {
       details.entry > summary { padding-right: 0; }
       .expand-cue { position: static; display: block; margin-top: 6px; }
       h2.topic { margin-top: 48px; }
     }
+
+    /* Reduced motion: every state change lands instantly. */
+    @media (prefers-reduced-motion: reduce) {
+      html.anim .topic-rail,
+      html.anim .rail-panel,
+      html.anim .rail-tab,
+      html.anim .rail-tab-mark,
+      html.anim .topic-chev,
+      html.anim .topic-notes,
+      html.anim h2.topic,
+      html.anim .notes-layout[data-rail="closed"] .rail-panel,
+      html.anim .topic-section[data-collapsed="true"] .topic-notes {
+        transition: none;
+      }
+    }
   </style>
 
-  <a href="/" class="back-link">← back</a>
-  <h1>working notes</h1>
-  <p class="page-descriptor">A live log of my daily thoughts, brainstorming sessions, analyses, etc. – intentionally informal.</p>
+  <script is:inline>
+    /* Set before the layout below is parsed, so the rail's width is part of
+       the very first layout rather than a shift after hydration. */
+    document.documentElement.classList.add('js');
+  </script>
 
-  {topics.length === 0 && (
-    <p class="empty-state">nothing here yet.</p>
-  )}
+  <div class="notes-layout" data-rail="open">
+    <aside class="topic-rail" id="topic-rail">
+      <div class="rail-sticky">
+        <nav class="rail-panel" aria-label="Topics">
+          <p class="rail-heading">topics</p>
+          <ul class="rail-list">
+            {topics.map((topic) => (
+              <li>
+                <a class="rail-link" href={`#topic-${slugOf.get(topic)}`} data-rail-link={slugOf.get(topic)}>
+                  <span class="rail-name">{topic}</span>
+                  <span class="rail-count">{byTopic.get(topic)!.length}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+    </aside>
 
-  {topics.map((topic) => (
-    <section>
-      <h2 class="topic">{topic}</h2>
-      {byTopic[topic].map((post) => {
-        const entry = contentMap.get(post.id)!;
-        return (
-          <details class="entry">
-            <summary>
-              <div class="entry-date">
-                {post.data.date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
-              </div>
-              <span class="entry-title">{post.data.title}</span>
-              <span class="entry-preview">{entry.preview}</span>
-              <span class="expand-cue"></span>
-            </summary>
-            <div class="entry-body">
-              <entry.Content />
+    <div class="rail-tab-col">
+      <div class="tab-sticky">
+        <button
+          type="button"
+          class="rail-tab"
+          aria-controls="topic-rail"
+          aria-expanded="true"
+          aria-label="Hide topics"
+        ><span class="rail-tab-mark" aria-hidden="true">‹</span></button>
+      </div>
+    </div>
+
+    <div class="notes-column">
+      <a href="/" class="back-link">← back</a>
+      <h1>working notes</h1>
+      <p class="page-descriptor">A live log of my daily thoughts, brainstorming sessions, analyses, etc. – intentionally informal.</p>
+
+      {topics.length === 0 && (
+        <p class="empty-state">nothing here yet.</p>
+      )}
+
+      {topics.map((topic) => (
+        <section class="topic-section" id={`topic-${slugOf.get(topic)}`} data-collapsed="false">
+          <h2 class="topic">
+            <button
+              type="button"
+              class="topic-toggle"
+              aria-expanded="true"
+              aria-controls={`notes-${slugOf.get(topic)}`}
+              disabled
+            >
+              <span class="topic-name">{topic}</span>
+              <span class="topic-count">{byTopic.get(topic)!.length}</span>
+              <span class="topic-chev" aria-hidden="true">▸</span>
+            </button>
+          </h2>
+          <div class="topic-notes" id={`notes-${slugOf.get(topic)}`}>
+            <div class="topic-notes-inner">
+              {byTopic.get(topic)!.map((post) => {
+                const entry = contentMap.get(post.id)!;
+                return (
+                  <details class="entry">
+                    <summary>
+                      <div class="entry-date">
+                        {post.data.date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+                      </div>
+                      <span class="entry-title">{post.data.title}</span>
+                      <span class="entry-preview">{entry.preview}</span>
+                      <span class="expand-cue"></span>
+                    </summary>
+                    <div class="entry-body">
+                      <entry.Content />
+                    </div>
+                  </details>
+                );
+              })}
             </div>
-          </details>
-        );
-      })}
-    </section>
-  ))}
+          </div>
+        </section>
+      ))}
+    </div>
+  </div>
+
+  <script is:inline>
+    /*
+      Rail + section state. Everything here is progressive: the markup above
+      renders as a plain, fully expanded list with no rail if this never runs.
+    */
+    (function () {
+      var root = document.documentElement;
+      var layout = document.querySelector('.notes-layout');
+      var shell = document.querySelector('.scroll-shell');
+      if (!layout || !shell) return;
+
+      var tab = layout.querySelector('.rail-tab');
+      var sections = [].slice.call(layout.querySelectorAll('.topic-section'));
+      var links = [].slice.call(layout.querySelectorAll('.rail-link'));
+      var panel = layout.querySelector('.rail-panel');
+
+      var COLLAPSED_KEY = 'thoughts:collapsed-topics';
+      var RAIL_KEY = 'thoughts:rail';
+      var mobile = matchMedia('(max-width: 700px)');
+      var reduced = matchMedia('(prefers-reduced-motion: reduce)');
+
+      function store(key, value) { try { localStorage.setItem(key, value); } catch (e) {} }
+      function load(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+
+      /* ---- collapsed topics ---- */
+
+      var collapsed = {};
+      try {
+        var saved = JSON.parse(load(COLLAPSED_KEY) || '[]');
+        if (Array.isArray(saved)) saved.forEach(function (id) { collapsed[id] = true; });
+      } catch (e) {}
+
+      function saveCollapsed() {
+        store(COLLAPSED_KEY, JSON.stringify(Object.keys(collapsed)));
+      }
+
+      function setSection(section, open) {
+        section.setAttribute('data-collapsed', open ? 'false' : 'true');
+        var btn = section.querySelector('.topic-toggle');
+        if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (open) delete collapsed[section.id];
+        else collapsed[section.id] = true;
+      }
+
+      sections.forEach(function (section) {
+        var btn = section.querySelector('.topic-toggle');
+        if (!btn) return;
+        btn.disabled = false;
+        if (collapsed[section.id]) setSection(section, false);
+        btn.addEventListener('click', function () {
+          setSection(section, section.getAttribute('data-collapsed') === 'true');
+          saveCollapsed();
+          updateActive();
+        });
+      });
+
+      /* ---- rail ---- */
+
+      function railOpen() { return layout.getAttribute('data-rail') !== 'closed'; }
+
+      function setRail(open, persist) {
+        layout.setAttribute('data-rail', open ? 'open' : 'closed');
+        if (tab) {
+          tab.setAttribute('aria-expanded', open ? 'true' : 'false');
+          tab.setAttribute('aria-label', open ? 'Hide topics' : 'Show topics');
+        }
+        // Phones start shut every visit, so their toggling never overwrites
+        // the desktop preference.
+        if (persist && !mobile.matches) store(RAIL_KEY, open ? 'open' : 'closed');
+      }
+
+      function storedRailOpen() { return load(RAIL_KEY) !== 'closed'; }
+
+      setRail(mobile.matches ? false : storedRailOpen(), false);
+
+      if (tab) {
+        tab.addEventListener('click', function (e) {
+          e.stopPropagation();
+          setRail(!railOpen(), true);
+        });
+      }
+
+      // Crossing the breakpoint re-applies that width's default.
+      var onBreakpoint = function () {
+        setRail(mobile.matches ? false : storedRailOpen(), false);
+      };
+      if (mobile.addEventListener) mobile.addEventListener('change', onBreakpoint);
+      else if (mobile.addListener) mobile.addListener(onBreakpoint);
+
+      // Scrim-free tap-out: on phones, a tap anywhere outside the drawer shuts it.
+      document.addEventListener('pointerdown', function (e) {
+        if (!mobile.matches || !railOpen()) return;
+        if (panel && panel.contains(e.target)) return;
+        if (tab && tab.contains(e.target)) return;
+        setRail(false, false);
+      }, true);
+
+      /* ---- scrolling between topics ---- */
+
+      function offset() { return mobile.matches ? 84 : 118; }
+
+      function scrollToSection(section, instant) {
+        var top = shell.scrollTop + section.getBoundingClientRect().top - offset();
+        shell.scrollTo({ top: Math.max(0, top), behavior: (instant || reduced.matches) ? 'auto' : 'smooth' });
+      }
+
+      links.forEach(function (link) {
+        link.addEventListener('click', function (e) {
+          var id = link.getAttribute('href').slice(1);
+          var section = document.getElementById(id);
+          if (!section) return;
+          e.preventDefault();
+          if (section.getAttribute('data-collapsed') === 'true') {
+            setSection(section, true);
+            saveCollapsed();
+          }
+          if (mobile.matches) setRail(false, false);
+          scrollToSection(section);
+          setActive(id);
+          if (history.replaceState) history.replaceState(null, '', '#' + id);
+        });
+      });
+
+      /* ---- which topic is in view ---- */
+
+      function setActive(id) {
+        links.forEach(function (link) {
+          if (link.getAttribute('data-rail-link') && 'topic-' + link.getAttribute('data-rail-link') === id) {
+            link.setAttribute('aria-current', 'true');
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        });
+      }
+
+      var ticking = false;
+
+      function updateActive() {
+        ticking = false;
+        if (!sections.length) return;
+        var line = offset() + 32;
+        var current = sections[0];
+        for (var i = 0; i < sections.length; i++) {
+          if (sections[i].getBoundingClientRect().top <= line) current = sections[i];
+          else break;
+        }
+        // At the very bottom the last topic is what you are looking at, even
+        // if its header scrolled past the line long ago.
+        if (shell.scrollTop + shell.clientHeight >= shell.scrollHeight - 8) {
+          current = sections[sections.length - 1];
+        }
+        setActive(current.id);
+      }
+
+      shell.addEventListener('scroll', function () {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(updateActive);
+        }
+      }, { passive: true });
+
+      addEventListener('resize', updateActive, { passive: true });
+
+      /* ---- initial paint ---- */
+
+      var hash = location.hash.slice(1);
+      var target = hash ? document.getElementById(hash) : null;
+      if (target && !target.classList.contains('topic-section')) target = null;
+      if (target) {
+        setSection(target, true);
+        saveCollapsed();
+      }
+
+      updateActive();
+
+      /*
+        Landing on #topic-… has to be re-applied: the browser runs its own
+        fragment scroll again once the webfonts land, which drops the header
+        under the mask at the top of the shell. Instant, and abandoned the
+        moment the reader takes over.
+      */
+      var userMoved = false;
+      ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(function (type) {
+        addEventListener(type, function () { userMoved = true; }, { passive: true, once: true });
+      });
+
+      function land() {
+        if (userMoved || !target) return;
+        scrollToSection(target, true);
+      }
+
+      // Transitions only switch on once the restored state is painted, so a
+      // reload never animates its way into position.
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          root.classList.add('anim');
+          land();
+        });
+      });
+
+      if (target) {
+        addEventListener('load', land);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(land);
+      }
+    })();
+  </script>
 </Base>
