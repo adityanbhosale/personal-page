@@ -1,7 +1,7 @@
 ---
 title: Prop-Shop Internal Pricing
 topic: Martingale
-date: 2026-08-24T23:19:00
+date: 2026-08-25T17:54:00
 ---
 Might want to consider the validity / acceptance of internal pricing from the liquidity providers.
 
