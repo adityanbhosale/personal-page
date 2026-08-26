@@ -73,10 +73,6 @@ Central Counterparty default waterfall:
 
 * reflecting the focus on systemic risk from large dealer exposures
 
-
-
-
-
 #### Application:
 
 "Central Clearing" = counterparty substitution. When a trade clears, the original bilateral contract is torn up through novation and replaced by two contracts: buyer vs. the clearinghouse  &&  clearinghouse vs. seller.
@@ -87,13 +83,7 @@ Whether a trade is "centrally cleared" depends on if any entity interposes itsel
 
 On the other hand, collateral sitting in escrow (a custodian, or smart contract) while the contract remains between the two original parties is NOT central clearing, no matter how automated the margin mechanics are, because no one was substituted in to take risk.
 
-
-
-
-
 **Our products are swaps:** bespoke, cash-settled, event-referencing, & bilaterally negotiated. Although, they aren 't security-based swaps
-
-
 
 *Issue:* uncleared bilateral contracts carry **credit exposure,** and post-2009 policy has pushed standardized contracts into CCPs. note – *standardized.* Bespoke n-of-1 event swaps between ECPs aren't a part of that mandate, so nothing is forcing them to be centrally cleared, and no FCM is required anywhere in our current architecture. The FCM is only required once customers access a clearinghouse through intermediaries; §2(e) bilateral swaps have no clearinghouse to access.
 
@@ -115,16 +105,22 @@ So again, our moat is privatized short positions off the equity markets via n-of
 
 Netting requires offsetting *identical positions*, margin models require price history, and mutualized default funds require a membership trading the same products. A bespoke non-fungible contract defeats all three, which is why bespoke instruments are usually **uncleared.** 
 
-
-
 RFQ ...
 
 Wide-spreads, opaque-pricing ... therefore accept LP's internal mark for quote
-
-
 
 **Martingale RFQ Flow:** hedger specifies the contract (event terms, size, payout), Martingale routes that ticket to the warehouse, the warehouse returns a quote (ideally expressed as a spread to the published anchor so the hedger can see what's reference and what's charge) and acceptance of quote *forms* the trade.
 
 **Martingale Clearing Flow:** acceptance creates an uncleared bilateral swap. No novation, no CCP, both sides post max loss into escrow at trade formation time, and settlement pays out on event resolution.
 
 *RFQ for price formation, full collateralization instead of clearing (for credit risk).*
+
+
+
+*smart contract escrows solve the interposition feature typically solved by CCPs with default funds and margin mandates*, since ordinary derivatives have open-ended losses.
+
+A binary's worst case is bounded at inception, so full collateralization is feasible. Both parties posting escrow into smart contracts that are immovable eliminates credit risk: there is no future obligation beyond what's already posted so there's nothing to default on. Settlement finality comes from the settlement identity.
+
+
+
+*we don't novate as in a CCP.*  our contracts don't become buyer to every seller; counterparties face each other or hold tokens against escrow they funded themselves. no default fund. the L2 underwriting fund (F) is not a default fund. F is the warehouse's own capital against a
