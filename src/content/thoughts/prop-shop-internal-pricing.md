@@ -5,23 +5,13 @@ date: 2026-08-25T13:56:00
 ---
 Text: John Hull, *Options, Futures, and Other Derivatives, 11th ed.*
 
-
-
 Derivatives Examples:
 
 1. Pershing Square / Valeant / Allergan
 2. Lehman Principal-Protected Notes
 3. broadcast.com / cuban / gs
 
-
-
-
-
 Exchange traded derivatives usually delta-hedged, OTC have higher margins harder to fully hedge
-
-
-
-
 
 **Types:**
 
@@ -41,10 +31,6 @@ Exchange traded derivatives usually delta-hedged, OTC have higher margins harder
 
      * distinction between forwards and swaps (both OTC-traded) is largely a matter of convention, with swap in practice services as the residual lable for OTC derivatives that are no styled as forwards, options, or combinations of these2
 
-
-
-
-
 **Where Derivatives Trade:**
 
 Derivatives are not embedded in other securities (as Lehman's PPNs were) can be traded on organized exchanges or OTC – i.e., through bilateral transactions, generally with a dealer acting as counterparty.
@@ -63,10 +49,6 @@ Derivatives are not embedded in other securities (as Lehman's PPNs were) can be 
 * tight bid-ask spread, transparent pricing
 * centrally cleared: negligible credit exposure, early unwind by offsetting trade
 
-
-
-
-
 **ISDA Framework**
 
 OTC Derivatives are documented through a standard legal architecture published by ISDA
@@ -78,8 +60,6 @@ OTC Derivatives are documented through a standard legal architecture published b
 
 This structure allows the counterparty relationship to be negotiated once with the Schedule and CSA; each new trade then requires only a confirmation – which is what makes OTC derivatives both despoke and tradable at scale.
 
-
-
 Central Counterparty default waterfall:
 
 1. defaulting memeber initial margin
@@ -87,12 +67,64 @@ Central Counterparty default waterfall:
 3. CCP skin in the game
 4. non-defaulting members default fund contribution
 
-
-
-
-
 **G-20 OTC Reform**
 
 **"**All standardized OTC derivative contracts should be traded on exchanges or electronic trading platforms, where apprioritate, adn cleared threough central counterparties by end-2012 at the latest. OTC derivatiec contracts should be reported to trade reposititoes. Non-centrally cleared contracts should be subject to higher capital requirements."
 
-* reflecting the focus on sytemic risk from large dealer exposures
+* reflecting the focus on systemic risk from large dealer exposures
+
+
+
+
+
+#### Application:
+
+"Central Clearing" = counterparty substitution. When a trade clears, the original bilateral contract is torn up through novation and replaced by two contracts: buyer vs. the clearinghouse  &&  clearinghouse vs. seller.
+
+The CCP becomes the buyer to every seller and the seller to every buyer. This is necessary for **multilateral netting; initial and variation margins exist because the CCP must survive defaults from any party.**
+
+Whether a trade is "centrally cleared" depends on if any entity interposes itself as counterparty to both sides. An 'internal clearinghouse' that novates trades is **central clearing**. Any entity doing that for swaps must be a registered DCM.
+
+On the other hand, collateral sitting in escrow (a custodian, or smart contract) while the contract remains between the two original parties is NOT central clearing, no matter how automated the margin mechanics are, because no one was substituted in to take risk.
+
+
+
+
+
+**Our products are swaps:** bespoke, cash-settled, event-referencing, & bilaterally negotiated. Although, they aren 't security-based swaps
+
+
+
+*Issue:* uncleared bilateral contracts carry **credit exposure,** and post-2009 policy has pushed standardized contracts into CCPs. note – *standardized.* Bespoke n-of-1 event swaps between ECPs aren't a part of that mandate, so nothing is forcing them to be centrally cleared, and no FCM is required anywhere in our current architecture. The FCM is only required once customers access a clearinghouse through intermediaries; §2(e) bilateral swaps have no clearinghouse to access.
+
+Plan is to run uncleared contracts now, and become a DCO later.
+
+Martingale's moat is privatized short positions off the equity markets via n-of-1 bilaterally negotiated OTC contracts. Central clearing pulls in an opposite direction. CCPs work because contracts are retail-fungible.  
+
+`Defintions:`
+
+`Netting: collapsing offsetting positions into one number. Only identical contracts can offset.`
+
+`Margin Model: the model a clearinghouse uses to set initial margin, the collateral that must cover potential losses on a position between a default and the CCP closing it out, usually sized to a worst-case move over a few days at high confidence. Estimating that worst-case move requires knowing how the contract's price behaves: its volatility, its jump risk, its correlation with other positions.`
+
+`Any n-of-1 instrument (bespoke contract) has no price history, so there's nothing to estimate a distribution from, and a binary event contract's price doesn't diffuse anyway  it gaps. Which is why the fully collateralized model fits our contracts: when max-loss is posted upfront, no margin model is needed at all.`
+
+``
+
+So again, our moat is privatized short positions off the equity markets via n-of-1 bilaterally negotiated OTC contracts. Central clearing pulls in an opposite direction & CCPs require fungibility between contracts.
+
+Netting requires offsetting *identical positions*, margin models require price history, and mutualized default funds require a membership trading the same products. A bespoke non-fungible contract defeats all three, which is why bespoke instruments are usually **uncleared.** 
+
+
+
+RFQ ...
+
+Wide-spreads, opaque-pricing ... therefore accept LP's internal mark for quote
+
+
+
+**Martingale RFQ Flow:** hedger specifies the contract (event terms, size, payout), Martingale routes that ticket to the warehouse, the warehouse returns a quote (ideally expressed as a spread to the published anchor so the hedger can see what's reference and what's charge) and acceptance of quote *forms* the trade.
+
+**Martingale Clearing Flow:** acceptance creates an uncleared bilateral swap. No novation, no CCP, both sides post max loss into escrow at trade formation time, and settlement pays out on event resolution.
+
+*RFQ for price formation, full collateralization instead of clearing (for credit risk).*
