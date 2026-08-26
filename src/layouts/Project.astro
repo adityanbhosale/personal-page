@@ -30,6 +30,17 @@ const { title, description = title } = Astro.props;
       border-radius: 2px;
     }
 
+    /*
+      A write-up is a single entry, so it takes the same card the entries on
+      /thoughts do. The back-link and h1 stay out on the dither, exactly as a
+      page title does there.
+    */
+    .project-detail .note-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-rule);
+      padding: var(--card-pad);
+    }
+
     .project-detail .links {
       margin-top: 48px;
       padding-top: 24px;
@@ -51,12 +62,14 @@ const { title, description = title } = Astro.props;
     <a href="/projects" class="back-link">← projects</a>
     <h1>{title}</h1>
 
-    <div class="article-body">
-      <slot />
-    </div>
+    <div class="note-card">
+      <div class="article-body">
+        <slot />
+      </div>
 
-    <div class="links">
-      <slot name="links" />
+      <div class="links">
+        <slot name="links" />
+      </div>
     </div>
   </div>
 </Base>

@@ -90,6 +90,17 @@ const { title, description = title, width = "measure" } = Astro.props;
       /* Heights of the two fixed bands content fades under. */
       --clock-band: 44px;
       --footer-band: 82px;
+      /*
+        Card surface, for text that would otherwise sit straight on the
+        dither. The page ground at 97%: solid enough that nothing competes
+        with the type, sheer enough that the building still reads faintly
+        through a card rather than being punched out of it. Derived from
+        --bg and --rule, so the light theme is already solved.
+      */
+      --card-bg: color-mix(in srgb, var(--bg) 97%, transparent);
+      --card-rule: var(--rule);
+      --card-rule-hover: color-mix(in srgb, var(--rule) 50%, var(--ink-faint));
+      --card-pad: 24px;
     }
 
     /*
@@ -274,7 +285,7 @@ const { title, description = title, width = "measure" } = Astro.props;
     }
 
     @media (max-width: 700px) {
-      :root { --clock-band: 40px; --footer-band: 114px; }
+      :root { --clock-band: 40px; --footer-band: 114px; --card-pad: 16px; }
       .scroll-shell { --fade-bottom: 120px; }
     }
 
@@ -340,6 +351,21 @@ const { title, description = title, width = "measure" } = Astro.props;
       border: none;
       border-top: 1px solid var(--rule);
     }
+
+    /*
+      One block of readable text lifted off the backdrop. Square corners and a
+      hairline only — the ground does the work, not a shadow. `.card-lift` is
+      the interactive variant: entries you can open or follow.
+    */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-rule);
+      border-radius: 0;
+      padding: var(--card-pad);
+    }
+
+    .card-lift { transition: border-color 0.15s ease; }
+    .card-lift:hover { border-color: var(--card-rule-hover); }
 
     /* Nav-style links: quiet until touched, no underline at rest. */
     .nav {

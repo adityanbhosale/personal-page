@@ -27,11 +27,15 @@ const projects = [
     .project-list { margin-top: 40px; }
 
     .project {
-      padding: 28px 0;
-      border-bottom: 1px solid var(--rule);
+      background: var(--card-bg);
+      border: 1px solid var(--card-rule);
+      padding: var(--card-pad);
+      margin-bottom: 18px;
+      transition: border-color 0.15s ease;
     }
 
-    .project:last-child { border-bottom: none; }
+    .project:last-child { margin-bottom: 0; }
+    .project:hover { border-color: var(--card-rule-hover); }
 
     .project h2 {
       font-size: 21px;

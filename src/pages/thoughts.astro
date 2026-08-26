@@ -90,7 +90,7 @@ const contentMap = new Map(postsWithContent.map(({ post, Content, preview }) => 
     main {
       /* Tapers below ~1250px so the rail never squeezes the reading
          column harder than it has to at mid widths. */
-      --rail-open-w: clamp(170px, 16vw, 214px);
+      --rail-open-w: clamp(186px, 17vw, 232px);
       --tab-col-w: 44px;
       --rail-top: 132px;
       --motion: 200ms;
@@ -145,7 +145,9 @@ const contentMap = new Map(postsWithContent.map(({ post, Content, preview }) => 
       top: 0;
       right: 0;
       width: var(--rail-open-w);
-      padding-right: 22px;
+      background: var(--card-bg);
+      border-right: 1px solid var(--card-rule);
+      padding: 15px 20px 17px 16px;
       max-height: calc(100vh - var(--rail-top) - var(--footer-band) - 24px);
       overflow-y: auto;
       overscroll-behavior: contain;
@@ -381,12 +383,26 @@ const contentMap = new Map(postsWithContent.map(({ post, Content, preview }) => 
       line-height: 1.5;
     }
 
+    /*
+      Each note is its own block so its text never sits on the dither. The
+      gap between cards is where the building still shows through.
+    */
     details.entry {
-      border-bottom: 1px solid var(--rule);
-      padding: 20px 0;
+      background: var(--card-bg);
+      border: 1px solid var(--card-rule);
+      padding: var(--card-pad);
+      margin-bottom: 18px;
+      transition: border-color 0.15s ease;
     }
 
-    details.entry:last-child { border-bottom: none; }
+    details.entry:last-child { margin-bottom: 0; }
+    details.entry:hover { border-color: var(--card-rule-hover); }
+
+    details.entry > summary:focus-visible {
+      outline: 1px solid var(--accent);
+      outline-offset: 3px;
+      border-radius: 1px;
+    }
 
     details.entry > summary {
       cursor: pointer;
@@ -531,6 +547,8 @@ const contentMap = new Map(postsWithContent.map(({ post, Content, preview }) => 
         left: -22px;
         width: var(--drawer-w);
         padding: 16px 18px 18px;
+        /* Fully opaque here, unlike the desktop rail: this one slides over
+           the notes rather than sitting beside them. */
         background: var(--bg);
         border-right: 1px solid var(--rule);
         border-top: 1px solid var(--rule);

@@ -18,11 +18,15 @@ const analyses = [
     }
 
     .analysis-item {
-      padding: 24px 0;
-      border-bottom: 1px solid var(--rule);
+      background: var(--card-bg);
+      border: 1px solid var(--card-rule);
+      padding: var(--card-pad);
+      margin-bottom: 18px;
+      transition: border-color 0.15s ease;
     }
 
-    .analysis-item:first-of-type { border-top: 1px solid var(--rule); }
+    .analysis-item:last-child { margin-bottom: 0; }
+    .analysis-item:hover { border-color: var(--card-rule-hover); }
 
     .analysis-item > a {
       text-decoration: none;
