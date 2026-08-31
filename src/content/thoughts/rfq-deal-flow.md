@@ -1,9 +1,11 @@
 ---
 title: RFQ / Deal-Flow.html
-topic: OTC Papers
+topic: Martingale – OTC Economics
 date: 2026-08-30T17:45:00
 ---
 Regulating Over-the-Counter Markets (Nov 2024, Journal of Finance) – Lee & Wang
+
+https://finance.wharton.upenn.edu/~wangchj/papers/OTC_EX_IA.pdf
 
 * **Question:** OTC markets dominate most asset classes despite exchanges existing, and dealers site high OTC market share and lower OTC trading costs as evidence no regulation is needed. *Do those metrics actually tell you anything about welfare, and when restricting OTC trading helps?*
 * **Model:** Glosten-Milgrom setup with venue choice. Their definition of OTC is trading executed non-anonymously between client and dealer, including RFQ; dealer sees each trader's public label (likely informed, likely uninformed; although this is an imperfect label) and can price discriminate on it (*this cannot occur on exchange listed markets).*
@@ -16,4 +18,8 @@ Regulating Over-the-Counter Markets (Nov 2024, Journal of Finance) – Lee & Wa
 
       * Hedgers will take the 10bps OTC quote, obviously, so they drain out of the exchange.
       * Informed traders wget no discount, so they're indifferent and end up on the exchange.
-*
+* **Mechanism: CHEAP SUBSTITUTION**
+
+  * restricting the dealer's ability to discriminate (blurring labels, or closing OTC entirely) pulls the two spreads closer together. small-benefit hedgers exit the now wider OTC market while large-benefit hedgers enter the now-tighter exchange, so welfare can rise even as total volume falls and average spreads wider.
+
+    *
