@@ -22,4 +22,6 @@ https://finance.wharton.upenn.edu/~wangchj/papers/OTC_EX_IA.pdf
 
   * restricting the dealer's ability to discriminate (blurring labels, or closing OTC entirely) pulls the two spreads closer together. small-benefit hedgers exit the now wider OTC market while large-benefit hedgers enter the now-tighter exchange, so welfare can rise even as total volume falls and average spreads wider.
 
-    *
+    * when we stop the OTC dealer from discriminating, the two spreads converge: OTC quotes get wider and exchange quotes get tighter (since informed traders no longer concentrate on exchanges, so the exchange pool improves with more hedgers present).
+    * the hedgers who leave the exchange are the ones that were only barely willing to pay the old OTC spread, so each of 
+  *
