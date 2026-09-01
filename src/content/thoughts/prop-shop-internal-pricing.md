@@ -1,5 +1,5 @@
 ---
-title: 2170 Syllabus
+title: Swaps / Derivatives / ISDA – 2170
 topic: FNCE 2170
 date: 2026-08-25T13:56:00
 ---
