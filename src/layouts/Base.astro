@@ -7,9 +7,12 @@ interface Props {
   description?: string;
   /** `measure` = ~60ch reading column. `wide` = roomier, for the viz page. */
   width?: "measure" | "wide";
+  /** Keeps a route out of search results. For pages reachable only by
+      typing the URL — nothing links to them and nothing should index them. */
+  noindex?: boolean;
 }
 
-const { title, description = title, width = "measure" } = Astro.props;
+const { title, description = title, width = "measure", noindex = false } = Astro.props;
 ---
 <!DOCTYPE html>
 <html lang="en">
@@ -17,6 +20,7 @@ const { title, description = title, width = "measure" } = Astro.props;
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content={description} />
+  {noindex && <meta name="robots" content="noindex, nofollow" />}
   <meta name="color-scheme" content="dark light" />
   <script is:inline>
     // Applied before first paint so a stored light theme never flashes dark.
@@ -437,7 +441,6 @@ const { title, description = title, width = "measure" } = Astro.props;
       <a class="ext" href="https://github.com/adityanbhosale" target="_blank" rel="noopener">gh</a>
       <a class="ext" href="https://x.com/adi_bhos" target="_blank" rel="noopener">x</a>
       <a href="/projects">recent projects</a>
-      <a href="/thoughts">working notes</a>
       <a class="ext" href="https://adibhosale.substack.com" target="_blank" rel="noopener">writings</a>
       <a href="mailto:adityanb@sas.upenn.edu">adityanb [at] upenn [dot] edu</a>
     </nav>

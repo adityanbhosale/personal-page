@@ -1,0 +1,6 @@
+# The working notes and the CMS are unlisted: nothing on the site links to
+# them and they should not turn up in search. Kept in step with the
+# `noindex` prop on src/pages/thoughts.astro.
+User-agent: *
+Disallow: /thoughts
+Disallow: /admin
