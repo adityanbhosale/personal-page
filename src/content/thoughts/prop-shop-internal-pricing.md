@@ -1,6 +1,6 @@
 ---
 title: Swaps / Derivatives / ISDA – 2170
-topic: FNCE 2170
+topic: Martingale
 date: 2026-08-25T13:56:00
 ---
 Text: John Hull, *Options, Futures, and Other Derivatives, 11th ed.*
