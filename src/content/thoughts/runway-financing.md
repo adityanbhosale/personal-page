@@ -3,9 +3,6 @@ title: Runway / Financing
 topic: Martingale
 date: 2026-08-31T20:40:00
 ---
-
-
-
 A traditional pre-seed of \~250k at $5M works for development-driven companies like pure software or tech, but our next 12-months are going to require a lot more capital. For example, a CFTC / derivatives counsel engagement, registration as an NFA independent-IB (which on its own has a \~$45k net capital requirement that sits permanently on our balance sheet), a smart-contract audit before any non-testnet exposure (which of this nature are easily 5-figures), SDR reporting, subscriptions for live options & equity data, and at least one hire on the compliance side. All of that + 18 months of runway and a modest treasury for the on-chain markets we’ll have to spin up, ~$1M is roughly what would get us to being registered, audited, and marking our first trades.
 
 I did the research, and early rounds in financial infrastructure are typically 2-5x larger than sector-neutral pre-seeds because of the licensing that needs to be underwritten. Past neobrokers & crypto brokerages have raised seven-figure seeds before their broker-dealer registrated was cleared. Even if we look at Kalshi & Polymarket who both raised significant early capital for their DCM registration process, it’s pretty clear than regulatory classification is the moat in any financial services venture, especially regarding prediction markets.
@@ -57,3 +54,15 @@ An independent IB needs a designated compliance officer and a written AML progra
 **Goal:** $1M pre-seed, with a $750k floor, closing by mid-October, on a single post-money SAFE at one cap so the angels I’m currently going to can sit on identical terms. I’m targeting a ~$7-8M post-money cap, so 13-14% dilution, but I’m happy to discuss other options.
 
 Practically, a $1M multi-party round in this time-frame would require a lead of $400-500k with 2-3 institutional participants to get to our target. I want Pareto to lead at $350-400k on a post-money SAFE at they cap we set together, and then have the one or two other follow-on funds fill $300-400k on the same cap, and lastly have the angel tranche at ~$250k.
+
+
+
+
+
+
+
+##### Angel Round
+
+1 post-money SAFE at a single cap, no discount, no interest, no maturity, per person. 
+
+MFN for the first 2 checks into the SAFE.
