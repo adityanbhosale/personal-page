@@ -1,7 +1,7 @@
 ---
 title: Swaps / Derivatives / ISDA – 2170
 topic: Martingale
-date: 2026-08-25T13:56:00
+date: 2026-09-05T17:18:00
 ---
 Text: John Hull, *Options, Futures, and Other Derivatives, 11th ed.*
 
@@ -77,6 +77,8 @@ Central Counterparty default waterfall:
 
 "Central Clearing" = counterparty substitution. When a trade clears, the original bilateral contract is torn up through novation and replaced by two contracts: buyer vs. the clearinghouse  &&  clearinghouse vs. seller.
 
+
+
 The CCP becomes the buyer to every seller and the seller to every buyer. This is necessary for **multilateral netting; initial and variation margins exist because the CCP must survive defaults from any party.**
 
 Whether a trade is "centrally cleared" depends on if any entity interposes itself as counterparty to both sides. An 'internal clearinghouse' that novates trades is **central clearing**. Any entity doing that for swaps must be a registered DCM.
@@ -86,6 +88,27 @@ On the other hand, collateral sitting in escrow (a custodian, or smart contract)
 **Our products are swaps:** bespoke, cash-settled, event-referencing, & bilaterally negotiated. Although, they aren 't security-based swaps
 
 *Issue:* uncleared bilateral contracts carry **credit exposure,** and post-2009 policy has pushed standardized contracts into CCPs. note – *standardized.* Bespoke n-of-1 event swaps between ECPs aren't a part of that mandate, so nothing is forcing them to be centrally cleared, and no FCM is required anywhere in our current architecture. The FCM is only required once customers access a clearinghouse through intermediaries; §2(e) bilateral swaps have no clearinghouse to access.
+
+\------------------------------------------------
+
+`/btw explain the importance of credit exposure in uncleared bilateral contracts based on post-2009 policy pushed STANDARDIZED event contracts into CCPs`
+
+*Pittsburgh g20 commitment had 4 components:*
+
+1. *standardized OTC derivatives onto exchanges or electronic platforms;*
+2. *cleared through CCPs;*
+3. *reported to trade repositories; and*
+4. ***non-centrally-cleared contracts subject to higher capital requirements** ... this became Dodd-Frank Title VII*
+
+These are all necessary because credit exposure accrues over the life of the contract. In bilateral uncleared swaps, each party holds a direct claim on the other than changes in value continuously: `current exposure + potential future exposures`. 
+
+CCPs can only run margin models on contracts they can value continuously and liquidate into a market on default. **Fungibility is required.** Any margin model on a binary event contract with fixed resolution would converge on maximum loss – which is how much full-collateralization posts to cover at initiation.
+
+Full Collateralization = no VM / IM / defaul-fund / CVA to exchange; thus no FCM necessary, since FCM guarantees margined customer positions to a clearing organization and finance them through the margin cycle. If there's no ongoing credit exposure, this is not necessary.
+
+
+
+\--------------------------------------------------
 
 Plan is to run uncleared contracts now, and become a DCO later.
 
@@ -113,13 +136,9 @@ Wide-spreads, opaque-pricing ... therefore accept LP's internal mark for quote
 
 *RFQ for price formation, full collateralization instead of clearing (for credit risk).*
 
-
-
 *smart contract escrows solve the interposition feature typically solved by CCPs with default funds and margin mandates*, since ordinary derivatives have open-ended losses.
 
 A binary's worst case is bounded at inception, so full collateralization is feasible. Both parties posting escrow into smart contracts that are immovable eliminates credit risk: there is no future obligation beyond what's already posted so there's nothing to default on. Settlement finality comes from the settlement identity.
-
-
 
 *we don't novate as in a CCP.*  our contracts don't become buyer to every seller; counterparties face each other or hold tokens against escrow they funded themselves. no default fund. the L2 underwriting fund (F) is not a default fund. F is the warehouse's own capital against a compensated residual position. 
 
@@ -137,8 +156,6 @@ Full collateralization alone does not exempt us from clearing regulation. Ledger
 
 *Clearing technology vendor to a regulated clearinghouse.*
 
-
-
 Full 'clearing' flow via Martingale Systems:
 
 Martingale arranges the trade, hedger and warehouse negotiate price bilaterally (i.e., direct RFQ). An ISDA Master and Schedule is negotiated once per counterparty paid, CSA governs collateral, and a single confirmation per trade. Counterparty credit risk, which is the main goal of central clearing, is eliminated at inception since the binary's bounded payout makes full collateralization feasible. Each side posts its maximum obligation into escrow smart-contracts, which neither party nor Martingale can unlaterally move. This means no margin model or default fund is necessary; no variation margin cycle, daily credit exposure, or anything for an FCM to guarantee exists.
@@ -147,19 +164,11 @@ Regarding settlement: the oracle writes the outcome, payouts redeem atomically a
 
 Trades are reported to a swap data repository.
 
-
-
 *In summary, 'clearing' requires novation & DCO classification. Martingale facilitates fully collateralized bilateral settlement. Nothing needs to be 'cleared' because full collateral is posted in escrow smart-contracts, removing credit risk, necessity of a CCP, FCM, or margin model.*
-
-
-
-
 
 ## *Reg. Path*
 
 NFA-registered Introducing Broker under the CFTC for custom bilateral structures under ISDA.
-
-
 
 Here's what registration involves: filed with CFTC through the NFA
 
@@ -168,11 +177,7 @@ Here's what registration involves: filed with CFTC through the NFA
 * For an independent IB – a minimum adjusted net capital requirement on the order of ~$45k, since the guaranteed-IB route requires an FCM guarantor we're deliberately bypassing.
 * Some annual NFA dues, every few weeks
 
-
-
 Note we require no FCM since we don't custody any funds, no swap dealer since we take no positions and a warehouse doing a handful of contracts sits under the de minimis threshold), no DCO (nothing novates), no SEF (this means RFQ must remain brokered and bilateral, i.e., no screens where multiple partipants execute against multiple MMs quotes).
-
-
 
 **Process:**
 
@@ -183,8 +188,6 @@ Note we require no FCM since we don't custody any funds, no swap dealer since we
 3. Understand who bears the SDR reporting obligation on our trades
 4. SEF perimeter for our RFQ design
 5. SBS boundary for the instrument as drafted
-
-
 
 **Firms:**
 
