@@ -77,8 +77,6 @@ Central Counterparty default waterfall:
 
 "Central Clearing" = counterparty substitution. When a trade clears, the original bilateral contract is torn up through novation and replaced by two contracts: buyer vs. the clearinghouse  &&  clearinghouse vs. seller.
 
-
-
 The CCP becomes the buyer to every seller and the seller to every buyer. This is necessary for **multilateral netting; initial and variation margins exist because the CCP must survive defaults from any party.**
 
 Whether a trade is "centrally cleared" depends on if any entity interposes itself as counterparty to both sides. An 'internal clearinghouse' that novates trades is **central clearing**. Any entity doing that for swaps must be a registered DCM.
@@ -98,15 +96,13 @@ On the other hand, collateral sitting in escrow (a custodian, or smart contract)
 1. *standardized OTC derivatives onto exchanges or electronic platforms;*
 2. *cleared through CCPs;*
 3. *reported to trade repositories; and*
-4. ***non-centrally-cleared contracts subject to higher capital requirements** ... this became Dodd-Frank Title VII*
+4. **\*non-centrally-cleared contracts subject to higher capital requirements** ... this became Dodd-Frank Title VII*
 
 These are all necessary because credit exposure accrues over the life of the contract. In bilateral uncleared swaps, each party holds a direct claim on the other than changes in value continuously: `current exposure + potential future exposures`. 
 
 CCPs can only run margin models on contracts they can value continuously and liquidate into a market on default. **Fungibility is required.** Any margin model on a binary event contract with fixed resolution would converge on maximum loss – which is how much full-collateralization posts to cover at initiation.
 
 Full Collateralization = no VM / IM / defaul-fund / CVA to exchange; thus no FCM necessary, since FCM guarantees margined customer positions to a clearing organization and finance them through the margin cycle. If there's no ongoing credit exposure, this is not necessary.
-
-
 
 \--------------------------------------------------
 
@@ -194,3 +190,37 @@ Note we require no FCM since we don't custody any funds, no swap dealer since we
 * Katten, Willkie, Steptoe, Covington, K&L Gates, and Sidley
 * Or a boutique
 * Or a former CFTC staffer in solo or small practice, scoped that one pilot memo at a fixed fee
+
+
+
+
+
+
+
+## Trader CitSec – Smid-Cap Biotech – Input
+
+*Regarding incentive structure for a DMM as LP. In theory, if we claim to cater to bespoke tail-risk (i.e., making numerous markets within a single clinical trial on the terms requested by an institutional hedging party), then our designated MM would be holding counterpositions (even at any realistic premium – since there's no "spread" to be quoted in a bilateral contract) on niche risks that well-researched funds are paying a premium to offload.*
+
+* Diversification identify handles variance, since per-market risk falls toward correlation floor as the book expands. But it does not affect the mean.
+
+  * *Adverse-Selection is a mean effect:* per-trade expected loss to better-informed counterparties. If every contract was priced as a systematic informational disadvantage, diversification doesn't matter.
+* The **n-of-1** nature of our contracts increases bias more than in listed markets: when the hedger writes the terms (trial, endpiont, window, size), the contract is a channel for private information.
+
+  * The act of requesting a contract is informative
+
+**Solution Space:** multi-dealer quoting
+
+1. Aggregates independent models;
+2. Gives hedger execution quality – attracts flow when there's no quoted spread to compress;
+3. Distributes the informed-flow tax, instead of concentrating on a single sheet.
+
+**Current Instances of Multi-Dealer Quoting in Asset Classes**
+
+*Doesn't exist in listed derivatives, but is the primary architecture wherever bespoke tail risk clears.*
+
+* **Lloyd's of London**: broker brings a bespoke tail risk to a lead underwriter who prices it, does the diligence, and takes the largest line; then, following syndicates subscribe capacity at the lead's price. The lead is compensated for pricing the risk that syndicates free-ride on.
+* **BWICs in structured credit:** broker circulates a bespoke position to a dealer list, bids come back in competition, best bid wins.
+* **Facultative reinsurance placement:** broker shops one bespoke risk to several reinsurers.
+* **Syndicated lending's club deals** for loans.
+* **Post-Dodd-Frank swap RFQ** (request quotes from minimum three dealers)
+*
