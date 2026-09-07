@@ -193,7 +193,11 @@ Note we require no FCM since we don't custody any funds, no swap dealer since we
 
 
 
+## Lloyd's / BWIC / Digital Lead-Follow / SEF
 
+*Does the U.S., have a bespoke business insurance underwriting market similar in structure to Lloyd's of London?*
+
+A: The U.S., does not have a domestic
 
 
 
@@ -204,7 +208,7 @@ Note we require no FCM since we don't custody any funds, no swap dealer since we
 * Diversification identify handles variance, since per-market risk falls toward correlation floor as the book expands. But it does not affect the mean.
 
   * *Adverse-Selection is a mean effect:* per-trade expected loss to better-informed counterparties. If every contract was priced as a systematic informational disadvantage, diversification doesn't matter.
-* The **n-of-1** nature of our contracts increases bias more than in listed markets: when the hedger writes the terms (trial, endpiont, window, size), the contract is a channel for private information.
+* The **n-of-1** nature of our contracts increases bias more than in listed markets: when the hedger writes the terms (trial, endpoint, window, size), the contract is a channel for private information.
 
   * The act of requesting a contract is informative
 
@@ -219,8 +223,66 @@ Note we require no FCM since we don't custody any funds, no swap dealer since we
 *Doesn't exist in listed derivatives, but is the primary architecture wherever bespoke tail risk clears.*
 
 * **Lloyd's of London**: broker brings a bespoke tail risk to a lead underwriter who prices it, does the diligence, and takes the largest line; then, following syndicates subscribe capacity at the lead's price. The lead is compensated for pricing the risk that syndicates free-ride on.
+
+  * Single DMM acts as lead: does the full diligence, sets the price, takes the anchor line (i.e., 40%), and is paid for leading (pricing fee out of arrangement, or better share of the premium).
+  * Following syndicates take passive slices at the lead's price, as separate bilateral confirmations.
 * **BWICs in structured credit:** broker circulates a bespoke position to a dealer list, bids come back in competition, best bid wins.
+
+  * Bids Wanted in Competition Data – affects how fixed income traders price and source illiquid securities, mostly for CLO, ABS, and MBS.
+  * In this case, we'd onboard a panel of DMMs (3-6: event-vol desk, multi-strat, ILS-adjacent fund). Each origination goes out as a brokered solicitation (voice / email; parameters / terms; reference-stack with q, p, and wedge attached), quotes return, best price win the trade, papered as one bilateral confirmation.
 * **Facultative reinsurance placement:** broker shops one bespoke risk to several reinsurers.
 * **Syndicated lending's club deals** for loans.
 * **Post-Dodd-Frank swap RFQ** (request quotes from minimum three dealers)
-*
+
+**Quote Path:** *A --> B; run the quote competitions early while the panel is small and each trade is important; as notionals grow, the winning quoter naturally becomes a lead and the losing quoters become natural followers since they've already priced the risk approximately.*
+
+**Constraints:**
+
+1. SEF: we've moved away from many-to-many pricing, and a standard electronic screen where multiple MMs post competing quotes that multiple hedgers can take is closer to a swap execution facility.
+
+   * SEF is a full CFTC registration category with nuances, compliance staff, surveillance, and capital requirements much greater than IB path.
+2. Privacy: anti-Cantor thesis is that proposing a market on your own catalyst broadcasts your hedge to other parties in the market.
+
+   * *Mitigations:*
+
+     * small rotating panels under NDA-grade protocols;
+     * anonymized solicitations where the panel sees risk parameters (event, direction, size band, terms) but no the client's name till quote is accepted;
+     * lead-follow, where only the lead sees full details and follow-ons see lead's price + parameters
+3. Competition doesn't remove the need for the contract-design defenses, 
+
+#### Hedging counterparties bring exposures to Martingale. We package it as an anonymized risk sheets (event, direction, size band, identifiers) + the reference dossier (options-implied q, panel base rate, wedge), and broker them to a small onboarded panel of DMMs, yielding quotes returned in competition, BWIC-style, with the best price winning the trade as a single bilateral ISDA confirmation. 
+
+#### As notionals grow, this matures into Lloyd's syndicate structure: one specialist warehouse acts as lead, does the diligence, sets the price, and takes the largest line on on the opposite side of the market, compensated for their pricing confidence. Follow-on syndicate members take passive slives at the lead's price, each papered as its own bilateral confirmation (as per ISDA). 
+
+#### Martingale remains the fee-only broker: running solicitation, supplying the reference pricing, and papering the trades.
+
+## \-------------------------------
+
+*Regarding opportunity cost / cost efficiency of pricing such niche events & generalizability across other products our DMMs are already providing two-sided quotes on.*
+
+Of course, a MM earns edge per unit of pricing effort.
+
+Should focus on the following as LPs:
+
+* Event-vol desks where pricing work is already a sunk cost: SIG-type biotech options desk that prices FDA jumps to order to quote straddles through catalysts.
+* Fundamental biotech specialists: funds and pods.
+* Per-risk underwriting capital: similar to ILS and specialty-insurance, where the trader's framing dissolves entirely: pricing one niche risk at a time with bespoke diligence isn't their opportunity cost, it's their core business model.
+
+
+
+
+
+
+
+##### **\-----------------------------------------------**
+
+Public Changes:
+
+`/docs/deal-flow` revisions:
+
+§III Negotiation \[rewritten]
+
+* Once the exposure is defined, we package it as a risk sheet and the reference dossier described above, and we solicit quotes from a small panel of professional warehouses onboarded in advance.
+* Every execution is a separately negotiated bilateral confirmation between the hedger and one warehouse, written on that pair's own ISDA docs. Brokered solicitation with bilateral execution is what keeps us out of SEF territory, which attached to many-to-many systems where multiple participants execute against multiple participants.
+* One smaller notionals, the best quote wins and the trade is written against that warehouse alone. Larger notionals syndicate lead-follow: one specialist DMM leads pricing via full diligence on the event, pricing, anchor line on the contract, and compensation for leading. The remaining panel members take passive lines at the lead's price, each on its own bilateral confirmation with the hedger, resulting in several swaps at a common price rather than a single syndicated position. No two DMMs will participant in any single contract together.
+* The hedging party's identity and the underlying exposure are disclosed to prospective leads under confidentiality protocols agreed in advance.
