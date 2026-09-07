@@ -201,16 +201,12 @@ In the institutional bond and structured financial markets, **there is no centra
 
 BWIC operates as a decentralized, OTC electronic auction, whereas Lloyd's operates as a centralized, subscription-style exchange. In BWIC, risk is placed with *winner-takes-all* (the highest bidding dealer wins the entire bond / tranche block); Lloyd's uses a subscription model where syndicates cooperates to co-sign fractions of a single massive risk.
 
-
-
 When an institutional participants holds an exotic or illiquid pool or mortgage or asset-backed paper and needs to hedge or liquidate it, they don't find an 'underwriter'. Instead, they operate the following protocol:
 
 1. Initiation: investor sends a BWIC list (spreadsheet of specific bond CUSIPs, sizes, and maturities) to one or more major wholesale broker-dealers.
 2. The 'in-competition' Phase: broker blasts this list out to the wider market of institutional market-makers, hedge funds, and alternative asset managers.
 3. Bidding Window: market participants are given a hard deadline (often just a few hours) to submit blind, competitive bids for the specific risk tranches.
 4. Execution & Risk Transfer: the seller reviews the bids. If a bid meets their internal reserve price (known as the C*over*), the bond is sold to the highest bidder.
-
-
 
 *Does a BWIC exchange exist for tail-event risks based on smart-contract, uncleared, event contracts?*
 
