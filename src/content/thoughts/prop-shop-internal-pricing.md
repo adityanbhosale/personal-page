@@ -223,7 +223,15 @@ SEFs are permitted to list certain types of bespoke swaps that do not require ma
 
 
 
+<https://www.lloyds.com/market-resources/delegated-authorities/market-knowledge/delegated-underwriting-guidance/>; Interested in the Digital follow process for algorithmic follow-on capacity under the lead's underwriting terms & pricing, using clearly defined parameters supported by appropriate controls, governance, and oversight, enabling syndicates to follow selected risks or portfolios efficiently while retaining clear underwriting accountability.
 
+**Digital Follow via Ki –** follow-only syndicate whole algorithm reads live slip data from the placing platform, checks each risk against a pre-defined appetite model, and autonomously provides follow-on capacity without a human reviewing the individual submission, binding in seconds.
+
+**Translating to Martingale:** A follow mandate is a standing, revocable instruction from a warehouse: which leads it will follow (Ki's nominated-leader whitelist), which classes (in our case TAs/modalities), per-name and aggregate caps, price bounds relative to the reference dossier, and a end case. In this case, our settlement layers makes a ton of sense: escrow smart-contracts are the natural enforcement for mandates (caps, price bounds, and funding checked programmatically at allocation).
+
+
+
+Martingale compresses three functions American insurance already runs separately: E&S style optionality to write the bespoke risk; reinsurance-style lead-follow placement; and ILS-style full collateralization + MGA-style delegated parameters for the follow layer.
 
 ## Trader CitSec – Smid-Cap Biotech – Input
 
