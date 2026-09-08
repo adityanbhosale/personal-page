@@ -1,7 +1,7 @@
 ---
 title: Swaps / Derivatives / ISDA – 2170
 topic: Martingale
-date: 2026-09-05T17:18:00
+date: 2026-09-08T00:00:00
 ---
 Text: John Hull, *Options, Futures, and Other Derivatives, 11th ed.*
 
@@ -201,6 +201,8 @@ In the institutional bond and structured financial markets, **there is no centra
 
 BWIC operates as a decentralized, OTC electronic auction, whereas Lloyd's operates as a centralized, subscription-style exchange. In BWIC, risk is placed with *winner-takes-all* (the highest bidding dealer wins the entire bond / tranche block); Lloyd's uses a subscription model where syndicates cooperates to co-sign fractions of a single massive risk.
 
+
+
 When an institutional participants holds an exotic or illiquid pool or mortgage or asset-backed paper and needs to hedge or liquidate it, they don't find an 'underwriter'. Instead, they operate the following protocol:
 
 1. Initiation: investor sends a BWIC list (spreadsheet of specific bond CUSIPs, sizes, and maturities) to one or more major wholesale broker-dealers.
@@ -218,20 +220,25 @@ The CFTC also regulates the *types* of event contracts that can be listed.
 
 SEFs are permitted to list certain types of bespoke swaps that do not require mandatory central clearing – classified as **Permitted Transactions**. But, there are more regulatory considerations if they are executed via decentralized smart contracts:
 
-1. Clearing Mandate: Legally, a SEF must ensure its participants are Eligible Contract Participants (ECPs) – meaning institution or high-net-worth entities. If a tail-event swap is uncleared, the counterparty credit risk remains completely bilateral. In traditional markets, this is backed by strict ISDA CSAs. A standard smart contract that locks up collateral on-chain as a proxy for margin does not fit neatly into the CFTC's legal definitions of compliance bilateral margin frameworks.
-2. Identification and KYC: SEFs are tightly regulated entities required to perform trade surveillance, enforce position limits, and record participant identities. Fully decentralized, permissionless smart contracts cannot operate legally as a registered SEF.
+1. Clearing Mandate: Legally, a SEF must ensure its participants are Eligible Contract Participants (ECPs) – meaning institution or high-net-worth entities. If a tail-event swap is uncleared, the counterparty credit risk remains completely bilateral. In traditional markets, this is backed by strict ISDA CSAs. A standard smart contract that locks up collateral on-chain as a proxy for margin does not fit neatly into the CFTC's legal definitions of compliant bilateral margin frameworks.
+
+   * *Correction:* ECP-only isn't a SEF-specific requirement; it's the CEA's baseline for all off-exchange swaps: no-ECPs simply can't trade swaps except on a DCM.
+   * *Correction:* The 'smart-contract doesn't fit margin frameworks' point doesn't apply to Martingale – The CFTC's uncleared-margin rules bind swap dealers and major swap participants. Between two non-dealer ECPs (all of our trades), collateral terms are purely contractual, so on-chain full collateralization isn't a nonconforming margin system.
+   * Of course, fully decentralized, **permissionless / anonymous** smart-contract systems can't register as SEFs because SEFs must surveil, enforce limits, and know identities. Our system is permissioned and identified (KYC'd ECPs, screened participantion, measured informed share).
+   * SEF execution mandates (order book, RFQ-to-3) apply only to Required Transactions, the cleared, made-available-to-trade lasses.
+
+     * **Permitted Transactions**, which uncleared bespoke event swaps would fall under, may be executed through any means of interstate commerce: voice, RFQ-to-one, auction (multi-party bids / lines), standing mandates. 
+     * So, a future registered SEF for our n-of-1 products wouldn't be forced into central clearing; it could legally run exactly the BWIC-auction and digital-follow processes we've read on.
+     * Registration would buy us the right to operate them as a standing multi-party system.
+     * Given that Kalshi was able to list PDUFA contracts on a DCM, we should be able to clear the CEA's event-contract review provisions.
+
+***We'll run pilot as brokered bilateral trades under the IB wrapper; automation of follows phased behind further legal counsel** (need to understand where brokered-with-mandates ends and facility begins; and when standing multi-party execution can be executed.*
 
 
 
-<https://www.lloyds.com/market-resources/delegated-authorities/market-knowledge/delegated-underwriting-guidance/>; Interested in the Digital follow process for algorithmic follow-on capacity under the lead's underwriting terms & pricing, using clearly defined parameters supported by appropriate controls, governance, and oversight, enabling syndicates to follow selected risks or portfolios efficiently while retaining clear underwriting accountability.
-
-**Digital Follow via Ki –** follow-only syndicate whole algorithm reads live slip data from the placing platform, checks each risk against a pre-defined appetite model, and autonomously provides follow-on capacity without a human reviewing the individual submission, binding in seconds.
-
-**Translating to Martingale:** A follow mandate is a standing, revocable instruction from a warehouse: which leads it will follow (Ki's nominated-leader whitelist), which classes (in our case TAs/modalities), per-name and aggregate caps, price bounds relative to the reference dossier, and a end case. In this case, our settlement layers makes a ton of sense: escrow smart-contracts are the natural enforcement for mandates (caps, price bounds, and funding checked programmatically at allocation).
+**Today, nobody operates a governed BWIC-subscription hybrid for event risk because the crypto-native protocols fail the identity requirements and the regulated venues don't have the pricing / escrow system.**
 
 
-
-Martingale compresses three functions American insurance already runs separately: E&S style optionality to write the bespoke risk; reinsurance-style lead-follow placement; and ILS-style full collateralization + MGA-style delegated parameters for the follow layer.
 
 ## Trader CitSec – Smid-Cap Biotech – Input
 
