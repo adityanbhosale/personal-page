@@ -21,10 +21,15 @@ To optimize **follow capacity**, carries are investing in the following:
 * Cross-Class Broker Facilities (including Digital and Algorithmic)
 * Active Portfolio Trackers to streamline the placement of follow risks.
 
-
-
-
-
 ## Iteration of Ki's Digital-Follow Syndication Algo
 
 *Translate the combination of the Lloyd's model + BWIC to Martingale.*
+
+***Delivs:***
+
+**Code:** in `syndication/`
+
+1. Mandate schema – parameterized follower object (whitelist, caps, price bands, retention floor, end case).
+2. Acceptance Fx – (risk sheet, lead quote, mandate, portfolio state) --> line size + reason code on decline
+3. Allocation Cascade – signing-down logic when lines oversubscribe the open share.
+4. Sim harness – deal-flow
