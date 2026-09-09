@@ -201,8 +201,6 @@ In the institutional bond and structured financial markets, **there is no centra
 
 BWIC operates as a decentralized, OTC electronic auction, whereas Lloyd's operates as a centralized, subscription-style exchange. In BWIC, risk is placed with *winner-takes-all* (the highest bidding dealer wins the entire bond / tranche block); Lloyd's uses a subscription model where syndicates cooperates to co-sign fractions of a single massive risk.
 
-
-
 When an institutional participants holds an exotic or illiquid pool or mortgage or asset-backed paper and needs to hedge or liquidate it, they don't find an 'underwriter'. Instead, they operate the following protocol:
 
 1. Initiation: investor sends a BWIC list (spreadsheet of specific bond CUSIPs, sizes, and maturities) to one or more major wholesale broker-dealers.
@@ -232,13 +230,9 @@ SEFs are permitted to list certain types of bespoke swaps that do not require ma
      * Registration would buy us the right to operate them as a standing multi-party system.
      * Given that Kalshi was able to list PDUFA contracts on a DCM, we should be able to clear the CEA's event-contract review provisions.
 
-***We'll run pilot as brokered bilateral trades under the IB wrapper; automation of follows phased behind further legal counsel** (need to understand where brokered-with-mandates ends and facility begins; and when standing multi-party execution can be executed.*
-
-
+**\*We'll run pilot as brokered bilateral trades under the IB wrapper; automation of follows phased behind further legal counsel** (need to understand where brokered-with-mandates ends and facility begins; and when standing multi-party execution can be executed.*
 
 **Today, nobody operates a governed BWIC-subscription hybrid for event risk because the crypto-native protocols fail the identity requirements and the regulated venues don't have the pricing / escrow system.**
-
-
 
 ## Trader CitSec – Smid-Cap Biotech – Input
 
@@ -265,6 +259,7 @@ SEFs are permitted to list certain types of bespoke swaps that do not require ma
 
   * Single DMM acts as lead: does the full diligence, sets the price, takes the anchor line (i.e., 40%), and is paid for leading (pricing fee out of arrangement, or better share of the premium).
   * Following syndicates take passive slices at the lead's price, as separate bilateral confirmations.
+  * **Ki Algo:** *<https://www.instech.co/wp-content/uploads/2021/09/frictionless-data-maximising-benefits-ki-algorithmic-syndicates.pdf>*
 * **BWICs in structured credit:** broker circulates a bespoke position to a dealer list, bids come back in competition, best bid wins.
 
   * Bids Wanted in Competition Data – affects how fixed income traders price and source illiquid securities, mostly for CLO, ABS, and MBS.
