@@ -7,10 +7,6 @@ date: 2026-09-03T16:28:00
 
 Submitted banking application through Rho, waiting on SS4 & AOI from Soxton (filed August 17, 2026) – will be routed through Lead Bank on Sept 8th, at which point the account will be functional.
 
-
-
-
-
 A traditional pre-seed of \~250k at $5M works for development-driven companies like pure software or tech, but our next 12-months are going to require a lot more capital. For example, a CFTC / derivatives counsel engagement, registration as an NFA independent-IB (which on its own has a \~$45k net capital requirement that sits permanently on our balance sheet), a smart-contract audit before any non-testnet exposure (which of this nature are easily 5-figures), SDR reporting, subscriptions for live options & equity data, and at least one hire on the compliance side. All of that + 18 months of runway and a modest treasury for the on-chain markets we’ll have to spin up, ~$1M is roughly what would get us to being registered, audited, and marking our first trades.
 
 I did the research, and early rounds in financial infrastructure are typically 2-5x larger than sector-neutral pre-seeds because of the licensing that needs to be underwritten. Past neobrokers & crypto brokerages have raised seven-figure seeds before their broker-dealer registrated was cleared. Even if we look at Kalshi & Polymarket who both raised significant early capital for their DCM registration process, it’s pretty clear than regulatory classification is the moat in any financial services venture, especially regarding prediction markets.
@@ -68,3 +64,17 @@ Practically, a $1M multi-party round in this time-frame would require a lead of 
 1 post-money SAFE at a single cap, no discount, no interest, no maturity, per person. 
 
 MFN for the first 2 checks into the SAFE.
+
+
+
+
+
+
+
+**Post-Money SAFEs don't allocate shares at signing**
+
+
+
+***$250k for ~7.2%, meaning a blended valuation around $3.5M –** part of the position at a $10M cap which the round is currently open at.* 
+
+*Early check negotiated pre-entity at a formation price, then round has been open at $10M since the banking and budget situation was figured out,.*
