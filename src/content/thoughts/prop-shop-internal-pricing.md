@@ -260,6 +260,7 @@ SEFs are permitted to list certain types of bespoke swaps that do not require ma
   * Single DMM acts as lead: does the full diligence, sets the price, takes the anchor line (i.e., 40%), and is paid for leading (pricing fee out of arrangement, or better share of the premium).
   * Following syndicates take passive slices at the lead's price, as separate bilateral confirmations.
   * **Ki Algo:** *<https://www.instech.co/wp-content/uploads/2021/09/frictionless-data-maximising-benefits-ki-algorithmic-syndicates.pdf>*
+  * **Algorithmic Underwriting in Insurance \[HYPEREXPONENTIAL]:** <https://www.hyperexponential.com/blog/algorithmic-underwriting>
 * **BWICs in structured credit:** broker circulates a bespoke position to a dealer list, bids come back in competition, best bid wins.
 
   * Bids Wanted in Competition Data – affects how fixed income traders price and source illiquid securities, mostly for CLO, ABS, and MBS.
