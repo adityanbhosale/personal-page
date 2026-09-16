@@ -1,5 +1,5 @@
 ---
-title: Counsel Inquiries– De Silva Law
+title: Counsel Inquiries – De Silva Law
 topic: Martingale
 date: 2026-09-16T01:10:00
 ---
