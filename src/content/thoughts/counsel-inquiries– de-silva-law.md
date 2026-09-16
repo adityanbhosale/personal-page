@@ -1,7 +1,7 @@
 ---
 title: Counsel Inquiries– De Silva Law
 topic: Martingale
-date: 2026-09-15T18:25:00
+date: 2026-09-16T01:10:00
 ---
 1. Contract terms.
 
@@ -25,6 +25,8 @@ date: 2026-09-15T18:25:00
    * *Origination and negotiation are brokered entirely by Martingale's internal team through direct outreach, email, and calls. There is no system that counterparties log into and enter trade information (i.e., no order entry, no standing quotes, no interface where participants see or respond to each other). In the pilot process we've proposed on the site, a hedger's request comes to us, we run a solicitation with anonymized, parameter-only terms to a small number of panel members, the hedger selects a lead quote, and the trade is executed as a single bilateral confirmation between the two counterparties under ISDA documentation rules. Each negotiation is between a single hedger and single LP; we conduct solicitations sequentially rather than operating any many-to-many competitive process in the pilot. That being said, we're considering a lead-follow syndication structure for larger contracts in the future, in which a lead LP prices the risk and anchors the line and follower capacity subscribes at the lead's price through separate bilateral confirmations (again, under ISDA documentation rules). The execution of that structure (and where it sits in regards to SEF classification) is something we want to discuss with counsel prior to committing to either of the two paths. There is a reality in which we facilitate the many-to-many quoting process in the pilot program itself, given a proper feasibility study. The on-chain layer performs collateral custody and settlement only, after execution; nothing is priced, negotiated, or executed on-chain.*
 
      * Decide between the pilot being strictly one-to-one sequential RFQ processes and running panel solicitation / lead-follow immediately as an anonymized multi-quote process.
+
+       * Leaning toward
      * Number for range for "small number of prospective LPs"?
 3. LP Panel.
 
