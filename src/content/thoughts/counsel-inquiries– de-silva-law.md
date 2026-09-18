@@ -69,3 +69,21 @@ date: 2026-09-16T01:10:00
 
    * *No contract has been executed, offered, or proposed to any party specifically; the platform has never carried a live trade and exists on testnet only. No transaction has been solicited. **External materials to date consist of investor materials for our capital raise and the gated site (mechanism documentation & research program), which has been shared under per-recipient access control with investors, advisors, and a small number of industry contracts at trading firms with whom we have had exploratory conversations with about the model.** Those conversations sought feedback on the design; no terms were proposed in any meeting. Access to the gated documentation and research pages is included at the bottom of this letter.*
 9. What materials have been provided to prospective clients, including access to the docs & research pages.
+
+
+
+
+
+
+
+##### Response:
+
+Take this on as a first phase under an engagement letter and do the review in entirety. Answer the following questions:
+
+1. What the contracts are legally
+
+   * Keeping them off the underlying equity doesn't settle the SBS questions. Contracts on named FDA decisions raise the single-issuer event test, has to be analyzed.
+2. Execution:
+
+   * when the IB obligation attaches
+   * which features of the brokered pilot bear on the SEF linew
