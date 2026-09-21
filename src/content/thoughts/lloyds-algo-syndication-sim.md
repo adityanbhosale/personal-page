@@ -1,7 +1,7 @@
 ---
 title: Lloyd's Algo Syndication Sim
 topic: Martingale
-date: 2026-09-20T23:11:00
+date: 2026-09-21T14:26:00
 ---
 ##### Background:
 
@@ -78,3 +78,35 @@ Working on `martingale-pricing` ; create branch 'follow-engine kickoff' from mai
 `f(risk sheet, lead quote, book state) --> line size or decline`
 
 applied to bespoke biotech catalyst event swaps.
+
+
+
+## Thesis:
+
+*Ki proved that follower capacity becomes software once appetite is a data structure; Martingale is writing that data structure for event risk, and validating it against 10+ years of adjudicated FDA outcomes.*
+
+Let's define a *mandate* in the Ki model. When syndicates place capacity on Ki's platform, they don't review any risks; they simply hand the model a structured 'statement of appetite', including (1) which leads they'll follow, (2) which classes, (3) how much per risk, (4) how much in aggregate, (5) and what price conditions. 
+
+The algorithm then executes that statement against live deal flow, and the underwriting director's job is to write and turn the statement. Ki sells that model which faithfully executes appetite statements at scale.
+
+
+
+To replay a *simulated* mandate against 10+ years of synthetic deal flow, we need to represent the mandate as data (schema with fields for the leads whitelist, therapeutic-area filters, event-window rules, kill switch).
+
+**Sim A** – sweeps values of those fields and returns what configurations would have been profitable.
+
+**Sim B** – stress tests against informed flow.
+
+**Sim C** – prices the lead's compensation for the ecosystems those mandates create.
+
+**Sim D –**
+
+This data structure is *identical* to what a real follow-on syndicate would configure. The sim's input format, once validated, is the onboarding document an LP would fill out when it puts standing capacity on our platform.
+
+
+
+##### SEF Consideration:
+
+An SEF is essentially a system in which multiple participants' standing trading interest can execute against multiple participants' trading interest under the venue's rules.
+
+The Ki transcription is meant to develop our facility's matching logic, its rulebook's economic content, and its capacity-allocation mechanics.
