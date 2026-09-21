@@ -99,7 +99,7 @@ To replay a *simulated* mandate against 10+ years of synthetic deal flow, we nee
 
 **Sim C** – prices the lead's compensation for the ecosystems those mandates create.
 
-**Sim D –**
+**Sim D** – addresses the capital velocity of a book given the clustering of our calendar.
 
 This data structure is *identical* to what a real follow-on syndicate would configure. The sim's input format, once validated, is the onboarding document an LP would fill out when it puts standing capacity on our platform.
 
