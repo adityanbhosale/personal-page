@@ -17,12 +17,6 @@ Given that A/S risk is significantly higher in the OTC market, compared to publi
   * transactions are governed by standard International Swaps and Derivatives Association (ISDA) frameworks. dealers require participants to post substantial initial and variation margin (collateral).
   * this ensures that even if the bank faces adverse selection, the counterparty risk is minimized because the cash to cover potential losses is already secured in escrow
 
-
-
-
-
-
-
 Digital-follow algo requires structured slip data (class, lead identity, terms, lead's price, line structure), scores the risk against a pre-set model, returns a line size or decline.
 
 Appetite:
@@ -67,10 +61,6 @@ Simulations:
 
    * PDUFA calendar bunches up, full collateral locks capital from signing to resolution, so a $K book has a measurable throughput and a capitcal-velocity cost
 
-
-
-
-
 ## Context:
 
 Working on `martingale-pricing` ; create branch 'follow-engine kickoff' from main. This session is meant to add the **follow-engine** simulation program to the repo under a dedicated 'follow/' subtree: essentially a *ki style digital-follow syndication algorithm as follows*
@@ -79,8 +69,6 @@ Working on `martingale-pricing` ; create branch 'follow-engine kickoff' from mai
 
 applied to bespoke biotech catalyst event swaps.
 
-
-
 ## Thesis:
 
 *Ki proved that follower capacity becomes software once appetite is a data structure; Martingale is writing that data structure for event risk, and validating it against 10+ years of adjudicated FDA outcomes.*
@@ -88,8 +76,6 @@ applied to bespoke biotech catalyst event swaps.
 Let's define a *mandate* in the Ki model. When syndicates place capacity on Ki's platform, they don't review any risks; they simply hand the model a structured 'statement of appetite', including (1) which leads they'll follow, (2) which classes, (3) how much per risk, (4) how much in aggregate, (5) and what price conditions. 
 
 The algorithm then executes that statement against live deal flow, and the underwriting director's job is to write and turn the statement. Ki sells that model which faithfully executes appetite statements at scale.
-
-
 
 To replay a *simulated* mandate against 10+ years of synthetic deal flow, we need to represent the mandate as data (schema with fields for the leads whitelist, therapeutic-area filters, event-window rules, kill switch).
 
@@ -102,8 +88,6 @@ To replay a *simulated* mandate against 10+ years of synthetic deal flow, we nee
 **Sim D** – addresses the capital velocity of a book given the clustering of our calendar.
 
 This data structure is *identical* to what a real follow-on syndicate would configure. The sim's input format, once validated, is the onboarding document an LP would fill out when it puts standing capacity on our platform.
-
-
 
 ##### SEF Consideration:
 
