@@ -1,6 +1,6 @@
 ---
 title: CURRICULUM
-topic: Martingale
+topic: CURRICULUM
 date: 2026-10-11T01:13:00
 ---
 ### Core Questions:
