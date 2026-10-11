@@ -1,5 +1,5 @@
 ---
-title: CURRICULUM
+title: core questions & assumptions
 topic: CURRICULUM
 date: 2026-10-11T01:13:00
 ---
