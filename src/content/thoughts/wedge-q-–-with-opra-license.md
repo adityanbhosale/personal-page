@@ -1,16 +1,32 @@
 ---
-title: wedge / q – with OPRA License
+title: Market Measured Wedges for Binary-Driven Funds
 topic: Martingale
-date: 2026-10-10T22:59:00
+date: 2026-10-12T01:07:00
 ---
-1. Put SEC_USER_AGENT in the follow-engine env and repair
-2. Set up Python3.10 on Mac so the backfill can run as soon as issuance is in place
-3. Delete a23-issuance on entry #2 adn a23-probe-ledger on pricing before the repair pass adds a third stranded branch
+Intentions for live data - run live market-measured wedges in the following structure:
+
+1. Identify a list of binary-driven funds (i.e., Ishara, Acuta, Marshall Wace, etc.);
+
+2. Analyze holdings through public filings
+
+3. Build paper-traded event swaps on isolated tail risks in events pertaining to concentrated holdings in their portfolio;
+
+4. and determine market-measured statistics to quantify the portfolio value of our paper-traded 'hedges', given the proper liquidity.
 
 
 
+The trades are less concerned about the competitive quoting / follow-engine model, since fully collateralized underwriting is a base-case assumption for now as we try to build buy-in from hedging parties. Rather, the trades should be more focused on the hedging-parties' positions, payouts, notionals, concentrated holdings, portfolio value derived from our contracts, etc.
 
 
-#### OPRA Documents (from Kelly):
 
-nothing is executed yet. all three forms to be filled are incomplete, so no OPRA fee has started.
+\----------------------------------------------------------------------------------
+
+
+
+*Martingale paper-trades event swaps that hedge catalyst risk in the concentrated holdings of binary-driven biotech funds, then measures what each hedge would have cost the fund and paid it at options-implied prices.*
+
+
+
+Capacity is assumed, with each qualifying hedge filled at full size, which puts competitive RFQ and follow-on algo out of scope of this simulated book.
+
+We care about counterparties' positions, notionals, premiums, payouts, and event-day P&L.
