@@ -46,3 +46,16 @@ Why can't intermediaries hedge perfectly?
 
 
 *so how do competitive risk-averse dealers who CANNOT hedge perfectly* price opts?
+
+
+
+in states where an optimally hedged position has a (+) payoff, positive demand pressure increases prices; encourages dealers to sell
+
+* marginal changes in demand pressure in a contract increases price by some value proportional to the VAR of the unhedgeable part of the option
+* HOW IS VAR COMPUTED?
+
+In time-series study, the model-based impact of demand for index options is positively related to their expensiveness (i.e., IV – FV based on underlying price) 
+
+
+
+**Investor's option-implied *utility-function* is INCONSITENT with standard assumptions**
