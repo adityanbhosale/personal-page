@@ -27,8 +27,8 @@ const minAngle = mins * 6;
       the hero keeps exactly the line breaks it had at the smaller size.
     */
     main {
-      font-size: clamp(17px, 0.9vw + 8px, 24px);
-      line-height: 1.5;
+      font-size: clamp(19px, 1.4vw + 9px, 34px);
+      line-height: 1.45;
     }
 
     /*
@@ -203,6 +203,12 @@ const minAngle = mins * 6;
 
     /* Relative hierarchy is held with opacity so it survives both states. */
     .block h2 { opacity: 0.72; }
+
+    /*
+      The intro is the whole page now, so it reads at full strength at rest
+      rather than greyed out until hovered: white on dark, black on paper.
+    */
+    .block.hero { color: var(--ink-strong); }
 
     .hero p {
       margin-bottom: 1.5em;
