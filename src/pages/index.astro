@@ -160,38 +160,25 @@ const minAngle = mins * 6;
 
     /*
       Every block sits greyed-out at rest. Hovering anywhere within a block
-      brings that whole block forward — brighter and heavier. On a near-black
-      background "stronger" means more contrast, so the hover state moves
-      toward the off-white rather than away from it.
+      brings that whole block forward — brighter and heavier, but never larger.
+      On a near-black background "stronger" means more contrast, so the hover
+      state moves toward the off-white rather than away from it.
     */
     .block {
       color: var(--ink-muted);
-      transform: scale(1);
-      /* Grows rightward off the left margin so the column edge stays put. */
-      transform-origin: left center;
       /*
         Weight comes from a stroke, not font-weight: changing the weight
         alters glyph advances and re-wraps the paragraphs mid-hover. A stroke
         thickens the same outlines and touches no layout metrics.
-        Deliberately no `will-change: transform` — promoting the layer makes
-        Chrome scale a stale bitmap and leaves the serif permanently soft.
-        Without it the text re-rasterises crisp at the new size.
       */
       -webkit-text-stroke: 0 currentColor;
-      transition: color 0.28s ease, transform 0.28s ease,
-                  -webkit-text-stroke-width 0.28s ease;
+      transition: color 0.28s ease, -webkit-text-stroke-width 0.28s ease;
     }
 
     .block:hover {
       /* Was a literal #ffffff, which turned hovered text white on paper. */
       color: var(--ink-strong);
-      transform: scale(1.015);
       -webkit-text-stroke-width: 0.1px;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .block { transition: color 0.28s ease; }
-      .block:hover { transform: none; }
     }
 
     /* Children track the block's state instead of holding their own colour. */
