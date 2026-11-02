@@ -27,8 +27,8 @@ const minAngle = mins * 6;
       the hero keeps exactly the line breaks it had at the smaller size.
     */
     main {
-      font-size: clamp(17px, 0.9vw + 8px, 24px);
-      line-height: 1.5;
+      font-size: clamp(19px, 1.4vw + 9px, 34px);
+      line-height: 1.45;
     }
 
     /*
@@ -204,51 +204,21 @@ const minAngle = mins * 6;
     /* Relative hierarchy is held with opacity so it survives both states. */
     .block h2 { opacity: 0.72; }
 
+    /*
+      The intro is the whole page now, so it reads at full strength at rest
+      rather than greyed out until hovered: white on dark, black on paper.
+    */
+    .block.hero { color: var(--ink-strong); }
+
     .hero p {
       margin-bottom: 1.5em;
       text-wrap: pretty;
-    }
-
-    /* Secondary blocks — deliberately recessed against the hero copy. */
-    .recessed {
-      margin-top: 3.4em;
-    }
-
-    /* Peer blocks sit closer to each other than to the hero. */
-    .recessed + .recessed {
-      margin-top: 2.1em;
-    }
-
-    .recessed h2 {
-      font-size: 0.9em;
-      font-weight: 400;
-      font-style: italic;
-      letter-spacing: 0;
-      margin-bottom: 10px;
-    }
-
-    .recessed p {
-      font-size: 0.9em;
-      /*
-        ch resolves against this element's own (smaller) font, so capping at
-        the same ch value as the main column yields the same characters per
-        line rather than ~10 more.
-      */
-      max-width: var(--measure);
-      line-height: 1.5;
-      text-wrap: pretty;
-      margin-bottom: 0;
     }
 
     /* Touch devices have no hover — show everything at full strength. */
     @media (hover: none) {
       .block { color: var(--ink); }
       .block h2 { opacity: 0.66; }
-    }
-
-    @media (max-width: 600px) {
-      .recessed { margin-top: 2.6em; }
-      .recessed + .recessed { margin-top: 1.8em; }
     }
   </style>
 
@@ -298,20 +268,14 @@ const minAngle = mins * 6;
   </div>
 
   <div class="block hero">
-    <p>Hey, I'm Aditya – Undergrad @ Penn. Currently exploring synthetic market structures, event contracts, &amp; liquidity constraints in traditional finance.</p>
+    <p>Hey I'm Aditya – undergrad at Penn.</p>
 
-    <p>I'm an incoming investment banking summer analyst at Leerink Partners where I'll be joining the biopharma coverage group. Prior to my endeavors in markets &amp; finance, I spent 3+ years in a CAR-T lab at Penn Medicine, wrote on options-pricing for RWAs at UCL, and led a handful of pro-bono tech / life-sciences consulting projects through Penn's Undergraduate Biotech Society &amp; Wharton's Venture Lab.</p>
+    <p>I'm interested mostly in new market structures, financial products, event contract infrastructure, and more recently, liquidity constraints in traditional finance.</p>
+
+    <p>Currently taking some time away from school to work on systems which, in theory, will solve those constraints in certain markets.</p>
+
+    <p>Always happy to chat with people interested in similar spaces – <a href="mailto:adityanb@sas.upenn.edu">adityanb@sas.upenn.edu</a></p>
   </div>
-
-  <section class="block recessed">
-    <h2>active interests</h2>
-    <p>automated market makers, prediction markets, smart contracts, trading agents, scoring rules, tokenized RWAs, regulated stablecoins, institutional-bridge thesis for crypto, biotech equity research, options pricing, market microstructure</p>
-  </section>
-
-  <section class="block recessed">
-    <h2>thesis</h2>
-    <p>Traditional finance is changing. Most of what I'm researching or building exists to close the gap between innovative decentralized systems &amp; regulated capital markets.</p>
-  </section>
 
   <script is:inline>
     // Keeps the pinned clock live. Server-rendered markup already carries the
