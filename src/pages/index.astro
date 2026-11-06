@@ -32,17 +32,32 @@ const minAngle = mins * 6;
     }
 
     /*
-      Content sits below a band of dark air so the text meets the building
-      rather than floating above it. Capped rather than pure vh: on a tall
-      window 20vh runs to 350px+ and pushes the hero off the first screen.
-      Padding, not transform, so scrolling behaves normally. `html body` only
-      to outrank the layout's own `body` rule regardless of injection order.
+      The intro sits in the middle of the screen, between the pinned clock
+      and the footer. Auto margins rather than justify-content: center, so
+      that if the text ever outgrows a short window it scrolls instead of
+      being clipped off the top.
     */
-    body .scroll-inner { padding-top: clamp(80px, 13vh, 200px); }
+    body .scroll-inner {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding-top: calc(var(--clock-band) + 40px);
+      padding-bottom: calc(var(--footer-band) + 40px);
+    }
 
-    @media (max-width: 700px) {
-      /* Shallower still, so the hero is on screen without scrolling. */
-      body .scroll-inner { padding-top: clamp(56px, 11vh, 120px); }
+    body main {
+      width: 100%;
+      margin: auto;
+    }
+
+    /*
+      The layout's deep edge fades exist for long scrolling pages. This one
+      barely scrolls, and at full depth they dim the lower half of the
+      screen, so keep them shallow here.
+    */
+    body .scroll-shell {
+      --fade-top: 32px;
+      --fade-bottom: 48px;
     }
 
     /*
@@ -255,13 +270,13 @@ const minAngle = mins * 6;
   </div>
 
   <div class="block hero">
-    <p>Hey I'm Aditya – undergrad at Penn.</p>
+    <p>Hey, I'm Aditya – undergrad at Penn.</p>
 
-    <p>I'm interested mostly in new market structures, financial products, event contract infrastructure, and more recently, liquidity constraints in traditional finance.</p>
+    <p>Spent a few years across biotech, markets, and traditional finance. These days, I'm working on on-chain infrastructure, event-contracts, and liquidity constraints in esoteric assets.</p>
 
-    <p>Currently taking some time away from school to work on systems which, in theory, will solve those constraints in certain markets.</p>
+    <p>Currently taking time away from school to build systems to solve those constraints within certain markets.</p>
 
-    <p>Feel free to reach out – <a href="mailto:adityanb@upenn.edu">adityanb@upenn.edu</a></p>
+    <p>Feel free to reach out – <a href="mailto:adityanb@upenn.edu">adityanb@upenn.edu</a>.</p>
   </div>
 
   <script is:inline>
