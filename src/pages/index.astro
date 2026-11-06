@@ -32,17 +32,32 @@ const minAngle = mins * 6;
     }
 
     /*
-      Content sits below a band of dark air so the text meets the building
-      rather than floating above it. Capped rather than pure vh: on a tall
-      window 20vh runs to 350px+ and pushes the hero off the first screen.
-      Padding, not transform, so scrolling behaves normally. `html body` only
-      to outrank the layout's own `body` rule regardless of injection order.
+      The intro sits in the middle of the screen, between the pinned clock
+      and the footer. Auto margins rather than justify-content: center, so
+      that if the text ever outgrows a short window it scrolls instead of
+      being clipped off the top.
     */
-    body .scroll-inner { padding-top: clamp(80px, 13vh, 200px); }
+    body .scroll-inner {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding-top: calc(var(--clock-band) + 40px);
+      padding-bottom: calc(var(--footer-band) + 40px);
+    }
 
-    @media (max-width: 700px) {
-      /* Shallower still, so the hero is on screen without scrolling. */
-      body .scroll-inner { padding-top: clamp(56px, 11vh, 120px); }
+    body main {
+      width: 100%;
+      margin: auto;
+    }
+
+    /*
+      The layout's deep edge fades exist for long scrolling pages. This one
+      barely scrolls, and at full depth they dim the lower half of the
+      screen, so keep them shallow here.
+    */
+    body .scroll-shell {
+      --fade-top: 32px;
+      --fade-bottom: 48px;
     }
 
     /*
